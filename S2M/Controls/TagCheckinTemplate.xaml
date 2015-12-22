@@ -1,0 +1,78 @@
+﻿<UserControl
+    x:Class="S2M.Controls.TagCheckinTemplate"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:S2M.Controls"
+	xmlns:data="using:S2M.Models"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+	<!--<Control.Resources>
+		<Style x:Key="GridViewItemStyle1" TargetType="GridViewItem">
+			<Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}"/>
+			<Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}"/>
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="TabNavigation" Value="Local"/>
+			<Setter Property="IsHoldingEnabled" Value="True"/>
+			<Setter Property="Margin" Value="-5,0,-5,0"/>
+			<Setter Property="Padding" Value="0,0,0,0"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="GridViewItem">
+						<GridViewItemPresenter CheckHintBrush="{ThemeResource ListViewItemCheckHintThemeBrush}" CheckBrush="{ThemeResource ListViewItemCheckThemeBrush}" 
+                                               ContentMargin="0" ContentTransitions="{TemplateBinding ContentTransitions}" CheckSelectingBrush="{ThemeResource ListViewItemCheckSelectingThemeBrush}" DragForeground="{ThemeResource ListViewItemDragForegroundThemeBrush}" DragOpacity="{ThemeResource ListViewItemDragThemeOpacity}" DragBackground="{ThemeResource ListViewItemDragBackgroundThemeBrush}" DisabledOpacity="{ThemeResource ListViewItemDisabledThemeOpacity}" FocusBorderBrush="{ThemeResource ListViewItemFocusBorderThemeBrush}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" PointerOverBackgroundMargin="1" PlaceholderBackground="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" PointerOverBackground="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" ReorderHintOffset="{ThemeResource ListViewItemReorderHintThemeOffset}" SelectedPointerOverBorderBrush="{ThemeResource ListViewItemSelectedPointerOverBorderThemeBrush}" SelectionCheckMarkVisualEnabled="True" SelectedForeground="{ThemeResource ListViewItemSelectedForegroundThemeBrush}" SelectedPointerOverBackground="{ThemeResource ListViewItemSelectedPointerOverBackgroundThemeBrush}" SelectedBorderThickness="{ThemeResource GridViewItemCompactSelectedBorderThemeThickness}" SelectedBackground="{ThemeResource ListViewItemSelectedBackgroundThemeBrush}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Control.Resources>-->
+
+	<RelativePanel Grid.Column="0" Height="30" Width="376" HorizontalAlignment="Stretch" Background="White">
+		<Border x:Name="TagCheckInTagBorder" Background="#FF00BAFF"
+					RelativePanel.AlignLeftWithPanel="True">
+			<TextBlock HorizontalAlignment="Left"
+						   VerticalAlignment="Center"
+						   Text="{x:Bind CheckInKnowledgeTag.Tag}" 
+						   Margin="5,5,5,5" 
+						   TextWrapping="Wrap" 
+						   Foreground="White" />
+		</Border>
+		<Border  x:Name="TagCheckInCountBorder" Background="LightGray"
+					RelativePanel.RightOf="TagCheckInTagBorder">
+			<TextBlock HorizontalAlignment="Left"
+						   VerticalAlignment="Center"
+						   Text="{x:Bind CheckInKnowledgeTag.NrOfCheckIns}" 
+						   Margin="5,5,5,5" 
+						   TextWrapping="Wrap" 
+						   Foreground="Darkgray" />
+		</Border>
+
+		<GridView x:Name="CheckInsListView" 
+				  ItemsSource="{x:Bind CheckInKnowledgeTag.CheckInsTopFive}"
+				  IsItemClickEnabled="False"
+				  RelativePanel.AlignRightWithPanel="True"
+				  IsHitTestVisible="False"
+				  HorizontalAlignment="Stretch"
+				  HorizontalContentAlignment="Stretch">
+
+			<GridView.ItemTemplate>
+				<DataTemplate x:DataType="data:CheckIn">
+					<Ellipse Width="24" 
+							 Height="24"
+							 Margin="0,-14,0,0">
+						<Ellipse.Fill>
+							<ImageBrush Stretch="Fill">
+								<ImageBrush.ImageSource>
+									<BitmapImage x:Name="ProfileImageBrush" DecodePixelHeight="24" DecodePixelWidth="24" UriSource="{x:Bind ProfileImage_84}" />
+								</ImageBrush.ImageSource>
+							</ImageBrush>
+						</Ellipse.Fill>
+					</Ellipse>
+				</DataTemplate>
+			</GridView.ItemTemplate>
+		</GridView>
+	</RelativePanel>
+</UserControl>

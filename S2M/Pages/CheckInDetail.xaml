@@ -1,0 +1,107 @@
+﻿<Page
+    x:Class="S2M.Pages.CheckInDetail"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:S2M.Pages"
+	xmlns:control="using:S2M.Controls"
+	xmlns:data="using:S2M.Models"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	Loaded="Page_Loaded"
+    mc:Ignorable="d">
+
+	<Page.Resources>
+		<DataTemplate x:Key="TagItemTemplate">
+			<Border Background="#FF00BAFF">
+				<TextBlock x:Name="TagTextBlock" 
+						   HorizontalAlignment="Left"
+						   VerticalAlignment="Center"
+						   Text="{Binding}" 
+						   Grid.Row="0" 
+						   Margin="5,5,5,5" 
+						   TextWrapping="Wrap" 
+						   Foreground="White" />
+			</Border>
+			<!--<Grid Background="Lime">
+				<TextBlock Text="{Binding}" Margin="20,0,20,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" />
+			</Grid>-->
+		</DataTemplate>
+	</Page.Resources>
+	
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+		<!--<RelativePanel Margin="12,0,0,0" Grid.Row="0" Grid.Column="0">
+			
+		</RelativePanel>-->
+
+		<RelativePanel>
+			<StackPanel x:Name="CheckInStackPanel" 
+					RelativePanel.AlignLeftWithPanel="True"
+					RelativePanel.AlignTopWithPanel="True"
+					Background="#FF00BAFF">
+				<Ellipse Margin="0,12,0,0" Width="125" Height="125">
+					<Ellipse.Fill>
+						<ImageBrush Stretch="Fill">
+							<ImageBrush.ImageSource>
+								<BitmapImage x:Name="CheckInImageBrush" DecodePixelHeight="125" DecodePixelWidth="125" />
+							</ImageBrush.ImageSource>
+						</ImageBrush>
+					</Ellipse.Fill>
+				</Ellipse>
+
+				<TextBlock x:Name="CheckInNameTextBlock"
+					   Margin="12,12,12,0"
+					   Style="{ThemeResource SubheaderTextBlockStyle}"
+					   Foreground="White"/>
+
+				<TextBlock Margin="12,12,12,0" Text="Working on:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
+				<TextBlock Margin="12,0,0,0" x:Name="CheckInWorkingOnTextBlock" TextWrapping="WrapWholeWords" Foreground="White" />
+
+				<TextBlock Margin="12,12,12,0" Text="Location:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
+				<TextBlock Margin="12,0,0,0" x:Name="CheckInLocationTextBlock" TextWrapping="WrapWholeWords" Foreground="White" />
+
+				<!--<TextBlock Margin="12,12,12,0" Text="Date:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
+			<TextBlock Margin="12,0,0,0" x:Name="CheckInDateTextBlock" TextWrapping="WrapWholeWords" Foreground="White" />-->
+
+				<TextBlock Margin="12,12,12,0" Text="Checked in:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
+				<TextBlock Margin="12,0,0,0" x:Name="CheckInTimeTextBlock" TextWrapping="WrapWholeWords" Foreground="White" />
+
+				<Button Margin="12,12,12,0" x:Name="StartChatButton" Content="Start chat" Click="StartChatButton_Click" />
+			</StackPanel>
+
+			<ListView x:Name="CheckInTagsListView"
+				  RelativePanel.AlignTopWithPanel="True"
+				  RelativePanel.RightOf="CheckInStackPanel"
+				  Margin="12,0,0,0"
+				  Height="400"
+				  ItemTemplate="{StaticResource TagItemTemplate}">
+			</ListView>
+		</RelativePanel>
+
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup x:Name="VisualStateGroup">
+				<VisualState x:Name="VisualStatePhone">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="0"/>
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="CheckInTagsListView.(RelativePanel.AlignTopWithPanel)" Value="False" />
+						<Setter Target="CheckInTagsListView.(RelativePanel.Below)" Value="CheckInStackPanel" />
+						<Setter Target="CheckInTagsListView.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="VisualStateDesktop">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="600" />
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="CheckInTagsListView.(RelativePanel.RightOf)" Value="CheckInStackPanel" />
+						<Setter Target="CheckInTagsListView.(RelativePanel.AlignTopWithPanel)" Value="True" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
+	</Grid>
+</Page>

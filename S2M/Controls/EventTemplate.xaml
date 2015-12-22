@@ -1,0 +1,56 @@
+﻿<UserControl
+    x:Class="S2M.Controls.EventTemplate"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:S2M.Controls"
+	xmlns:converters="using:S2M.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+	<UserControl.Resources>
+		<converters:StringFormatConverter x:Key="StrFormatConverter" />
+	</UserControl.Resources>
+
+	<Grid Name="LocationPane" HorizontalAlignment="Center" Margin="10" Background="LightGray">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+
+		<Rectangle x:Name="LocationImagaRectangle" Width="160" Height="120">
+			<Rectangle.Fill>
+				<ImageBrush x:Name="LocationImageBrush" ImageSource="{x:Bind Event.LocationImage_320}" 
+								Stretch="Fill" />
+			</Rectangle.Fill>
+		</Rectangle>
+
+		<Rectangle Width="Auto" Height="60" VerticalAlignment="Top">
+			<Rectangle.Fill>
+				<LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+					<GradientStop Color="#FF001E2D" Offset="0" />
+					<GradientStop Color="Transparent" Offset="1" />
+				</LinearGradientBrush>
+			</Rectangle.Fill>
+		</Rectangle>
+
+		<StackPanel>
+			<TextBlock x:Name="EventNameTextBlock" 
+					   Text="{x:Bind Event.Name}"  
+					   Grid.Row="0" Grid.ColumnSpan="2" 
+					   TextWrapping="Wrap" Foreground="White" />
+
+			<TextBlock x:Name="EventDateTextBlock" 
+					   Text="{x:Bind Event.Date, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:d\}}"  
+					   Grid.Row="0" Grid.ColumnSpan="2" 
+					   TextWrapping="Wrap" Foreground="White" />
+		</StackPanel>
+	</Grid>
+</UserControl>

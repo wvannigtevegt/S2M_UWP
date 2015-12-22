@@ -1,0 +1,1 @@
+MainPackage=C:\Phone projects\S2M\S2M\bin\x86\Debug\S2M_0.9.0.0_x86_Debug.appx
