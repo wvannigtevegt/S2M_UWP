@@ -1,19 +1,10 @@
 ﻿using S2M.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -23,10 +14,10 @@ namespace S2M.Pages {
 	/// An empty page that can be used on its own or navigated to within a Frame.
 	/// </summary>
 	public sealed partial class Home : Page {
-		public ObservableCollection<CheckIn> CheckInRecommendations { get; set; }
-		public string WorkingOn { get; set; }
-
+		protected ObservableCollection<CheckIn> CheckInRecommendations { get; set; }
+		protected ObservableCollection<Location> LocationRecommendations { get; set; }
 		protected string SearchTerm { get; set; }
+		protected string WorkingOn { get; set; }
 
 		private CancellationTokenSource _cts = null;
 
@@ -34,6 +25,7 @@ namespace S2M.Pages {
 			this.InitializeComponent();
 
 			CheckInRecommendations = new ObservableCollection<CheckIn>();
+			LocationRecommendations = new ObservableCollection<Location>();
 			SearchTerm = "";
 			WorkingOn = "Javascript";
 		}
@@ -47,15 +39,37 @@ namespace S2M.Pages {
 			base.OnNavigatingFrom(e);
 		}
 
+		private void Page_Loaded(object sender, RoutedEventArgs e) {
+
+		}
+
 		private async void SetWorkingOnButton_Click(object sender, RoutedEventArgs e) {
 			WorkingOn = WorkingOnTextBox.Text;
 
+			await LoadRequiredData();
+		}
+
+		private async void RecommendationsPivot_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+			await LoadRequiredData();
+		}
+
+		private async Task LoadRequiredData() {
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
 			try {
-				CheckInRecommendations.Clear();
-				await CheckIn.GetCheckInsAsync(token, CheckInRecommendations, 0, 0, SearchTerm, 0, 0, 0, WorkingOn, 1, 5, false);
+				switch (RecommendationsPivot.SelectedIndex) {
+					case 0:
+						await GetLocationRecommendations(token);
+						break;
+					case 1:
+						await GetCheckinRecommendations(token);
+						break;
+					case 2:
+						break;
+				}
+
+				
 			}
 			catch (Exception) { }
 			finally {
@@ -63,8 +77,13 @@ namespace S2M.Pages {
 			}
 		}
 
-		private void Page_Loaded(object sender, RoutedEventArgs e) {
-
+		private async Task GetCheckinRecommendations(CancellationToken token) {
+				CheckInRecommendations.Clear();
+				await CheckIn.GetCheckInsAsync(token, CheckInRecommendations, 0, 0, SearchTerm, 0, 0, 0, WorkingOn, 1, 5, false);			
+		}
+		private async Task GetLocationRecommendations(CancellationToken token) {
+			LocationRecommendations.Clear();
+			//await Location.GetWorkspaceLocationsAsync
 		}
 
 		private void CheckInsGridView_ItemClick(object sender, ItemClickEventArgs e) {

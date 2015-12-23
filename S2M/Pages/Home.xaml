@@ -41,13 +41,13 @@
 				<TextBlock FontFamily="Segoe MDL2 Assets" 
 						   FontSize="16" 
 						   Foreground="White" 
-						   Text="&#xE724;" />
+						   Text="&#xE122;" />
 			</Button>
 		</RelativePanel>
 
 
 
-		<Pivot Grid.Row="1">
+		<Pivot x:Name="RecommendationsPivot" Grid.Row="1" SelectionChanged="RecommendationsPivot_SelectionChanged">
 			<PivotItem Header="Locations">
 
 			</PivotItem>

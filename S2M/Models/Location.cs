@@ -80,7 +80,7 @@ namespace S2M.Models {
 			}
 		}
 
-		public static async Task GetWorkspaceLocationsAsync(CancellationToken token, ObservableCollection<Location> locationList, string searchTerm = "", double latitude = 0, double longitude = 0) {
+		public static async Task GetWorkspaceLocationsAsync(CancellationToken token, ObservableCollection<Location> locationList, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0) {
 			var locations = new List<Location>();
 
 			if (ConnectionHelper.CheckForInternetAccess()) {

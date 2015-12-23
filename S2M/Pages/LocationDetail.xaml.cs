@@ -100,6 +100,8 @@ namespace S2M.Pages {
 		}
 
 		private async void CheckInButton_Click(object sender, RoutedEventArgs e) {
+			CheckInButton.IsEnabled = false;
+
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
@@ -129,6 +131,8 @@ namespace S2M.Pages {
 			catch (Exception) { }
 			finally {
 				_cts = null;
+
+				CheckInButton.IsEnabled = true;
 			}
 		}
 
