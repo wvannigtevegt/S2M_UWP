@@ -80,6 +80,45 @@ namespace S2M.Models {
 			}
 		}
 
+		public static async Task GetLocationRecommendationsAsync(CancellationToken token, ObservableCollection<Location> locationList, double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0) {
+			var locationResult = new LocationResult();
+
+			using (var httpClient = new Windows.Web.Http.HttpClient()) {
+				var apiKey = StorageService.LoadSetting("ApiKey");
+				var apiUrl = StorageService.LoadSetting("ApiUrl");
+				var channelId = int.Parse(StorageService.LoadSetting("ChannelId"));
+				var countryId = int.Parse(StorageService.LoadSetting("CountryId"));
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+
+				try {
+					var criteria = new LocationListCriteria {
+						ItemsPerPage = itemsPerPage,
+						Latitude = latitude,
+						Longitude = longitude,
+						Page = page,
+						Radius = radius,
+						WorkingOn = workingOn
+					};
+
+					var url = apiUrl + "/api/locations/recommendation?" + JsonConvert.SerializeObject(criteria);
+
+					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token)) {
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						locationResult = JsonConvert.DeserializeObject<LocationResult>(json);
+					}
+				}
+				catch (Exception) { }
+			}
+
+			foreach (var location in locationResult.Results) {
+				locationList.Add(location);
+			}
+		}
+
 		public static async Task GetWorkspaceLocationsAsync(CancellationToken token, ObservableCollection<Location> locationList, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0) {
 			var locations = new List<Location>();
 
@@ -118,10 +157,10 @@ namespace S2M.Models {
 			var locationResult = new LocationResult();
 
 			using (var httpClient = new Windows.Web.Http.HttpClient()) {
-				var apiKey = Common.StorageService.LoadSetting("ApiKey");
-				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
-				var channelId = int.Parse(Common.StorageService.LoadSetting("ChannelId"));
-				var countryId = int.Parse(Common.StorageService.LoadSetting("CountryId"));
+				var apiKey = StorageService.LoadSetting("ApiKey");
+				var apiUrl = StorageService.LoadSetting("ApiUrl");
+				var channelId = int.Parse(StorageService.LoadSetting("ChannelId"));
+				var countryId = int.Parse(StorageService.LoadSetting("CountryId"));
 
 				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
 				httpClient.DefaultRequestHeaders.Add("token", apiKey);
