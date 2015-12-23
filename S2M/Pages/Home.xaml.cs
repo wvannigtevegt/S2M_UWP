@@ -79,15 +79,23 @@ namespace S2M.Pages {
 
 		private async Task GetCheckinRecommendations(CancellationToken token) {
 			CheckInRecommendations.Clear();
-			await CheckIn.GetCheckInsAsync(token, CheckInRecommendations, 0, 0, SearchTerm, 0, 0, 0, WorkingOn, 1, 5, false);			
+			await CheckIn.GetCheckInsAsync(token, CheckInRecommendations, 0, 0, SearchTerm, 0, 0, 0, WorkingOn, 1, 10, false);			
 		}
 		private async Task GetLocationRecommendations(CancellationToken token) {
 			LocationRecommendations.Clear();
-			await Location.GetLocationRecommendationsAsync(token, LocationRecommendations, 0, 0, 0, WorkingOn, 1, 5);
+			await Location.GetLocationRecommendationsAsync(token, LocationRecommendations, 0, 0, 0, WorkingOn, 1, 10);
 		}
 
-		private void CheckInsGridView_ItemClick(object sender, ItemClickEventArgs e) {
+		private void CheckInRecommendationsGridView_ItemClick(object sender, ItemClickEventArgs e) {
+			var checkIn = (CheckIn)e.ClickedItem;
 
+			Frame.Navigate(typeof(CheckInDetail), checkIn);
+		}
+
+		private void LocationRecommendationsGridView_ItemClick(object sender, ItemClickEventArgs e) {
+			var location = (Location)e.ClickedItem;
+
+			Frame.Navigate(typeof(LocationDetail), location);
 		}
 	}
 }
