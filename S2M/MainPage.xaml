@@ -23,12 +23,12 @@
 		</Grid.ColumnDefinitions>
 
 		<StackPanel x:Name="LoginInputStackPanel" Grid.Row="1" Grid.Column="1">
-			<TextBox x:Name="textBoxUserName" Header="Email" InputScope="EmailSmtpAddress" HorizontalAlignment="Stretch" Grid.Row="0" Width="200" />
+			<TextBox x:Name="textBoxUserName" Header="Email" InputScope="EmailSmtpAddress" HorizontalAlignment="Stretch" Width="200" />
 
-			<PasswordBox x:Name="textBoxPassword" Header="Password" HorizontalAlignment="Stretch" Grid.Row="1" Width="200" Margin="0,20,0,0" />
+			<PasswordBox x:Name="textBoxPassword" Header="Password" HorizontalAlignment="Stretch" Width="200" Margin="0,20,0,0" />
 
 			<Button x:Name="btnLogin" Content="Login" Margin="0,20,0,0" HorizontalAlignment="Stretch" Background="Lime" Click="btnLogin_Click" />
-			<TextBlock x:Name="textBlockregister" Text="Or register new profile" Margin="0,20,0,0" HorizontalAlignment="Center" Tapped="textBlockregister_Tapped" Grid.Row="2" Width="200" />
+			<TextBlock x:Name="textBlockregister" Text="Or register new profile" Margin="0,20,0,0" HorizontalAlignment="Center" Tapped="textBlockregister_Tapped" Width="200" />
 
 			<Image Source="Assets/Square71x71Logo.scale-100.png" Width="60" Height="60" Grid.Row="3" />
 		</StackPanel>

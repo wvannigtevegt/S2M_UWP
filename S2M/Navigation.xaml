@@ -74,8 +74,7 @@
                    Grid.Row="1" 
                    DisplayMode="CompactOverlay"
 				   Background="LightGray"
-                   CompactPaneLength="48" 
-                   HorizontalAlignment="Left">
+                   CompactPaneLength="48">
 			<SplitView.Pane>
 				<Grid Background="#FF2B2B2B">
 					<Grid.RowDefinitions>
@@ -176,7 +175,7 @@
 				</Grid>
 			</SplitView.Pane>
 			<SplitView.Content>
-				<Frame x:Name="NavigationFrame" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" />
+				<Frame x:Name="NavigationFrame" />
 			</SplitView.Content>
 		</SplitView>
 
@@ -187,7 +186,6 @@
 						<AdaptiveTrigger MinWindowWidth="0"/>
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						<Setter Target="NavigationSplitView.IsPaneOpen" Value="False" />
 						<Setter Target="SharedAutoSuggestBox.Visibility" Value="Collapsed" />
 						<Setter Target="SearchButton.Visibility" Value="Visible" />
 					</VisualState.Setters>
@@ -197,8 +195,6 @@
 						<AdaptiveTrigger MinWindowWidth="480" />
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						<Setter Target="NavigationSplitView.IsPaneOpen" Value="True" />
-						<Setter Target="NavigationSplitView.DisplayMode" Value="CompactOverlay" />
 						<Setter Target="SharedAutoSuggestBox.Visibility" Value="Visible" />
 						<Setter Target="SearchButton.Visibility" Value="Collapsed" />
 					</VisualState.Setters>
@@ -208,8 +204,6 @@
 						<AdaptiveTrigger MinWindowWidth="720" />
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						<Setter Target="NavigationSplitView.IsPaneOpen" Value="True" />
-						<Setter Target="NavigationSplitView.DisplayMode" Value="Inline" />
 						<Setter Target="SharedAutoSuggestBox.Visibility" Value="Visible" />
 						<Setter Target="SearchButton.Visibility" Value="Collapsed" />
 					</VisualState.Setters>

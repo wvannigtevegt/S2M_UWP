@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
+using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -45,8 +46,6 @@ namespace S2M {
 			if (NavigationFrame.CanGoBack) {
 				SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
 			}
-
-			GoToPage("Home");
 		}
 
 		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
@@ -63,6 +62,21 @@ namespace S2M {
 
 			ProfileImageBrush.ImageSource = new BitmapImage(new Uri(ProfileObject.ProfileImage_84));
 			LocationNameTextBlock.Text = ProfileObject.FullName;
+
+			await Common.StorageService.DeleteObjectAsync("WorkingOn"); //TODO: Remove
+			var workingOn = await Common.StorageService.RetrieveObjectAsync<Models.WorkingOn>("WorkingOn");
+			if (workingOn == null) {
+				NavigationFrame.Navigate(typeof(Pages.WorkingOn));
+			}
+			else {
+				
+				if (string.IsNullOrEmpty(workingOn.Text) || workingOn.EnteredOn.Date != DateTime.Now.Date) {
+					NavigationFrame.Navigate(typeof(Pages.WorkingOn));
+				}
+				else {
+					GoToPage("Home");
+				}
+			}
 		}
 
 		private void OnNavigated(object sender, NavigationEventArgs e) {

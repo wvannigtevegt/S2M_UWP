@@ -9,6 +9,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Security.Credentials;
+using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
@@ -31,7 +32,6 @@ namespace S2M {
         }
 
 		private void Page_Loaded(object sender, RoutedEventArgs e) {
-
 			if (ConnectionHelper.CheckForInternetAccess()) {
 				GetCredentialsFromVault();
 				//ScheduleNotificationButton(); TODO: Make correct service for tile information

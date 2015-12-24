@@ -161,8 +161,10 @@
     <Compile Include="Models\LoginResult.cs" />
     <Compile Include="Models\Profile.cs" />
     <Compile Include="Models\Reservation.cs" />
+    <Compile Include="Models\ReservationResult.cs" />
     <Compile Include="Models\Search.cs" />
     <Compile Include="Models\SearchDate.cs" />
+    <Compile Include="Models\WorkingOn.cs" />
     <Compile Include="Navigation.xaml.cs">
       <DependentUpon>Navigation.xaml</DependentUpon>
     </Compile>
@@ -198,6 +200,9 @@
     </Compile>
     <Compile Include="Pages\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\WorkingOn.xaml.cs">
+      <DependentUpon>WorkingOn.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
@@ -332,6 +337,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Settings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\WorkingOn.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

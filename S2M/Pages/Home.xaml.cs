@@ -3,6 +3,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -27,7 +28,19 @@ namespace S2M.Pages {
 			CheckInRecommendations = new ObservableCollection<CheckIn>();
 			LocationRecommendations = new ObservableCollection<Location>();
 			SearchTerm = "";
-			WorkingOn = "Javascript";
+			WorkingOn = "";
+		}
+
+		protected async override void OnNavigatedTo(NavigationEventArgs e) {
+			var workingOn = await Common.StorageService.RetrieveObjectAsync<Models.WorkingOn>("WorkingOn");
+			if (workingOn != null) {
+				WorkingOn = workingOn.Text;
+			}
+
+			var localSettings = ApplicationData.Current.LocalSettings;
+			if (localSettings.Values["HomePivotSelectedIndex"] != null) {
+				RecommendationsPivot.SelectedIndex = (int)localSettings.Values["HomePivotSelectedIndex"];
+			}
 		}
 
 		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
@@ -36,24 +49,32 @@ namespace S2M.Pages {
 				_cts = null;
 			}
 
+			var localSettings = ApplicationData.Current.LocalSettings;
+			localSettings.Values["HomePivotSelectedIndex"] = RecommendationsPivot.SelectedIndex;
+
 			base.OnNavigatingFrom(e);
 		}
 
 		private void Page_Loaded(object sender, RoutedEventArgs e) {
-
+			if (string.IsNullOrEmpty(WorkingOn)) {
+				RecommendationsPivot.Visibility = Visibility.Collapsed;
+			}
 		}
 
 		private async void SetWorkingOnButton_Click(object sender, RoutedEventArgs e) {
 			WorkingOn = WorkingOnTextBox.Text;
+			if (!string.IsNullOrEmpty(WorkingOn)) {
+				RecommendationsPivot.Visibility = Visibility.Collapsed;
+			}
 
-			await LoadRequiredData();
+			await LoadRecommendationsData();
 		}
 
 		private async void RecommendationsPivot_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-			await LoadRequiredData();
+			await LoadRecommendationsData();
 		}
 
-		private async Task LoadRequiredData() {
+		private async Task LoadRecommendationsData() {
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
@@ -67,9 +88,7 @@ namespace S2M.Pages {
 						break;
 					case 2:
 						break;
-				}
-
-				
+				}			
 			}
 			catch (Exception) { }
 			finally {
