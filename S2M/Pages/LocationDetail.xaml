@@ -27,7 +27,14 @@
 
 		</RelativePanel>
 
-		<StackPanel x:Name="LocationDataStackPanel" Width="400" MinHeight="250" Margin="14,0,0,0" Grid.Row="1" Grid.Column="0" Background="Orange" VerticalAlignment="Top">
+		<StackPanel x:Name="LocationDataStackPanel" 
+					Width="400" 
+					MinHeight="250" 
+					Margin="14,0,0,0" 
+					Grid.Row="1" 
+					Grid.Column="0" 
+					Background="Orange" 
+					VerticalAlignment="Top">
 			<TextBlock x:Name="LocationNameTextBlock"
 					   Style="{ThemeResource SubheaderTextBlockStyle}" 
 					   TextWrapping="WrapWholeWords"

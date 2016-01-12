@@ -39,6 +39,18 @@ namespace S2M.Models {
 			}
 		}
 
+		public static async Task GetEventCheckInKnowledgeTagsAsync(ObservableCollection<CheckInKnowledgeTag> tagList, int eventId = 0, string searchTerm = "") {
+			const int channelId = 0;
+			const int locationId = 0;
+
+			var tagResults = await GetCheckInKnowledgeTagDataAsync(channelId, locationId, eventId, searchTerm);
+			var tags = tagResults.Results;
+
+			foreach (var tag in tags) {
+				tagList.Add(tag);
+			}
+		}
+
 		private static async Task<CheckInKnowledgeTagResult> GetCheckInKnowledgeTagDataAsync(int channelId = 0, int locationId = 0, int eventId = 0, string searchTerm = "", int page = 1, int itemsPerPage = 10) {
 			var tagResults = new CheckInKnowledgeTagResult();
 

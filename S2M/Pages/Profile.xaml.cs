@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -13,13 +14,13 @@ namespace S2M.Pages {
 	/// </summary>
 	public sealed partial class Profile : Page {
 		protected Models.Profile ProfileObject { get; set; }
-		protected List<string> TagList { get; set; }
+		protected ObservableCollection<string> TagList { get; set; }
 
 		public Profile() {
 			this.InitializeComponent();
 
 			ProfileObject = new Models.Profile();
-			TagList = new List<string>();
+			TagList = new ObservableCollection<string>();
         }
 
 		private async void Page_Loaded(object sender, RoutedEventArgs e) {
@@ -38,26 +39,24 @@ namespace S2M.Pages {
 				textBoxProfilePostalcode.Text = ProfileObject.Postalcode;
 				textBoxProfileCity.Text = ProfileObject.City;
 
-				TagList = ProfileObject.Tags.Split(',').ToList();
-				LstTags.ItemsSource = TagList;
+				var tags = ProfileObject.Tags.Split(',').ToList();
+				foreach (var tag in tags) {
+					TagList.Add(tag);
+				}
+				TagsListView.ItemsSource = TagList;
 			}
 		}
 
-		private void AddTagToProfile(string tag) {
-			if (!string.IsNullOrEmpty(tag.Trim())) {
-				TagList.Add(tag);
-
-				LstTags.ItemsSource = TagList;
-            }
-		}
-
 		private async void LstTags_ItemClick(object sender, ItemClickEventArgs e) {
-			var tag = ((string)e.ClickedItem); ;
+			var deleteTag = ((string)e.ClickedItem); ;
 
-			List<string> newTagList = TagList.Where(str => str != tag).ToList();
+			List<string> newTagList = TagList.Where(str => str != deleteTag).ToList();
+			TagList.Clear();
+			foreach (var tag in newTagList) {
+				TagList.Add(tag);
+			}
 
-			TagList = newTagList;
-			LstTags.ItemsSource = TagList;
+			//TagsListView.ItemsSource = TagList;
 		}
 
 		private async void SaveAppBarButton_Click(object sender, RoutedEventArgs e) {
@@ -69,6 +68,18 @@ namespace S2M.Pages {
 			ProfileObject.Tags = string.Join(",", TagList);
 
 			await Models.Profile.UpdateProfileAsync(ProfileObject);
+		}
+
+		private void AddTagButton_Click(object sender, RoutedEventArgs e) {
+			var newTag = AddTagTextBox.Text.ToLower().Trim();
+
+			if (!string.IsNullOrEmpty(newTag)) {
+				if (!TagList.Contains(newTag)) {
+					TagList.Add(newTag);
+				}
+
+				AddTagTextBox.Text = "";
+			}
 		}
 	}
 }

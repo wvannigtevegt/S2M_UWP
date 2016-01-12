@@ -33,7 +33,7 @@
 							 RelativePanel.AlignVerticalCenterWithPanel="True"
 							 Click="MapHyperlInkButton_Click">Map</HyperlinkButton>
 		</RelativePanel>
-
+		
 		<GridView x:Name="LocationsGridView"
 				Grid.Row="1"
 				Margin="10,0,0,0"

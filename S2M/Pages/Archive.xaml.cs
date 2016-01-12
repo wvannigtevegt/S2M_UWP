@@ -16,7 +16,7 @@ namespace S2M.Pages {
 	/// </summary>
 	public sealed partial class Archive : Page {
 		public ObservableCollection<Chat> ChatList { get; set; }
-		public ObservableCollection<Reservation> ReservationList { get; set; }
+		public ObservableCollection<CheckIn> CheckInList { get; set; }
 
 		private CancellationTokenSource _cts = null;
 
@@ -24,7 +24,7 @@ namespace S2M.Pages {
 			this.InitializeComponent();
 
 			ChatList = new ObservableCollection<Chat>();
-			ReservationList = new ObservableCollection<Reservation>();
+			CheckInList = new ObservableCollection<CheckIn>();
 		}
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e) {
@@ -89,8 +89,8 @@ namespace S2M.Pages {
 			await Chat.GetProfileChatsAsync(ChatList);
 		}
 		private async Task GetArchiveCheckIns(CancellationToken token) {
-			ReservationList.Clear();
-			await Reservation.GetReservationsAsync(token, ReservationList, "", 0, 0, 0, 0);
+			CheckInList.Clear();
+			await CheckIn.GetProfileCheckInsAsync(token, CheckInList);
 		}
 
 		private void ChatsListView_ItemClick(object sender, ItemClickEventArgs e) {

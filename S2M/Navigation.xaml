@@ -50,13 +50,14 @@
 					   Margin="12,0,0,0" />
 
 			<AutoSuggestBox x:Name="SharedAutoSuggestBox"
-							Width="200"
-							Margin="0,0,20,0"
-							QueryIcon="Find" 
+							Width="220"
+							Margin="0,0,12,0"
+							QueryIcon="Find"
 							QuerySubmitted="SharedAutoSuggestBox_QuerySubmitted"
 							SuggestionChosen="SharedAutoSuggestBox_SuggestionChosen"
-							RelativePanel.LeftOf="SearchButton"
+							RelativePanel.LeftOf="HideSearchButton"
 							RelativePanel.AlignVerticalCenterWithPanel="True"
+							Visibility="Collapsed"
 							TextChanged="SharedAutoSuggestBox_TextChanged" />
 
 			<Button Name="SearchButton" 
@@ -68,6 +69,18 @@
 					RelativePanel.AlignRightWithPanel="True"
 					RelativePanel.AlignVerticalCenterWithPanel="True"
 					Click="SearchButton_Click" />
+
+			<Button Name="HideSearchButton" 
+					FontFamily="Segoe MDL2 Assets" 
+					Content="&#xE10A;" 
+					FontSize="12"
+					Width="32"
+					Height="32"
+					Margin="0,0,12,0"
+					RelativePanel.AlignRightWithPanel="True"
+					RelativePanel.AlignVerticalCenterWithPanel="True"
+					Visibility="Collapsed"
+					Click="HideSearchButton_Click" />
 		</RelativePanel>
 
 		<SplitView Name="NavigationSplitView" 
@@ -186,8 +199,11 @@
 						<AdaptiveTrigger MinWindowWidth="0"/>
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						<Setter Target="SharedAutoSuggestBox.Visibility" Value="Collapsed" />
-						<Setter Target="SearchButton.Visibility" Value="Visible" />
+						<Setter Target="SharedAutoSuggestBox.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+						<Setter Target="SharedAutoSuggestBox.(RelativePanel.LeftOf)" Value="HideSearchButton" />
+						<Setter Target="SharedAutoSuggestBox.(RelativePanel.AlignRightWithPanel)" Value="True" />
+						<!--<Setter Target="SharedAutoSuggestBox.Visibility" Value="Collapsed" />
+						<Setter Target="SearchButton.Visibility" Value="Visible" />-->
 					</VisualState.Setters>
 				</VisualState>
 				<VisualState x:Name="VisualStateTablet">
@@ -195,8 +211,8 @@
 						<AdaptiveTrigger MinWindowWidth="480" />
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						<Setter Target="SharedAutoSuggestBox.Visibility" Value="Visible" />
-						<Setter Target="SearchButton.Visibility" Value="Collapsed" />
+						<!--<Setter Target="SharedAutoSuggestBox.Visibility" Value="Visible" />
+						<Setter Target="SearchButton.Visibility" Value="Collapsed" />-->
 					</VisualState.Setters>
 				</VisualState>
 				<VisualState x:Name="VisualStateDesktop">
@@ -206,6 +222,7 @@
 					<VisualState.Setters>
 						<Setter Target="SharedAutoSuggestBox.Visibility" Value="Visible" />
 						<Setter Target="SearchButton.Visibility" Value="Collapsed" />
+						<Setter Target="HideSearchButton.Visibility" Value="Collapsed" />
 					</VisualState.Setters>
 				</VisualState>
 			</VisualStateGroup>

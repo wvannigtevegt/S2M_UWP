@@ -1,0 +1,81 @@
+﻿<Page
+    x:Class="S2M.Pages.EventDetail"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:S2M.Pages"
+	xmlns:control="using:S2M.Controls"
+	xmlns:data="using:S2M.Models"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	Loaded="Page_Loaded"
+    mc:Ignorable="d">
+
+	<ScrollViewer VerticalScrollMode="Auto">
+		<RelativePanel>
+			<StackPanel x:Name="EventDataStackPanel" 
+					RelativePanel.AlignLeftWithPanel="True"
+					RelativePanel.AlignRightWithPanel="True"
+					MinHeight="250" 
+					Margin="14,0,0,0" 
+					Background="Orange" 
+					VerticalAlignment="Top">
+				<TextBlock x:Name="EventNameTextBlock"
+					   Style="{ThemeResource SubheaderTextBlockStyle}" 
+					   TextWrapping="WrapWholeWords"
+					   RelativePanel.AlignLeftWithPanel="True" 
+					   RelativePanel.AlignTopWithPanel="True" />
+
+				<TextBlock x:Name="EventLocationTextBlock" 
+					   TextWrapping="WrapWholeWords" 
+					   FontStyle="Italic" />
+
+				<TextBlock x:Name="EventDataTextBlock" 
+					   TextWrapping="WrapWholeWords" 
+					   FontStyle="Italic" />
+
+				<TextBlock x:Name="EventDescriptionTextBlock" 
+					   MinWidth="300"
+					   Grid.Row="1" 
+					   Grid.Column="0" 
+					   Height="Auto" 
+					   TextWrapping="WrapWholeWords" />
+
+				<Button x:Name="EventCheckInButton" Content="Check-in" Click="EventCheckInButton_Click" />
+			</StackPanel>
+
+			<ListView x:Name="TagCheckInsListView"
+				  RelativePanel.Below="EventDataStackPanel"
+				  HorizontalAlignment="Stretch"
+				  HorizontalContentAlignment="Stretch"
+				  Width="400"
+				  ItemsSource="{x:Bind TagCheckInList}"
+				  IsItemClickEnabled="True"
+				  ItemClick="TagCheckInsListView_ItemClick"
+				  ScrollViewer.VerticalScrollMode="Auto"
+				  ScrollViewer.VerticalScrollBarVisibility="Auto"
+				  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+				<ListView.ItemTemplate>
+					<DataTemplate x:DataType="data:CheckInKnowledgeTag">
+						<control:TagCheckinTemplate />
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+
+			<GridView x:Name="EventCheckInsGridView"
+				  RelativePanel.Below="TagCheckInsListView"
+				  Margin="12,0,0,0"
+				  ItemsSource="{x:Bind CheckInList}" 
+				  IsItemClickEnabled="True" 
+				  ItemClick="EventCheckInsGridView_ItemClick"
+				  HorizontalAlignment="Stretch"
+				  HorizontalContentAlignment="Stretch">
+				<GridView.ItemTemplate>
+					<DataTemplate x:DataType="data:CheckIn">
+						<control:CheckInTemplate />
+					</DataTemplate>
+				</GridView.ItemTemplate>
+			</GridView>
+
+		</RelativePanel>
+	</ScrollViewer>
+</Page>

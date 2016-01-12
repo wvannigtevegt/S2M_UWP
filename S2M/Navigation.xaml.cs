@@ -13,25 +13,29 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace S2M {
+namespace S2M
+{
 	/// <summary>
 	/// An empty page that can be used on its own or navigated to within a Frame.
 	/// </summary>
-	public sealed partial class Navigation : Page {
+	public sealed partial class Navigation : Page
+	{
 		protected string CurrentPage { get; set; }
 		protected Profile ProfileObject { get; set; }
 		protected string SearchTerm { get; set; }
 
 		private CancellationTokenSource _cts = null;
 
-		public Navigation() {
+		public Navigation()
+		{
 			this.InitializeComponent();
 
 			ProfileObject = new Profile();
 
 			bool isHardwareButtonsAPIPresent = Windows.Foundation.Metadata.ApiInformation.IsTypePresent("Windows.Phone.UI.Input.HardwareButtons");
 
-			if (Windows.Foundation.Metadata.ApiInformation.IsTypePresent("Windows.Phone.UI.Input.HardwareButtons")) {
+			if (Windows.Foundation.Metadata.ApiInformation.IsTypePresent("Windows.Phone.UI.Input.HardwareButtons"))
+			{
 				Windows.Phone.UI.Input.HardwareButtons.BackPressed += HardwareButtons_BackPressed;
 			}
 
@@ -43,13 +47,16 @@ namespace S2M {
 			NavigationFrame.Navigated += OnNavigated;
 
 			SystemNavigationManager.GetForCurrentView().BackRequested += SystemNavigationManager_BackRequested;
-			if (NavigationFrame.CanGoBack) {
+			if (NavigationFrame.CanGoBack)
+			{
 				SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
 			}
 		}
 
-		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
-			if (_cts != null) {
+		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+		{
+			if (_cts != null)
+			{
 				_cts.Cancel();
 				_cts = null;
 			}
@@ -57,7 +64,8 @@ namespace S2M {
 			base.OnNavigatingFrom(e);
 		}
 
-		private async void Page_Loaded(object sender, RoutedEventArgs e) {
+		private async void Page_Loaded(object sender, RoutedEventArgs e)
+		{
 			ProfileObject = await Profile.GetProfile();
 
 			ProfileImageBrush.ImageSource = new BitmapImage(new Uri(ProfileObject.ProfileImage_84));
@@ -65,13 +73,15 @@ namespace S2M {
 
 			await Common.StorageService.DeleteObjectAsync("WorkingOn"); //TODO: Remove
 			var workingOn = await Common.StorageService.RetrieveObjectAsync<Models.WorkingOn>("WorkingOn");
-			if (workingOn == null) {
-				NavigationFrame.Navigate(typeof(Pages.WorkingOn));
+			if (workingOn == null)
+			{
+				GoToPage("WorkingOn");
 			}
 			else {
-				
-				if (string.IsNullOrEmpty(workingOn.Text) || workingOn.EnteredOn.Date != DateTime.Now.Date) {
-					NavigationFrame.Navigate(typeof(Pages.WorkingOn));
+
+				if (string.IsNullOrEmpty(workingOn.Text) || workingOn.EnteredOn.Date != DateTime.Now.Date)
+				{
+					GoToPage("WorkingOn");
 				}
 				else {
 					GoToPage("Home");
@@ -79,7 +89,8 @@ namespace S2M {
 			}
 		}
 
-		private void OnNavigated(object sender, NavigationEventArgs e) {
+		private void OnNavigated(object sender, NavigationEventArgs e)
+		{
 			// Each time a navigation event occurs, update the Back button's visibility
 			SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility =
 				NavigationFrame.CanGoBack ?
@@ -87,12 +98,15 @@ namespace S2M {
 				AppViewBackButtonVisibility.Collapsed;
 		}
 
-		private void HamburgerButton_Click(object sender, RoutedEventArgs e) {
+		private void HamburgerButton_Click(object sender, RoutedEventArgs e)
+		{
 			NavigationSplitView.IsPaneOpen = !NavigationSplitView.IsPaneOpen;
 		}
 
-		private void SystemNavigationManager_BackRequested(object sender, BackRequestedEventArgs e) {
-			if (!e.Handled && NavigationFrame.CanGoBack) {
+		private void SystemNavigationManager_BackRequested(object sender, BackRequestedEventArgs e)
+		{
+			if (!e.Handled && NavigationFrame.CanGoBack)
+			{
 				var pageToGoTo = NavigationFrame.BackStack.Last().SourcePageType;
 				NavigationFrame.GoBack();
 
@@ -103,8 +117,10 @@ namespace S2M {
 			}
 		}
 
-		private void HardwareButtons_BackPressed(object sender, Windows.Phone.UI.Input.BackPressedEventArgs e) {
-			if (!e.Handled && NavigationFrame.CanGoBack) {
+		private void HardwareButtons_BackPressed(object sender, Windows.Phone.UI.Input.BackPressedEventArgs e)
+		{
+			if (!e.Handled && NavigationFrame.CanGoBack)
+			{
 				var pageToGoTo = NavigationFrame.BackStack.Last().SourcePageType;
 				NavigationFrame.GoBack();
 
@@ -115,59 +131,79 @@ namespace S2M {
 			}
 		}
 
-		private async void LogoffHyperLinkButton_Click(object sender, RoutedEventArgs e) {
+		private async void LogoffHyperLinkButton_Click(object sender, RoutedEventArgs e)
+		{
 			await Models.Login.LogOff();
 
 			Frame.Navigate(typeof(MainPage));
 		}
 
-		private void RadioButtonPaneItem_Click(object sender, RoutedEventArgs e) {
+		private void RadioButtonPaneItem_Click(object sender, RoutedEventArgs e)
+		{
 			var radioButton = sender as RadioButton;
-			if (radioButton != null) {
+			if (radioButton != null)
+			{
 				var page = radioButton.Tag.ToString();
 				GoToPage(page);
 			}
 		}
 
-		private void GoToPage(string page) {
+		private void GoToPage(string page)
+		{
 			NavigationSplitView.IsPaneOpen = false;
+			if (CurrentPage != page)
+			{
+				SearchTerm = "";
+				SharedAutoSuggestBox.Text = "";
+			}
+
 			CurrentPage = page;
 
-			switch (page) {
+
+
+			switch (page)
+			{
+				case "WorkingOn":
+					HomeRadioButton.IsChecked = true;
+					NavigationHeaderTextBlock.Text = "";
+					NavigationFrame.Navigate(typeof(Pages.WorkingOn));
+
+					SetSearchStatus(false);
+					break;
 				case "Home":
 					HomeRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Recommended for you";
 					NavigationFrame.Navigate(typeof(Pages.Home));
 
-					//.Visibility = Visibility.Collapsed;
+					SetSearchStatus(true);
 					break;
 				case "Locations":
 					LocationsRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Locations";
 					NavigationFrame.Navigate(typeof(Pages.Locations), SearchTerm);
 
-					//SearchButton.Visibility = Visibility.Visible;
+					SetSearchStatus(true);
 					break;
 				case "CheckIns":
 					CheckInsRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "CheckIns";
 					NavigationFrame.Navigate(typeof(Pages.CheckIns), SearchTerm);
 
-					//SearchButton.Visibility = Visibility.Visible;
+					SetSearchStatus(true);
 					break;
 				case "Events":
 					EventsRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Events";
 					NavigationFrame.Navigate(typeof(Pages.Events), SearchTerm);
 
-					//SearchButton.Visibility = Visibility.Visible;
+					SetSearchStatus(true);
 					break;
 				case "Archive":
 					ArchiveRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Archive";
 					NavigationFrame.Navigate(typeof(Pages.Archive));
 
-					//SearchButton.Visibility = Visibility.Collapsed;
+					SetSearchStatus(false);
 					break;
 				case "Settings":
 					ArchiveRadioButton.IsChecked = true;
@@ -176,37 +212,65 @@ namespace S2M {
 
 					SharedAutoSuggestBox.Visibility = Visibility.Collapsed;
 					SearchButton.Visibility = Visibility.Collapsed;
+
+					SetSearchStatus(false);
 					break;
 				case "Profile":
 					ProfileRadioButton.IsChecked = true;
-					NavigationHeaderTextBlock.Text = "Events";
+					NavigationHeaderTextBlock.Text = "Profile";
 					NavigationFrame.Navigate(typeof(Pages.Profile));
 
-					//SearchButton.Visibility = Visibility.Collapsed;
+					SetSearchStatus(false);
 					break;
 			}
 
-			ResetPageHeader();
+			//ResetPageHeader();
 		}
 
-		private void SearchButton_Click(object sender, RoutedEventArgs e) {
+		private void SetSearchStatus(bool isAvailable)
+		{
+			if (isAvailable)
+			{
+				if (SharedAutoSuggestBox.Visibility == Visibility.Collapsed)
+				{
+					SearchButton.Visibility = Visibility.Visible;
+				}
+			}
+
+			if (!isAvailable)
+			{
+				SharedAutoSuggestBox.Visibility = Visibility.Collapsed;
+				SharedAutoSuggestBox.Text = "";
+				SearchTerm = "";
+				SearchButton.Visibility = Visibility.Collapsed;
+				HideSearchButton.Visibility = Visibility.Collapsed;
+			}
+		}
+
+		private void SearchButton_Click(object sender, RoutedEventArgs e)
+		{
 			SharedAutoSuggestBox.Visibility = Visibility.Visible;
 			SearchButton.Visibility = Visibility.Collapsed;
+			HideSearchButton.Visibility = Visibility.Visible;
 			NavigationHeaderTextBlock.Visibility = Visibility.Collapsed;
 		}
 
-		private void ResetPageHeader() {
-			//SharedAutoSuggestBox.Text = "";
-
-			SharedAutoSuggestBox.Visibility = Visibility.Visible;
+		private void HideSearchButton_Click(object sender, RoutedEventArgs e)
+		{
+			SharedAutoSuggestBox.Visibility = Visibility.Collapsed;
+			SharedAutoSuggestBox.Text = "";
+			SearchTerm = "";
 			SearchButton.Visibility = Visibility.Visible;
+			HideSearchButton.Visibility = Visibility.Collapsed;
 			NavigationHeaderTextBlock.Visibility = Visibility.Visible;
 		}
 
-		private void SharedAutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args) {
+		private void SharedAutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+		{
 			SearchTerm = sender.Text;
 
-			switch (CurrentPage) {
+			switch (CurrentPage)
+			{
 				case "Home":
 					break;
 				case "Locations":
@@ -224,15 +288,19 @@ namespace S2M {
 			}
 		}
 
-		private async void SharedAutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args) {
-			if (args.Reason.ToString() == "UserInput") {
+		private async void SharedAutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+		{
+			if (args.Reason.ToString() == "UserInput")
+			{
 				_cts = new CancellationTokenSource();
 				CancellationToken token = _cts.Token;
 
-				try {
+				try
+				{
 					var searchList = new List<string>();
 
-					switch (CurrentPage) {
+					switch (CurrentPage)
+					{
 						case "Home":
 							break;
 						case "Locations":
@@ -256,13 +324,15 @@ namespace S2M {
 					SharedAutoSuggestBox.ItemsSource = searchList;
 				}
 				catch (Exception) { }
-				finally {
+				finally
+				{
 					_cts = null;
 				}
 			}
 		}
 
-		private void SharedAutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args) {
+		private void SharedAutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+		{
 			sender.Text = args.SelectedItem.ToString();
 		}
 	}

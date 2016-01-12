@@ -10,7 +10,7 @@
 	Loaded="Page_Loaded"
     mc:Ignorable="d">
 
-	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+	<Grid>
 		<Pivot x:Name="ArchivePivot" SelectionChanged="ArchivePivot_SelectionChanged">
 			<PivotItem Header="Chats">
 				<StackPanel>
@@ -44,11 +44,11 @@
 			</PivotItem>
 			<PivotItem Header="Checkins">
 				<ListView x:Name="ReservationsListView" 
-						  ItemsSource="{x:Bind ReservationList}" 
+						  ItemsSource="{x:Bind CheckInList}" 
 						  IsItemClickEnabled="True" 
 						  ItemClick="ReservationsListView_ItemClick" >
 					<ListView.ItemTemplate>
-						<DataTemplate x:DataType="data:Reservation">
+						<DataTemplate x:DataType="data:CheckIn">
 							<TextBlock Text="{x:Bind Id}" />
 						</DataTemplate>
 					</ListView.ItemTemplate>

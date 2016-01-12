@@ -42,6 +42,8 @@ namespace S2M.Pages {
 
 		private void EventsGridView_ItemClick(object sender, ItemClickEventArgs e) {
 			var eventObj = ((Event)e.ClickedItem);
+
+			Frame.Navigate(typeof(EventDetail), eventObj);
 		}
 	}
 }

@@ -11,7 +11,13 @@
 	<Page.Resources>
 		<DataTemplate x:Key="TagItemTemplate">
 			<Grid Background="Lime">
-				<TextBlock Text="{Binding}" Margin="12,0,12,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" />
+				<TextBlock Text="{Binding}" 
+						   Margin="12,0,12,0" 
+						   Height="32"
+						   HorizontalAlignment="Center" 
+						   VerticalAlignment="Center" 
+						   Foreground="White"
+						   FontSize="16"/>
 			</Grid>
 		</DataTemplate>
 	</Page.Resources>
@@ -35,7 +41,7 @@
 			</StackPanel>
 
 			<StackPanel x:Name="ProfileDataStackPanel" 
-						HorizontalAlignment="Left"
+						HorizontalAlignment="Stretch"
 						RelativePanel.AlignLeftWithPanel="True" 
 						RelativePanel.AlignRightWithPanel="True"
 						RelativePanel.Below="ProfileImageStackPanel">
@@ -46,14 +52,57 @@
 				<TextBox x:Name="textBoxProfileCity" Header="City" Margin="12,12,12,0" />
 			</StackPanel>
 
-			<ListView x:Name="LstTags"
-				  RelativePanel.Below="ProfileDataStackPanel"
-				  IsItemClickEnabled="True" 
-				  ItemClick="LstTags_ItemClick"
-				  ItemTemplate="{StaticResource TagItemTemplate}">
-			</ListView>
+			<StackPanel x:Name="TagsStackPanel"
+						HorizontalAlignment="Stretch"
+						RelativePanel.AlignLeftWithPanel="True" 
+						RelativePanel.AlignRightWithPanel="True"
+						RelativePanel.Below="ProfileDataStackPanel">
+				<ListView x:Name="TagsListView"
+						  RelativePanel.Below="ProfileDataStackPanel"
+						  IsItemClickEnabled="True" 
+						  ItemClick="LstTags_ItemClick"
+						  ItemTemplate="{StaticResource TagItemTemplate}">
+				</ListView>
 
+				<StackPanel Orientation="Horizontal">
+					<TextBox x:Name="AddTagTextBox"
+							 Width="200"
+							 HorizontalAlignment="Stretch"
+							 RelativePanel.Below="TagsListView" />
+					<Button x:Name="AddTagButton" Content="+" 
+							Click="AddTagButton_Click" 
+							RelativePanel.Below="TagsListView" 
+							RelativePanel.AlignRightWithPanel="True"
+							RelativePanel.RightOf="AddTagTextBox" />
+				</StackPanel>
+			</StackPanel>
 		</RelativePanel>
+
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup x:Name="VisualStateGroup">
+				<VisualState x:Name="VisualStatePhone">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="0"/>
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="LocationDataStackPanel.Height" Value="250" />
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="VisualStateDesktop">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="720" />
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="ProfileDataStackPanel.(RelativePanel.Below)" Value="ProfileImageStackPanel" />
+						<Setter Target="ProfileDataStackPanel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+						<Setter Target="ProfileDataStackPanel.Width" Value="400" />
+						<!--<Setter Target="TagsStackPanel.(RelativePanel.AlignRightWithPanel)" Value="True" />-->
+						<Setter Target="TagsStackPanel.(RelativePanel.Below)" Value="ProfileImageStackPanel" />
+						<Setter Target="TagsStackPanel.(RelativePanel.RightOf)" Value="ProfileDataStackPanel" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
 	</ScrollViewer>
 
 	<Page.BottomAppBar>

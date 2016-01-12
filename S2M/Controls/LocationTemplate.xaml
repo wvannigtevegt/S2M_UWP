@@ -16,7 +16,7 @@
 	</UserControl.Resources>
 
 	<Grid Name="LocationPane" HorizontalAlignment="Center">
-		<RelativePanel Width="300" Height="Auto" Background="White">
+		<RelativePanel x:Name="LocationRelativePanel" Height="Auto" Background="White">
 			<TextBlock x:Name="LocationNameTextBlock" 
 					   Text="{x:Bind Location.Name}"
 					   Margin="5,5,5,5"
@@ -120,6 +120,7 @@
 						<AdaptiveTrigger MinWindowWidth="0"/>
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
+						<Setter Target="LocationRelativePanel.MinWidth" Value="300" />
 						<Setter Target="LocationImagaRectangle.Width" Value="80" />
 						<Setter Target="LocationImagaRectangle.Height" Value="60" />
 					</VisualState.Setters>
@@ -129,6 +130,7 @@
 						<AdaptiveTrigger MinWindowWidth="600" />
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
+						<Setter Target="LocationRelativePanel.Width" Value="300" />
 						<Setter Target="LocationImagaRectangle.Width" Value="160" />
 						<Setter Target="LocationImagaRectangle.Height" Value="120" />
 					</VisualState.Setters>

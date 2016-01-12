@@ -31,8 +31,10 @@ namespace S2M.Models {
 		public bool IsEmployee { get; set; }
 		public bool HasLeft { get; set; }
 		public bool IsConfirmed { get; set; }
-		public string ProfileImage_84 {
-			get {
+		public string ProfileImage_84
+		{
+			get
+			{
 				if (!string.IsNullOrEmpty(ProfileImage)) {
 					var imageCdn = "https://d3817ykd1rv0p7.cloudfront.net";
 
@@ -44,8 +46,10 @@ namespace S2M.Models {
 				return "ms-appx:///Assets/defaultProfileImage_84x84.png";
 			}
 		}
-		public string ProfileImage_150 {
-			get {
+		public string ProfileImage_150
+		{
+			get
+			{
 				if (!string.IsNullOrEmpty(ProfileImage)) {
 					var imageCdn = "https://d3817ykd1rv0p7.cloudfront.net";
 
@@ -54,6 +58,66 @@ namespace S2M.Models {
 					return imagePath;
 				}
 				return "ms-appx:///Assets/defaultProfileImage_84x84.png";
+			}
+		}
+
+		public static async Task<CheckIn> CheckInToEvent(CancellationToken token, int eventId) {
+			var checkIn = new CheckIn();
+
+			using (var httpClient = new HttpClient()) {
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try {
+					var url = apiUrl + "/api/checkin/event/" + eventId;
+
+					using (var httpResponse = await httpClient.PostAsync(new Uri(url), null)) {
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						checkIn = JsonConvert.DeserializeObject<CheckIn>(json);
+					}
+				}
+				catch (Exception e) { }
+			}
+
+			return checkIn;
+		}
+
+		public static async Task GetProfileCheckInsAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList) {
+			var checkInResult = new CheckInResult();
+			var checkins = new ObservableCollection<CheckIn>();
+
+			var authenticatedProfile = await Common.StorageService.RetrieveObjectAsync<Profile>("Profile");
+
+			using (var httpClient = new HttpClient()) {
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try {
+					var url = apiUrl + "/api/checkin/profile/" + authenticatedProfile.Id;
+
+					var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token);
+					string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+					json = json.Replace("<br>", Environment.NewLine);
+					checkInResult = JsonConvert.DeserializeObject<CheckInResult>(json);
+				}
+				catch (Exception e) { }
+			}
+
+			foreach (var checkin in checkins) {
+				checkinList.Add(checkin);
 			}
 		}
 
@@ -129,9 +193,9 @@ namespace S2M.Models {
 					if (eventId > 0) {
 						url = url + "/event/" + eventId;
 					}
-					//else {
-					url = url + "?" + JsonConvert.SerializeObject(criteria);
-					//}
+					if (eventId == 0) {
+						url = url + "?" + JsonConvert.SerializeObject(criteria);
+					}
 
 
 					var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token);
