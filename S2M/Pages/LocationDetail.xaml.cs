@@ -76,7 +76,7 @@ namespace S2M.Pages {
 				//LocationDescriptionTextBlock.Text = locationText.Description;
 
 				await CheckIn.GetCheckInsAsync(token, CheckInList, LocationObject.Id);
-				await CheckInKnowledgeTag.GetLocationCheckInKnowledgeTagsAsync(TagCheckInList, LocationObject.Id);
+				await CheckInKnowledgeTag.GetLocationCheckInKnowledgeTagsAsync(token, TagCheckInList, LocationObject.Id);
 			}
 			catch (Exception) { }
 			finally {

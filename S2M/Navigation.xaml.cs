@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
-using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -20,7 +19,7 @@ namespace S2M
 	/// </summary>
 	public sealed partial class Navigation : Page
 	{
-		protected string CurrentPage { get; set; }
+		public string CurrentPage { get; set; }
 		protected Profile ProfileObject { get; set; }
 		protected string SearchTerm { get; set; }
 
@@ -39,11 +38,6 @@ namespace S2M
 				Windows.Phone.UI.Input.HardwareButtons.BackPressed += HardwareButtons_BackPressed;
 			}
 
-			//var currentView = SystemNavigationManager.GetForCurrentView();
-			//if (isHardwareButtonsAPIPresent) {
-			//	//Windows.Phone.UI.Input.HardwareButtons.CameraPressed += backButton_Tapped;
-			//}
-			//currentView.BackRequested += backButton_Tapped;
 			NavigationFrame.Navigated += OnNavigated;
 
 			SystemNavigationManager.GetForCurrentView().BackRequested += SystemNavigationManager_BackRequested;
@@ -159,8 +153,6 @@ namespace S2M
 
 			CurrentPage = page;
 
-
-
 			switch (page)
 			{
 				case "WorkingOn":
@@ -168,42 +160,55 @@ namespace S2M
 					NavigationHeaderTextBlock.Text = "";
 					NavigationFrame.Navigate(typeof(Pages.WorkingOn));
 
-					SetSearchStatus(false);
+					SetSearchAvailabilityStatus(false);
 					break;
 				case "Home":
 					HomeRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Recommended for you";
 					NavigationFrame.Navigate(typeof(Pages.Home));
 
-					SetSearchStatus(true);
+					SetSearchAvailabilityStatus(true);
 					break;
 				case "Locations":
 					LocationsRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Locations";
 					NavigationFrame.Navigate(typeof(Pages.Locations), SearchTerm);
 
-					SetSearchStatus(true);
+					SetSearchAvailabilityStatus(true);
 					break;
 				case "CheckIns":
 					CheckInsRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "CheckIns";
-					NavigationFrame.Navigate(typeof(Pages.CheckIns), SearchTerm);
 
-					SetSearchStatus(true);
+					var criteria = new Pages.CheckInPageCriteria
+					{
+						CheckInKnowledgeTag = new CheckInKnowledgeTag(),
+						SearchTerm = SearchTerm
+					};
+
+					NavigationFrame.Navigate(typeof(Pages.CheckIns), criteria);
+
+					SetSearchAvailabilityStatus(true);
+					break;
+				case "CheckInKnowledge":
+					CheckInsRadioButton.IsChecked = true;
+					NavigationHeaderTextBlock.Text = "CheckIns";
+
+					NavigationFrame.Navigate(typeof(Pages.CheckInKnowledge), SearchTerm);
 					break;
 				case "Events":
 					EventsRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Events";
 					NavigationFrame.Navigate(typeof(Pages.Events), SearchTerm);
 
-					SetSearchStatus(true);
+					SetSearchAvailabilityStatus(true);
 					break;
 				case "Archive":
 					ArchiveRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Archive";
 					NavigationFrame.Navigate(typeof(Pages.Archive));
 
-					SetSearchStatus(false);
+					SetSearchAvailabilityStatus(false);
 					break;
 				case "Settings":
 					ArchiveRadioButton.IsChecked = true;
@@ -213,21 +218,21 @@ namespace S2M
 					SharedAutoSuggestBox.Visibility = Visibility.Collapsed;
 					SearchButton.Visibility = Visibility.Collapsed;
 
-					SetSearchStatus(false);
+					SetSearchAvailabilityStatus(false);
 					break;
 				case "Profile":
 					ProfileRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Profile";
 					NavigationFrame.Navigate(typeof(Pages.Profile));
 
-					SetSearchStatus(false);
+					SetSearchAvailabilityStatus(false);
 					break;
 			}
 
 			//ResetPageHeader();
 		}
 
-		private void SetSearchStatus(bool isAvailable)
+		private void SetSearchAvailabilityStatus(bool isAvailable)
 		{
 			if (isAvailable)
 			{

@@ -1,17 +1,20 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace S2M.Models {
-	public class CheckInKnowledgeTag {
+namespace S2M.Models
+{
+	public class CheckInKnowledgeTag
+	{
 		public string Tag { get; set; }
-		public ObservableCollection<CheckIn> CheckIns { get; set; }
-		public int NrOfCheckIns {
-			get {
+		public ObservableCollection<CheckIn> CheckIns { get; set; } = new ObservableCollection<CheckIn>();
+		public int NrOfCheckIns
+		{
+			get
+			{
 				return CheckIns.Count;
 			}
 		}
@@ -20,41 +23,48 @@ namespace S2M.Models {
 			get
 			{
 				var topFive = new ObservableCollection<CheckIn>();
-				foreach(var checkIn in CheckIns.Take(5)) {
+				foreach (var checkIn in CheckIns.Take(5))
+				{
 					topFive.Add(checkIn);
 				}
 				return topFive;
 			}
 		}
 
-		public static async Task GetLocationCheckInKnowledgeTagsAsync(ObservableCollection<CheckInKnowledgeTag> tagList, int locationId = 0, string searchTerm = "") {
+		public static async Task GetLocationCheckInKnowledgeTagsAsync(CancellationToken token, ObservableCollection<CheckInKnowledgeTag> tagList, int locationId = 0, string searchTerm = "", int page = 1, int itemsPerPage = 10)
+		{
 			const int channelId = 0;
 			const int eventId = 0;
 
-			var tagResults = await GetCheckInKnowledgeTagDataAsync(channelId, locationId, eventId, searchTerm);
+			var tagResults = await GetCheckInKnowledgeTagDataAsync(token, channelId, locationId, eventId, searchTerm, page, itemsPerPage);
 			var tags = tagResults.Results;
 
-			foreach (var tag in tags) {
+			foreach (var tag in tags)
+			{
 				tagList.Add(tag);
 			}
 		}
 
-		public static async Task GetEventCheckInKnowledgeTagsAsync(ObservableCollection<CheckInKnowledgeTag> tagList, int eventId = 0, string searchTerm = "") {
+		public static async Task GetEventCheckInKnowledgeTagsAsync(CancellationToken token, ObservableCollection<CheckInKnowledgeTag> tagList, int eventId = 0, string searchTerm = "", int page = 1, int itemsPerPage = 10)
+		{
 			const int channelId = 0;
 			const int locationId = 0;
 
-			var tagResults = await GetCheckInKnowledgeTagDataAsync(channelId, locationId, eventId, searchTerm);
+			var tagResults = await GetCheckInKnowledgeTagDataAsync(token, channelId, locationId, eventId, searchTerm, page, itemsPerPage);
 			var tags = tagResults.Results;
 
-			foreach (var tag in tags) {
+			foreach (var tag in tags)
+			{
 				tagList.Add(tag);
 			}
 		}
 
-		private static async Task<CheckInKnowledgeTagResult> GetCheckInKnowledgeTagDataAsync(int channelId = 0, int locationId = 0, int eventId = 0, string searchTerm = "", int page = 1, int itemsPerPage = 10) {
+		private static async Task<CheckInKnowledgeTagResult> GetCheckInKnowledgeTagDataAsync(CancellationToken token, int channelId = 0, int locationId = 0, int eventId = 0, string searchTerm = "", int page = 1, int itemsPerPage = 10)
+		{
 			var tagResults = new CheckInKnowledgeTagResult();
 
-			using (var httpClient = new Windows.Web.Http.HttpClient()) {
+			using (var httpClient = new Windows.Web.Http.HttpClient())
+			{
 				var apiKey = Common.StorageService.LoadSetting("ApiKey");
 				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
 
@@ -62,8 +72,10 @@ namespace S2M.Models {
 				httpClient.DefaultRequestHeaders.Add("token", apiKey);
 				httpClient.DefaultRequestHeaders.Add("api-version", "2");
 
-				try {
-					var criteria = new TagKnowledgeCriteria {
+				try
+				{
+					var criteria = new TagKnowledgeCriteria
+					{
 						ChannelId = channelId,
 						EventId = eventId,
 						ItemsPerPage = itemsPerPage,
@@ -74,8 +86,8 @@ namespace S2M.Models {
 
 					var url = apiUrl + "/api/checkin/knowledge?" + JsonConvert.SerializeObject(criteria);
 
-					var httpResponse = await httpClient.GetAsync(new Uri(url));
-					string json = await httpResponse.Content.ReadAsStringAsync();
+					var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token);
+					string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
 					json = json.Replace("<br>", Environment.NewLine);
 					tagResults = JsonConvert.DeserializeObject<CheckInKnowledgeTagResult>(json);
 				}
@@ -85,7 +97,8 @@ namespace S2M.Models {
 			return tagResults;
 		}
 
-		public class TagKnowledgeCriteria {
+		public class TagKnowledgeCriteria
+		{
 			public int ChannelId { get; set; }
 			//public DateTime Date { get; set; }
 			public int EventId { get; set; }

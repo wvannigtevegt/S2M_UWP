@@ -15,6 +15,11 @@
 					 HorizontalAlignment="Stretch" 
 					 Width="400" />
 
-			<Button x:Name="SaveWorkingOnButton" Content="Login" Margin="0,20,0,0" HorizontalAlignment="Stretch" Background="Lime" Click="SaveWorkingOnButton_Click" />
+			<Button x:Name="SaveWorkingOnButton" 
+					Content="See matches" 
+					Margin="0,20,0,0" 
+					HorizontalAlignment="Stretch" 
+					Background="Lime" 
+					Click="SaveWorkingOnButton_Click" />
 		</StackPanel>
 </Page>

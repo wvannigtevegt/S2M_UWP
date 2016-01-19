@@ -42,9 +42,24 @@ namespace S2M.Pages {
 		}
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e) {
-			SearchTerm = (string)e.Parameter;
-			if (SearchTerm == null) {
-				SearchTerm = "";
+			var criteria = (CheckInPageCriteria)e.Parameter;
+			if (criteria != null)
+			{
+				if (criteria.CheckInKnowledgeTag.CheckIns.Any())
+				{
+					CheckInList.Clear();
+					foreach (var checkIn in criteria.CheckInKnowledgeTag.CheckIns)
+					{
+						CheckInList.Add(checkIn);
+					}
+				}
+
+
+				SearchTerm = criteria.SearchTerm;
+				if (SearchTerm == null)
+				{
+					SearchTerm = "";
+				}
 			}
 		}
 
@@ -58,13 +73,16 @@ namespace S2M.Pages {
 		}
 
 		private async void Page_Loaded(object sender, RoutedEventArgs e) {
-			CheckInsProgressRing.IsActive = true;
-			CheckInsProgressRing.Visibility = Visibility.Visible;
+			if (!CheckInList.Any())
+			{
+				CheckInsProgressRing.IsActive = true;
+				CheckInsProgressRing.Visibility = Visibility.Visible;
 
-			await LoadCheckInsAsync(SearchTerm);
+				await LoadCheckInsAsync(SearchTerm);
 
-			CheckInsProgressRing.IsActive = false;
-			CheckInsProgressRing.Visibility = Visibility.Collapsed;
+				CheckInsProgressRing.IsActive = false;
+				CheckInsProgressRing.Visibility = Visibility.Collapsed;
+			}
 		}
 
 		private async Task LoadCheckInsAsync(string searchTerm = "") {
@@ -103,6 +121,11 @@ namespace S2M.Pages {
 			Frame.Navigate(typeof(CheckInDetail), checkIn);
 		}
 
+		private void CheckInKnowledgeHyperLinkButton_Click(object sender, RoutedEventArgs e)
+		{
+			Frame.Navigate(typeof(Pages.CheckInKnowledge));
+		}
+
 		//private void CheckInssAutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args) {
 
 		//}
@@ -110,5 +133,11 @@ namespace S2M.Pages {
 		//private void CheckInssAutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args) {
 
 		//}
+	}
+
+	public class CheckInPageCriteria
+	{
+		public CheckInKnowledgeTag CheckInKnowledgeTag { get; set; }
+		public string SearchTerm { get; set; }
 	}
 }

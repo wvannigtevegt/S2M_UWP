@@ -17,10 +17,11 @@
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>S2M_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>S2M_StoreKey.pfx</PackageCertificateKeyFile>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x64|arm</AppxBundlePlatforms>
+    <PackageCertificateThumbprint>3272F3ECB521EE3E123FAC8B68A4FC72CD0E3D9F</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -177,6 +178,9 @@
     <Compile Include="Pages\CheckInDetail.xaml.cs">
       <DependentUpon>CheckInDetail.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\CheckInKnowledge.xaml.cs">
+      <DependentUpon>CheckInKnowledge.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\CheckIns.xaml.cs">
       <DependentUpon>CheckIns.xaml</DependentUpon>
     </Compile>
@@ -214,6 +218,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <None Include="S2M_StoreKey.pfx" />
     <None Include="S2M_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -246,6 +251,7 @@
     <Content Include="Assets\StoreLogo.scale-150.png" />
     <Content Include="Assets\StoreLogo.scale-200.png" />
     <Content Include="Assets\StoreLogo.scale-400.png" />
+    <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -310,6 +316,10 @@
     <Page Include="Pages\CheckInDetail.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\CheckInKnowledge.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Pages\CheckIns.xaml">
       <SubType>Designer</SubType>

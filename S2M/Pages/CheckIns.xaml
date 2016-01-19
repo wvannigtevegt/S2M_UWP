@@ -21,7 +21,18 @@
 		</Grid.ColumnDefinitions>
 
 		<RelativePanel Grid.Row="0" Width="Auto">
-
+			<TextBlock x:Name="CheckInsTextBlock"
+					   Text="Check-ins" 
+					   Margin="12,0,0,0"
+					   FontWeight="Bold"
+					   RelativePanel.AlignLeftWithPanel="True" 
+					   RelativePanel.AlignVerticalCenterWithPanel="True" />
+			
+			<HyperlinkButton x:Name="CheckInKnowledgeHyperLinkButton"
+							 Margin="20,0,0,0"
+							 RelativePanel.RightOf="CheckInsTextBlock"
+							 RelativePanel.AlignVerticalCenterWithPanel="True"
+							 Click="CheckInKnowledgeHyperLinkButton_Click">Knowledge</HyperlinkButton>
 		</RelativePanel>
 
 		<GridView Grid.Row="1" 

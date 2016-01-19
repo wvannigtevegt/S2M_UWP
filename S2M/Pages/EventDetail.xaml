@@ -13,47 +13,53 @@
 	<ScrollViewer VerticalScrollMode="Auto">
 		<RelativePanel>
 			<StackPanel x:Name="EventDataStackPanel" 
-					RelativePanel.AlignLeftWithPanel="True"
-					RelativePanel.AlignRightWithPanel="True"
-					MinHeight="250" 
-					Margin="14,0,0,0" 
-					Background="Orange" 
-					VerticalAlignment="Top">
+						RelativePanel.AlignLeftWithPanel="True"
+						RelativePanel.AlignRightWithPanel="True"
+						MinHeight="250" 
+						Background="Orange" 
+						VerticalAlignment="Top">
 				<TextBlock x:Name="EventNameTextBlock"
-					   Style="{ThemeResource SubheaderTextBlockStyle}" 
-					   TextWrapping="WrapWholeWords"
-					   RelativePanel.AlignLeftWithPanel="True" 
-					   RelativePanel.AlignTopWithPanel="True" />
+						   Margin="12,12,0,0"
+						   Style="{ThemeResource SubheaderTextBlockStyle}" 
+						   TextWrapping="WrapWholeWords"
+						   RelativePanel.AlignLeftWithPanel="True" 
+						   RelativePanel.AlignTopWithPanel="True" />
 
 				<TextBlock x:Name="EventLocationTextBlock" 
-					   TextWrapping="WrapWholeWords" 
-					   FontStyle="Italic" />
+						   Margin="12,0,0,0"
+						   TextWrapping="WrapWholeWords" 
+						   FontStyle="Italic" />
 
-				<TextBlock x:Name="EventDataTextBlock" 
-					   TextWrapping="WrapWholeWords" 
-					   FontStyle="Italic" />
+				<TextBlock x:Name="EventDataTextBlock"
+						   Margin="12,0,0,0"
+						   TextWrapping="WrapWholeWords" 
+						   FontStyle="Italic" />
 
 				<TextBlock x:Name="EventDescriptionTextBlock" 
-					   MinWidth="300"
-					   Grid.Row="1" 
-					   Grid.Column="0" 
-					   Height="Auto" 
-					   TextWrapping="WrapWholeWords" />
+						   Margin="12,0,0,0"
+						   MinWidth="300"
+						   Grid.Row="1" 
+						   Grid.Column="0" 
+						   Height="Auto" 
+						   TextWrapping="WrapWholeWords" />
 
-				<Button x:Name="EventCheckInButton" Content="Check-in" Click="EventCheckInButton_Click" />
+				<Button x:Name="EventCheckInButton"
+						Margin="12,0,0,0" 
+						Content="Check-in" 
+						Click="EventCheckInButton_Click" />
 			</StackPanel>
 
 			<ListView x:Name="TagCheckInsListView"
-				  RelativePanel.Below="EventDataStackPanel"
-				  HorizontalAlignment="Stretch"
-				  HorizontalContentAlignment="Stretch"
-				  Width="400"
-				  ItemsSource="{x:Bind TagCheckInList}"
-				  IsItemClickEnabled="True"
-				  ItemClick="TagCheckInsListView_ItemClick"
-				  ScrollViewer.VerticalScrollMode="Auto"
-				  ScrollViewer.VerticalScrollBarVisibility="Auto"
-				  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+					  RelativePanel.Below="EventDataStackPanel"
+					  HorizontalAlignment="Stretch"
+					  HorizontalContentAlignment="Stretch"
+					  Width="400"
+					  ItemsSource="{x:Bind TagCheckInList}"
+					  IsItemClickEnabled="True"
+					  ItemClick="TagCheckInsListView_ItemClick"
+					  ScrollViewer.VerticalScrollMode="Auto"
+					  ScrollViewer.VerticalScrollBarVisibility="Auto"
+					  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 				<ListView.ItemTemplate>
 					<DataTemplate x:DataType="data:CheckInKnowledgeTag">
 						<control:TagCheckinTemplate />
@@ -62,13 +68,13 @@
 			</ListView>
 
 			<GridView x:Name="EventCheckInsGridView"
-				  RelativePanel.Below="TagCheckInsListView"
-				  Margin="12,0,0,0"
-				  ItemsSource="{x:Bind CheckInList}" 
-				  IsItemClickEnabled="True" 
-				  ItemClick="EventCheckInsGridView_ItemClick"
-				  HorizontalAlignment="Stretch"
-				  HorizontalContentAlignment="Stretch">
+					  RelativePanel.Below="TagCheckInsListView"
+					  Margin="12,0,0,0"
+					  ItemsSource="{x:Bind CheckInList}" 
+					  IsItemClickEnabled="True" 
+					  ItemClick="EventCheckInsGridView_ItemClick"
+					  HorizontalAlignment="Stretch"
+					  HorizontalContentAlignment="Stretch">
 				<GridView.ItemTemplate>
 					<DataTemplate x:DataType="data:CheckIn">
 						<control:CheckInTemplate />

@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+﻿using Microsoft.QueryStringDotNET;
+using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-namespace S2M {
+
+namespace S2M
+{
 	/// <summary>
 	/// Provides application-specific behavior to supplement the default Application class.
 	/// </summary>
@@ -38,6 +30,7 @@ namespace S2M {
 		/// </summary>
 		/// <param name="e">Details about the launch request and process.</param>
 		protected override void OnLaunched(LaunchActivatedEventArgs e) {
+			
 
 			Frame rootFrame = Window.Current.Content as Frame;
 
@@ -67,6 +60,66 @@ namespace S2M {
 			Window.Current.Activate();
 		}
 
+		protected override void OnActivated(IActivatedEventArgs e)
+		{
+			// Get the root frame
+			Frame rootFrame = Window.Current.Content as Frame;
+
+			// TODO: Initialize root frame just like in OnLaunched
+
+			// Handle toast activation
+			if (e is ToastNotificationActivatedEventArgs)
+			{
+				var toastActivationArgs = e as ToastNotificationActivatedEventArgs;
+
+				// Parse the query string
+				QueryString args = QueryString.Parse(toastActivationArgs.Argument);
+
+				// See what action is being requested 
+				switch (args["action"])
+				{
+					// Open the image
+					case "chat":
+
+						int chatId = int.Parse(args["chatId"]);
+
+						if (rootFrame.Content is Pages.ChatDetail && (rootFrame.Content as Pages.ChatDetail).ChatObject.Id.Equals(chatId))
+							break;
+
+						//// Otherwise navigate to view it
+						//rootFrame.Navigate(typeof(ImagePage), imageUrl);
+						break;
+
+
+					// Open the conversation
+					case "checkin":
+
+						//// The conversation ID retrieved from the toast args
+						//int conversationId = int.Parse(args["conversationId"]);
+
+						//// If we're already viewing that conversation, do nothing
+						//if (rootFrame.Content is ConversationPage && (rootFrame.Content as ConversationPage).ConversationId == conversationId)
+						//	break;
+
+						//// Otherwise navigate to view it
+						//rootFrame.Navigate(typeof(ConversationPage), conversationId);
+						break;
+				}
+
+				// If we're loading the app for the first time, place the main page on
+				// the back stack so that user can go back after they've been
+				// navigated to the specific page
+				if (rootFrame.BackStack.Count == 0)
+					rootFrame.BackStack.Add(new PageStackEntry(typeof(MainPage), null, null));
+			}
+
+			// TODO: Handle other types of activation
+
+			// Ensure the current window is active
+			Window.Current.Activate();
+		}
+
+
 		/// <summary>
 		/// Invoked when Navigation to a certain page fails
 		/// </summary>
@@ -95,5 +148,7 @@ namespace S2M {
 			Common.StorageService.SaveSetting("ChannelId", "1");
 			Common.StorageService.SaveSetting("CountryId", "152");
 		}
+
+		
 	}
 }

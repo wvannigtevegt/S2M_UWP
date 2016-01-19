@@ -24,25 +24,24 @@
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
 
-		<RelativePanel Grid.Row="0">
-			<TextBox x:Name="WorkingOnTextBox"
-					 Width="720" 
-					 Height="48"
-					 FontSize="16"
-					 VerticalContentAlignment="Center"
-					 Text="{x:Bind WorkingOn, Mode=TwoWay}" 
-					 RelativePanel.AlignLeftWithPanel="True" />
+		<RelativePanel Grid.Row="0" Background="#FF00BAFF">
+			<TextBlock x:Name="WorkingOnTextBlock"
+					   Width="720" 
+					   Height="48"
+					   FontSize="24"
+					   Foreground="White"
+					   RelativePanel.AlignHorizontalCenterWithPanel="True"
+					   RelativePanel.AlignVerticalCenterWithPanel="True"/>
 
-			<Button x:Name="SetWorkingOnButton" 
-					Width="48" 
-					Height="48" 
+			<Button Name="SetWorkingOnButton" 
+					FontFamily="Segoe MDL2 Assets" 
+					Content="&#xE104;" 
+					FontSize="20"
+					Width="48"
+					Height="48"
 					RelativePanel.AlignRightWithPanel="True"
-					Click="SetWorkingOnButton_Click">
-				<TextBlock FontFamily="Segoe MDL2 Assets" 
-						   FontSize="16" 
-						   Foreground="White" 
-						   Text="&#xE122;" />
-			</Button>
+					Click="SetWorkingOnButton_Click" />
+
 		</RelativePanel>
 
 

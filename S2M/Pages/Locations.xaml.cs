@@ -16,11 +16,13 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace S2M.Pages {
+namespace S2M.Pages
+{
 	/// <summary>
 	/// An empty page that can be used on its own or navigated to within a Frame.
 	/// </summary>
-	public sealed partial class Locations : Page {
+	public sealed partial class Locations : Page
+	{
 		public ObservableCollection<Location> LocationList { get; set; }
 		public bool DeviceIsOffline { get; set; }
 		public double Latitude { get; set; }
@@ -31,7 +33,8 @@ namespace S2M.Pages {
 
 		private CancellationTokenSource _cts = null;
 
-		public Locations() {
+		public Locations()
+		{
 			this.InitializeComponent();
 
 			LocationList = new ObservableCollection<Location>();
@@ -39,15 +42,19 @@ namespace S2M.Pages {
 			ShowLocationDistance = true;
 		}
 
-		protected async override void OnNavigatedTo(NavigationEventArgs e) {
+		protected async override void OnNavigatedTo(NavigationEventArgs e)
+		{
 			SearchTerm = (string)e.Parameter;
-			if (SearchTerm == null) {
+			if (SearchTerm == null)
+			{
 				SearchTerm = "";
 			}
 		}
 
-		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
-			if (_cts != null) {
+		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+		{
+			if (_cts != null)
+			{
 				_cts.Cancel();
 				_cts = null;
 			}
@@ -55,11 +62,13 @@ namespace S2M.Pages {
 			base.OnNavigatingFrom(e);
 		}
 
-		private async void Page_Loaded(object sender, RoutedEventArgs e) {
+		private async void Page_Loaded(object sender, RoutedEventArgs e)
+		{
 			LocationsProgressRing.IsActive = true;
 			LocationsProgressRing.Visibility = Visibility.Visible;
 
-			if (ConnectionHelper.CheckForInternetAccess()) {
+			if (ConnectionHelper.CheckForInternetAccess())
+			{
 				DeviceIsOffline = false;
 			}
 			else {
@@ -72,16 +81,20 @@ namespace S2M.Pages {
 			LocationsProgressRing.Visibility = Visibility.Collapsed;
 		}
 
-		private async Task LoadLocationsAsync(string searchTerm = "") {
+		private async Task LoadLocationsAsync(string searchTerm = "")
+		{
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
-			try {
+			try
+			{
 				var accessStatus = await Geolocator.RequestAccessAsync();
-				switch (accessStatus) {
+				switch (accessStatus)
+				{
 					case GeolocationAccessStatus.Allowed:
 
-						try {
+						try
+						{
 							var geoposition = await GeoService.GetSinglePositionAsync(token);
 							Latitude = geoposition.Point.Position.Latitude;
 							Longitude = geoposition.Point.Position.Longitude;
@@ -97,12 +110,14 @@ namespace S2M.Pages {
 				await Location.GetWorkspaceLocationsAsync(token, LocationList, searchTerm, Latitude, Longitude);
 			}
 			catch (Exception) { }
-			finally {
+			finally
+			{
 				_cts = null;
 			}
 		}
 
-		private void LocationsGridView_ItemClick(object sender, ItemClickEventArgs e) {
+		private void LocationsGridView_ItemClick(object sender, ItemClickEventArgs e)
+		{
 			var location = ((Location)e.ClickedItem);
 
 			Frame.Navigate(typeof(LocationDetail), location);
@@ -116,12 +131,14 @@ namespace S2M.Pages {
 		//	SearchLocations(sender.Text);
 		//}
 
-		private async void SearchLocations(string searchTerm) {
+		private async void SearchLocations(string searchTerm)
+		{
 			LocationList.Clear();
 			await LoadLocationsAsync(searchTerm);
 		}
 
-		private void MapHyperlInkButton_Click(object sender, RoutedEventArgs e) {
+		private void MapHyperlInkButton_Click(object sender, RoutedEventArgs e)
+		{
 			Frame.Navigate(typeof(LocationsMap), LocationList);
 		}
 	}

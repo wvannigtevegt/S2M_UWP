@@ -1,28 +1,18 @@
-﻿using S2M.Common;
-using S2M.ViewModels;
+﻿using Microsoft.WindowsAzure.Messaging;
+using S2M.Common;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.Networking.PushNotifications;
 using Windows.Security.Credentials;
-using Windows.Storage;
-using Windows.UI.Core;
-using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
-namespace S2M {
+namespace S2M
+{
 	/// <summary>
 	/// An empty page that can be used on its own or navigated to within a Frame.
 	/// </summary>
@@ -78,6 +68,8 @@ namespace S2M {
 			if (login != null) {
 				if (!string.IsNullOrEmpty(login.ProfileToken)) {
 					StorageService.SaveSetting("ProfileToken", login.ProfileToken);
+
+					InitNotificationsAsync(login.ProfileKey);
 				}
 			}
 
@@ -108,6 +100,25 @@ namespace S2M {
 		private void SaveCredentialsInVault(string username, string password) {
 			var vault = new PasswordVault();
 			vault.Add(new PasswordCredential("S2M", username, password));
+		}
+
+		private async void InitNotificationsAsync(string profileKey)
+		{
+			var channel = await PushNotificationChannelManager.CreatePushNotificationChannelForApplicationAsync();
+
+			var hub = new NotificationHub("notifications", "Endpoint=sb://seats2meet.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=bJT+rNOH5GzBi04UQG2hnnF/mhKHh5FM424nQhBD3M8=");
+			var tags = new List<string>();
+			tags.Add(profileKey);
+			var result = await hub.RegisterNativeAsync(channel.Uri, tags);
+
+			// Displays the registration ID so you know it was successful
+			if (result.RegistrationId != null)
+			{
+				//var dialog = new MessageDialog("Registration successful: " + result.RegistrationId);
+				//dialog.Commands.Add(new UICommand("OK"));
+				//await dialog.ShowAsync();
+			}
+
 		}
 
 		//private async void ScheduleNotificationButton() {

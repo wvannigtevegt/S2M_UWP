@@ -35,11 +35,24 @@ namespace S2M.Pages {
 			var workingOn = await Common.StorageService.RetrieveObjectAsync<Models.WorkingOn>("WorkingOn");
 			if (workingOn != null) {
 				WorkingOn = workingOn.Text;
+				WorkingOnTextBlock.Text = WorkingOn;
 			}
 
 			var localSettings = ApplicationData.Current.LocalSettings;
 			if (localSettings.Values["HomePivotSelectedIndex"] != null) {
-				RecommendationsPivot.SelectedIndex = (int)localSettings.Values["HomePivotSelectedIndex"];
+				var selectedPivot = localSettings.Values["HomePivotSelectedIndex"];
+				if (selectedPivot != null)
+				{
+					var selectedPivotIndex = 0;
+					if (int.TryParse(selectedPivot.ToString(), out selectedPivotIndex))
+					{
+						if (selectedPivotIndex > 0)
+						{
+							RecommendationsPivot.SelectedIndex = selectedPivotIndex;
+						}
+						
+					}
+				}
 			}
 		}
 
@@ -50,24 +63,17 @@ namespace S2M.Pages {
 			}
 
 			var localSettings = ApplicationData.Current.LocalSettings;
-			localSettings.Values["HomePivotSelectedIndex"] = RecommendationsPivot.SelectedIndex;
+			localSettings.Values["HomePivotSelectedIndex"] = RecommendationsPivot.SelectedIndex.ToString();
 
-			base.OnNavigatingFrom(e);
+			//base.OnNavigatingFrom(e);
 		}
 
 		private void Page_Loaded(object sender, RoutedEventArgs e) {
-			if (string.IsNullOrEmpty(WorkingOn)) {
-				RecommendationsPivot.Visibility = Visibility.Collapsed;
-			}
-		}
+			//if (string.IsNullOrEmpty(WorkingOn)) {
+			//	RecommendationsPivot.Visibility = Visibility.Collapsed;
+			//}
 
-		private async void SetWorkingOnButton_Click(object sender, RoutedEventArgs e) {
-			WorkingOn = WorkingOnTextBox.Text;
-			if (!string.IsNullOrEmpty(WorkingOn)) {
-				RecommendationsPivot.Visibility = Visibility.Collapsed;
-			}
-
-			await LoadRecommendationsData();
+			
 		}
 
 		private async void RecommendationsPivot_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -115,6 +121,11 @@ namespace S2M.Pages {
 			var location = (Location)e.ClickedItem;
 
 			Frame.Navigate(typeof(LocationDetail), location);
+		}
+
+		private void SetWorkingOnButton_Click(object sender, RoutedEventArgs e)
+		{
+			Frame.Navigate(typeof(WorkingOn));
 		}
 	}
 }

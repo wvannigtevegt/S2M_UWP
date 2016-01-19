@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Web.Http;
@@ -123,7 +124,12 @@ namespace S2M.Models {
 
 		public static async Task GetCheckInsAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false) {
 			var checkInResult = await GetCheckInsDataAsync(token, locationId, eventId, searchTerm, latitude, longitude, radius, workingOn, page, itemsPerPage, allDay);
-			var checkins = checkInResult.Results;
+			var checkins = checkInResult.Results.ToList();
+
+			if (!string.IsNullOrEmpty(workingOn))
+			{
+				checkins = checkins.OrderByDescending(c => c.MatchPercentage).ToList();
+			}
 
 			foreach (var checkin in checkins) {
 				checkinList.Add(checkin);

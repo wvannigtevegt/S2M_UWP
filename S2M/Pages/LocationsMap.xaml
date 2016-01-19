@@ -37,7 +37,7 @@
 						 Grid.Row="1"
 						 HorizontalAlignment="Stretch"
 						 HorizontalContentAlignment="Stretch"
-						 MapServiceToken="FOeOzjGxMmDrXIqkhOCvgw">
+						 MapServiceToken="5ESJUlVWvxrnQCoK5VLM~umZVORROFJvw6IE3-oLcyg~ArlQe-EQzCkUb7yy6qLiKjKTHUHWFClQvoPnGi4-JQCYDfg6rEyi5wTYWcGd1nNf">
 		</Maps:MapControl>
 	</Grid>
 </Page>
