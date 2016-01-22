@@ -80,6 +80,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -103,6 +104,7 @@
     </Compile>
     <Compile Include="Common\ConnectionHelper.cs" />
     <Compile Include="Common\DateService.cs" />
+    <Compile Include="Common\DeviceHelper.cs" />
     <Compile Include="Common\FileHelper.cs" />
     <Compile Include="Common\GeoService.cs" />
     <Compile Include="Common\NumberFormatter.cs" />
@@ -162,6 +164,7 @@
     <Compile Include="Models\Login.cs" />
     <Compile Include="Models\LoginResult.cs" />
     <Compile Include="Models\Profile.cs" />
+    <Compile Include="Models\ProfileDevice.cs" />
     <Compile Include="Models\Reservation.cs" />
     <Compile Include="Models\ReservationResult.cs" />
     <Compile Include="Models\Search.cs" />
@@ -368,6 +371,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <SDKReference Include="WindowsDesktop, Version=10.0.10586.0">
+      <Name>Windows Desktop Extensions for the UWP</Name>
+    </SDKReference>
     <SDKReference Include="WindowsMobile, Version=10.0.10586.0">
       <Name>Windows Mobile Extensions for the UWP</Name>
     </SDKReference>

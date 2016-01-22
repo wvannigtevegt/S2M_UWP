@@ -54,7 +54,9 @@ namespace S2M
 				// When the navigation stack isn't restored navigate to the first page,
 				// configuring the new page by passing required information as a navigation
 				// parameter
-				rootFrame.Navigate(typeof(MainPage), e.Arguments);
+				//rootFrame.Navigate(typeof(MainPage), e.Arguments);
+
+				rootFrame.Navigate(typeof(MainPage));
 			}
 			// Ensure the current window is active
 			Window.Current.Activate();
@@ -87,7 +89,13 @@ namespace S2M
 							break;
 
 						//// Otherwise navigate to view it
-						//rootFrame.Navigate(typeof(ImagePage), imageUrl);
+						var criteria = new NavigationPageCriteria
+						{
+							Action = "ChatDetail",
+							Id = chatId
+						};
+
+						rootFrame.Navigate(typeof(MainPage), criteria);
 						break;
 
 

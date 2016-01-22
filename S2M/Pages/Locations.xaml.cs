@@ -119,8 +119,13 @@ namespace S2M.Pages
 		private void LocationsGridView_ItemClick(object sender, ItemClickEventArgs e)
 		{
 			var location = ((Location)e.ClickedItem);
+			var criteria = new LocationDetailPageCriteria
+			{
+				LocationId = 0,
+				Location = location
+			};
 
-			Frame.Navigate(typeof(LocationDetail), location);
+			Frame.Navigate(typeof(LocationDetail), criteria);
 		}
 
 		//private void LocationsAutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args) {

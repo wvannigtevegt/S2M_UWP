@@ -16,7 +16,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Notifications;
-using NotificationsExtensions.Toasts; // NotificationsExtensions.Win10
+using NotificationsExtensions.Toasts; // using NotificationsExtensions.Win10;
 using Microsoft.QueryStringDotNET; // QueryString.NET
 using System.Threading.Tasks;
 
@@ -36,6 +36,7 @@ namespace S2M.Pages
 		public ObservableCollection<CheckInKnowledgeTag> TagCheckInList { get; set; }
 
 		private CancellationTokenSource _cts = null;
+		private Models.Profile ProfileObject { get; set; }
 
 		public EventDetail()
 		{
@@ -71,12 +72,30 @@ namespace S2M.Pages
 
 		private async void Page_Loaded(object sender, RoutedEventArgs e)
 		{
+			Models.Profile _profile = await Common.StorageService.RetrieveObjectAsync<Models.Profile>("Profile");
+			if (_profile == null)
+			{
+				_profile = await Models.Profile.GetProfile();
+			}
+
+			if (_profile != null)
+			{
+				ProfileObject = _profile;
+			}
+
+			GetEventCheckInData();
+		}
+
+		private async void GetEventCheckInData()
+		{
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
 			try
 			{
 				await CheckIn.GetCheckInsAsync(token, CheckInList, 0, EventObject.Id, "", 0, 0, 0, "", 0, 0, false);
+				CheckIfProfileAlreadyCheckedInEvent();
+
 				await CheckInKnowledgeTag.GetEventCheckInKnowledgeTagsAsync(token, TagCheckInList, EventObject.Id);
 
 
@@ -92,7 +111,7 @@ namespace S2M.Pages
 		{
 			var profileCheckIn =
 				from pc in CheckInList
-				where pc.ProfileId == 0
+				where pc.ProfileId == ProfileObject.Id
 				select pc;
 
 			if (profileCheckIn.Any())
@@ -130,6 +149,8 @@ namespace S2M.Pages
 				if (checkIn != null)
 				{
 					ShowToast(checkIn.Id, checkIn.EventName);
+
+					GetEventCheckInData();
 				}
 
 			}
@@ -154,9 +175,8 @@ namespace S2M.Pages
 			{
 				TitleText = new ToastText()
 				{
-					Text = title
+					Text = title,
 				},
-
 				BodyTextLine1 = new ToastText()
 				{
 					Text = content

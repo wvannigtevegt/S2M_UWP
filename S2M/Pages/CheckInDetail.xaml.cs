@@ -33,7 +33,21 @@ namespace S2M.Pages {
 			CheckInNameTextBlock.Text = CheckInObject.ProfileName;
 			CheckInImageBrush.UriSource = new Uri(CheckInObject.ProfileImage_150);
 			CheckInWorkingOnTextBlock.Text = CheckInObject.WorkingOn;
-			CheckInLocationTextBlock.Text = CheckInObject.LocationName;
+
+			if (CheckInObject.LocationId == 0)
+			{
+				CheckInLocationTextBlock.Text = CheckInObject.LocationName;
+				CheckInLocationTextBlock.Visibility = Visibility.Visible;
+				CheckInLocationHyperlinkButton.Visibility = Visibility.Collapsed;
+			}
+
+			if (CheckInObject.LocationId > 0)
+			{
+				CheckInLocationHyperlinkButton.Content = CheckInObject.LocationName;
+				CheckInLocationHyperlinkButton.Visibility = Visibility.Visible;
+				CheckInLocationTextBlock.Visibility = Visibility.Collapsed;
+			}
+			
 			//CheckInDateTextBlock.Text = DateService.ConvertFromUnixTimestamp(CheckInObject.StartTimeStamp).ToString("yyyy-MM-dd");
 			CheckInTimeTextBlock.Text = DateService.ConvertFromUnixTimestamp(CheckInObject.StartTimeStamp).ToString("HH:mm") + " - " +
 											DateService.ConvertFromUnixTimestamp(CheckInObject.EndTimeStamp).ToString("HH:mm");
@@ -46,6 +60,17 @@ namespace S2M.Pages {
 			if (chat != null) {
 				Frame.Navigate(typeof(ChatDetail), chat);
 			}
+		}
+
+		private void CheckInLocationHyperlinkButton_Click(object sender, RoutedEventArgs e)
+		{
+			var criteria = new LocationDetailPageCriteria
+			{
+				LocationId = CheckInObject.LocationId,
+				Location = null
+			};
+
+			Frame.Navigate(typeof(LocationDetail), criteria);
 		}
 	}
 }

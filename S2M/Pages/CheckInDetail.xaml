@@ -60,7 +60,8 @@
 				<TextBlock Margin="12,0,0,0" x:Name="CheckInWorkingOnTextBlock" TextWrapping="WrapWholeWords" Foreground="White" />
 
 				<TextBlock Margin="12,12,12,0" Text="Location:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
-				<TextBlock Margin="12,0,0,0" x:Name="CheckInLocationTextBlock" TextWrapping="WrapWholeWords" Foreground="White" />
+				<TextBlock Margin="12,0,0,0" x:Name="CheckInLocationTextBlock" TextWrapping="WrapWholeWords" Foreground="White" Visibility="Collapsed" />
+				<HyperlinkButton Margin="12,0,0,0" x:Name="CheckInLocationHyperlinkButton" Click="CheckInLocationHyperlinkButton_Click" Foreground="White" Visibility="Collapsed" />
 
 				<!--<TextBlock Margin="12,12,12,0" Text="Date:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
 			<TextBlock Margin="12,0,0,0" x:Name="CheckInDateTextBlock" TextWrapping="WrapWholeWords" Foreground="White" />-->

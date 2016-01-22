@@ -80,6 +80,37 @@ namespace S2M.Models {
 			}
 		}
 
+		public static async Task<Location> GetLocationById(CancellationToken token, int locationId)
+		{
+			Location location = null;
+
+			using (var httpClient = new Windows.Web.Http.HttpClient())
+			{
+				var apiKey = StorageService.LoadSetting("ApiKey");
+				var apiUrl = StorageService.LoadSetting("ApiUrl");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+
+				try
+				{
+					var url = apiUrl + "/api/locations/" + locationId;
+
+					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token))
+					{
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+
+						location = JsonConvert.DeserializeObject<Location>(json);
+					}
+				}
+				catch (Exception) { }
+			}
+
+			return location;
+		}
+
 		public static async Task GetLocationRecommendationsAsync(CancellationToken token, ObservableCollection<Location> locationList, double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0) {
 			var locationResult = new LocationResult();
 

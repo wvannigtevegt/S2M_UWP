@@ -6,8 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Web.Http;
 
-namespace S2M.Models {
-	public class CheckIn {
+namespace S2M.Models
+{
+	public class CheckIn
+	{
 		public int Id { get; set; }
 		public int ChannelId { get; set; }
 		public int ReservationId { get; set; }
@@ -36,7 +38,8 @@ namespace S2M.Models {
 		{
 			get
 			{
-				if (!string.IsNullOrEmpty(ProfileImage)) {
+				if (!string.IsNullOrEmpty(ProfileImage))
+				{
 					var imageCdn = "https://d3817ykd1rv0p7.cloudfront.net";
 
 					var filenameWithoutExtension = ProfileImage.Substring(0, ProfileImage.LastIndexOf("."));
@@ -51,7 +54,8 @@ namespace S2M.Models {
 		{
 			get
 			{
-				if (!string.IsNullOrEmpty(ProfileImage)) {
+				if (!string.IsNullOrEmpty(ProfileImage))
+				{
 					var imageCdn = "https://d3817ykd1rv0p7.cloudfront.net";
 
 					var filenameWithoutExtension = ProfileImage.Substring(0, ProfileImage.LastIndexOf("."));
@@ -62,10 +66,12 @@ namespace S2M.Models {
 			}
 		}
 
-		public static async Task<CheckIn> CheckInToEvent(CancellationToken token, int eventId) {
+		public static async Task<CheckIn> CheckInToEvent(CancellationToken token, int eventId)
+		{
 			var checkIn = new CheckIn();
 
-			using (var httpClient = new HttpClient()) {
+			using (var httpClient = new HttpClient())
+			{
 				var apiKey = Common.StorageService.LoadSetting("ApiKey");
 				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
 				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
@@ -75,10 +81,12 @@ namespace S2M.Models {
 				httpClient.DefaultRequestHeaders.Add("api-version", "2");
 				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
 
-				try {
+				try
+				{
 					var url = apiUrl + "/api/checkin/event/" + eventId;
 
-					using (var httpResponse = await httpClient.PostAsync(new Uri(url), null)) {
+					using (var httpResponse = await httpClient.PostAsync(new Uri(url), null))
+					{
 						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
 						json = json.Replace("<br>", Environment.NewLine);
 						checkIn = JsonConvert.DeserializeObject<CheckIn>(json);
@@ -90,13 +98,15 @@ namespace S2M.Models {
 			return checkIn;
 		}
 
-		public static async Task GetProfileCheckInsAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList) {
+		public static async Task GetProfileCheckInsAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList)
+		{
 			var checkInResult = new CheckInResult();
 			var checkins = new ObservableCollection<CheckIn>();
 
 			var authenticatedProfile = await Common.StorageService.RetrieveObjectAsync<Profile>("Profile");
 
-			using (var httpClient = new HttpClient()) {
+			using (var httpClient = new HttpClient())
+			{
 				var apiKey = Common.StorageService.LoadSetting("ApiKey");
 				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
 				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
@@ -106,7 +116,8 @@ namespace S2M.Models {
 				httpClient.DefaultRequestHeaders.Add("api-version", "2");
 				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
 
-				try {
+				try
+				{
 					var url = apiUrl + "/api/checkin/profile/" + authenticatedProfile.Id;
 
 					var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token);
@@ -117,12 +128,14 @@ namespace S2M.Models {
 				catch (Exception e) { }
 			}
 
-			foreach (var checkin in checkins) {
+			foreach (var checkin in checkins)
+			{
 				checkinList.Add(checkin);
 			}
 		}
 
-		public static async Task GetCheckInsAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false) {
+		public static async Task GetCheckInsAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false)
+		{
 			var checkInResult = await GetCheckInsDataAsync(token, locationId, eventId, searchTerm, latitude, longitude, radius, workingOn, page, itemsPerPage, allDay);
 			var checkins = checkInResult.Results.ToList();
 
@@ -131,15 +144,18 @@ namespace S2M.Models {
 				checkins = checkins.OrderByDescending(c => c.MatchPercentage).ToList();
 			}
 
-			foreach (var checkin in checkins) {
+			foreach (var checkin in checkins)
+			{
 				checkinList.Add(checkin);
 			}
 		}
 
-		public static async Task<string> GetNrOfCheckInsLiveTileAsync(int locationId = 0) {
+		public static async Task<string> GetNrOfCheckInsLiveTileAsync(int locationId = 0)
+		{
 			var tileContent = "";
 
-			using (var httpClient = new HttpClient()) {
+			using (var httpClient = new HttpClient())
+			{
 				var apiKey = Common.StorageService.LoadSetting("ApiKey");
 				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
 
@@ -147,7 +163,8 @@ namespace S2M.Models {
 				//httpClient.DefaultRequestHeaders.Add("token", apiKey);
 				//httpClient.DefaultRequestHeaders.Add("api-version", "2");
 
-				try {
+				try
+				{
 					var url = apiUrl + "/api/livetile/nrofcheckins";
 
 					var httpResponse = await httpClient.GetAsync(new Uri(url));
@@ -162,13 +179,15 @@ namespace S2M.Models {
 			return tileContent;
 		}
 
-		private static async Task<CheckInResult> GetCheckInsDataAsync(CancellationToken token, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false) {
+		private static async Task<CheckInResult> GetCheckInsDataAsync(CancellationToken token, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false)
+		{
 			var checkInResult = new CheckInResult();
 			var checkins = new ObservableCollection<CheckIn>();
 
 			var authenticatedProfile = await Common.StorageService.RetrieveObjectAsync<Profile>("Profile");
 
-			using (var httpClient = new HttpClient()) {
+			using (var httpClient = new HttpClient())
+			{
 				var apiKey = Common.StorageService.LoadSetting("ApiKey");
 				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
 
@@ -176,8 +195,10 @@ namespace S2M.Models {
 				httpClient.DefaultRequestHeaders.Add("token", apiKey);
 				httpClient.DefaultRequestHeaders.Add("api-version", "2");
 
-				try {
-					var criteria = new CheckInListCriteria {
+				try
+				{
+					var criteria = new CheckInListCriteria
+					{
 						DateTimeStamp = Common.DateService.ToJavaScriptMilliseconds(DateTime.Now),
 						ItemsPerPage = itemsPerPage,
 						Latitude = latitude,
@@ -190,16 +211,20 @@ namespace S2M.Models {
 					};
 
 					var url = apiUrl + "/api/checkin";
-					if (allDay) {
+					if (allDay)
+					{
 						url = url + "/allday";
 					}
-					if (locationId > 0) {
+					if (locationId > 0)
+					{
 						url = url + "/location/" + locationId;
 					}
-					if (eventId > 0) {
+					if (eventId > 0)
+					{
 						url = url + "/event/" + eventId;
 					}
-					if (eventId == 0) {
+					if (eventId == 0)
+					{
 						url = url + "?" + JsonConvert.SerializeObject(criteria);
 					}
 
@@ -216,7 +241,8 @@ namespace S2M.Models {
 		}
 	}
 
-	public class CheckInListCriteria {
+	public class CheckInListCriteria
+	{
 		public long DateTimeStamp { get; set; }
 		public int ItemsPerPage { get; set; }
 		public double Latitude { get; set; }

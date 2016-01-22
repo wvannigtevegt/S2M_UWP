@@ -35,9 +35,28 @@ namespace S2M.Pages {
 		}
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e) {
-			var locationObject = (Models.Location)e.Parameter;
-			if (locationObject != null) {
-				LocationObject = locationObject;
+			var criteria = (LocationDetailPageCriteria)e.Parameter;
+			if (criteria != null)
+			{
+				if (criteria.Location != null)
+				{
+					LocationObject = criteria.Location;
+				}
+				if (criteria.LocationId > 0 && LocationObject == null)
+				{
+					_cts = new CancellationTokenSource();
+					CancellationToken token = _cts.Token;
+
+					try
+					{
+						LocationObject = await Location.GetLocationById(token, criteria.LocationId);
+					}
+					catch (Exception) { }
+					finally
+					{
+						_cts = null;
+					}
+				}
 			}
 		}
 
@@ -150,5 +169,11 @@ namespace S2M.Pages {
 				_cts = null;
 			}
 		}
+	}
+
+	public class LocationDetailPageCriteria
+	{
+		public int LocationId { get; set; } = 0;
+		public Location Location { get; set; } = null;
 	}
 }

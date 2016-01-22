@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Security.Credentials;
+using Windows.System.Profile;
 using Windows.Web.Http;
 
 namespace S2M.Models {
@@ -23,7 +24,7 @@ namespace S2M.Models {
 
 					Dictionary<string, string> criteria = new Dictionary<string, string>();
 
-					var hardwareId = "1234567890";// GetDeviceID();
+					var hardwareId = Common.DeviceHelper.GetDeviceId();
 
 					criteria.Add("MachineToken", hardwareId);
 					criteria.Add("UserName", username);
@@ -62,16 +63,5 @@ namespace S2M.Models {
 			await Common.StorageService.DeleteObjectAsync("Profile");
 		}
 
-		//private static string GetDeviceID() {
-
-		//var token = Windows.System.Profile.HardwareIdentification.GetPackageSpecificToken(null);
-		//var hardwareId = token.Id;
-		//var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(hardwareId);
-
-		//byte[] bytes = new byte[hardwareId.Length];
-		//dataReader.ReadBytes(bytes);
-
-		//return BitConverter.ToString(bytes).Replace("-", "");
-		//}
 	}
 }

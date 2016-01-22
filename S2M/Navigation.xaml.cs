@@ -24,6 +24,7 @@ namespace S2M
 		protected string SearchTerm { get; set; }
 
 		private CancellationTokenSource _cts = null;
+		private bool _ignorePageStartUp = false;
 
 		public Navigation()
 		{
@@ -47,6 +48,16 @@ namespace S2M
 			}
 		}
 
+		protected async override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			var criteria = (NavigationPageCriteria)e.Parameter;
+			if (criteria != null)
+			{
+				_ignorePageStartUp = true;
+				GoToPage(criteria.Action, criteria.Id);
+			}
+		}
+
 		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
 		{
 			if (_cts != null)
@@ -67,13 +78,10 @@ namespace S2M
 
 			await Common.StorageService.DeleteObjectAsync("WorkingOn"); //TODO: Remove
 			var workingOn = await Common.StorageService.RetrieveObjectAsync<Models.WorkingOn>("WorkingOn");
-			if (workingOn == null)
-			{
-				GoToPage("WorkingOn");
-			}
-			else {
 
-				if (string.IsNullOrEmpty(workingOn.Text) || workingOn.EnteredOn.Date != DateTime.Now.Date)
+			if (!_ignorePageStartUp)
+			{
+				if (workingOn == null || string.IsNullOrEmpty(workingOn.Text) || workingOn.EnteredOn.Date != DateTime.Now.Date)
 				{
 					GoToPage("WorkingOn");
 				}
@@ -81,6 +89,7 @@ namespace S2M
 					GoToPage("Home");
 				}
 			}
+			
 		}
 
 		private void OnNavigated(object sender, NavigationEventArgs e)
@@ -142,7 +151,7 @@ namespace S2M
 			}
 		}
 
-		private void GoToPage(string page)
+		private void GoToPage(string page, int id = 0)
 		{
 			NavigationSplitView.IsPaneOpen = false;
 			if (CurrentPage != page)
@@ -180,13 +189,13 @@ namespace S2M
 					CheckInsRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "CheckIns";
 
-					var criteria = new Pages.CheckInPageCriteria
+					var checkInPageCriteria = new Pages.CheckInPageCriteria
 					{
 						CheckInKnowledgeTag = new CheckInKnowledgeTag(),
 						SearchTerm = SearchTerm
 					};
 
-					NavigationFrame.Navigate(typeof(Pages.CheckIns), criteria);
+					NavigationFrame.Navigate(typeof(Pages.CheckIns), checkInPageCriteria);
 
 					SetSearchAvailabilityStatus(true);
 					break;
@@ -210,6 +219,19 @@ namespace S2M
 
 					SetSearchAvailabilityStatus(false);
 					break;
+				case "ChatDetail":
+					ArchiveRadioButton.IsChecked = true;
+					NavigationHeaderTextBlock.Text = "Archive";
+
+					var chatDetailPageCriteria = new Pages.ChatDetailPageCriteria
+					{
+						Chat = null,
+						ChatId = id
+					};
+					NavigationFrame.Navigate(typeof(Pages.ChatDetail), chatDetailPageCriteria);
+
+					SetSearchAvailabilityStatus(false);
+					break;
 				case "Settings":
 					ArchiveRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Settings";
@@ -227,6 +249,7 @@ namespace S2M
 
 					SetSearchAvailabilityStatus(false);
 					break;
+				
 			}
 
 			//ResetPageHeader();
@@ -340,5 +363,11 @@ namespace S2M
 		{
 			sender.Text = args.SelectedItem.ToString();
 		}
+	}
+
+	public class NavigationPageCriteria
+	{
+		public string Action { get; set; } = "";
+		public int Id { get; set; } = 0;
 	}
 }
