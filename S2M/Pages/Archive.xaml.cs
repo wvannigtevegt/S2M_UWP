@@ -96,7 +96,13 @@ namespace S2M.Pages {
 		private void ChatsListView_ItemClick(object sender, ItemClickEventArgs e) {
 			var chat = (Chat)e.ClickedItem;
 			if (chat != null) {
-				Frame.Navigate(typeof(ChatDetail), chat);
+				var criteria = new ChatDetailPageCriteria
+				{
+					Chat = chat,
+					ChatId = 0
+				};
+
+				Frame.Navigate(typeof(ChatDetail), criteria);
 			}
 		}
 
