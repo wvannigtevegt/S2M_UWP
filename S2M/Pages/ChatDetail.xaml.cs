@@ -62,7 +62,12 @@ namespace S2M.Pages
 
 		private async void Page_Loaded(object sender, RoutedEventArgs e)
 		{
-			
+			var selectedIndex = ChatMessagesListView.Items.Count - 1;
+			ChatMessagesListView.SelectedIndex = selectedIndex;
+			ChatMessagesListView.UpdateLayout();
+
+			ChatMessagesListView.ScrollIntoView(ChatMessagesListView.SelectedItem);
+			ChatMessagesListView.UpdateLayout();
 		}
 
 		private async void PostMessageButton_Click(object sender, RoutedEventArgs e)

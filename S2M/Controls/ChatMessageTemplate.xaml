@@ -9,12 +9,12 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid>
-		<RelativePanel Width="300" Height="Auto" Background="White" Margin="0,0,0,12">
+	<Grid>
+		<RelativePanel Grid.Column="0" Height="Auto" Background="White" Margin="0,0,0,12">
 			<Ellipse x:Name="ChatMessageImageEllipse"
 					 RelativePanel.AlignLeftWithPanel="True"
 					 RelativePanel.AlignTopWithPanel="True"
-					 Margin="5,0,0,5"
+					 Margin="12,12,0,12"
 					 Width="24" 
 					 Height="24">
 				<Ellipse.Fill>
@@ -33,14 +33,14 @@
 					   RelativePanel.RightOf="ChatMessageImageEllipse"
 					   Text="{x:Bind ChatMessage.Message}"
 					   TextWrapping="WrapWholeWords"
-					   Margin="5,0,0,0"
+					   Margin="12,12,12,0"
 					   Foreground="#FF001E2D"/>
 
 			<TextBlock x:Name="ChatMessageProfileNameTextBlock" 
 					   RelativePanel.RightOf="ChatMessageImageEllipse"
 					   RelativePanel.Below="ChatMessageTextBlock"
 					   Text="{x:Bind ChatMessage.ProfileName}"
-					   Margin="5,0,0,0"
+					   Margin="12,0,12,12"
 					   FontSize="12"
 					   Foreground="DarkGray"/>
 		</RelativePanel>
