@@ -61,13 +61,22 @@
 		</ListView>
 
 		<RelativePanel Grid.Row="2">
-			<TextBox x:Name="ChatMessageTextBox"
-					 Width="300"/>
-
 			<Button x:Name="PostMessageButton" 
-					Content="Post" 
-					Click="PostMessageButton_Click"
-					RelativePanel.RightOf="ChatMessageTextBox"/>
+					Margin="0,0,12,0"
+					FontFamily="Segoe MDL2 Assets" 
+					Content="&#xE122;" 
+					FontSize="20"
+					Width="48"
+					Height="48"
+					RelativePanel.AlignRightWithPanel="True"
+					Click="PostMessageButton_Click" />
+			
+			<TextBox x:Name="ChatMessageTextBox"
+					 Margin="12,12,12,0"
+					 KeyUp="ChatMessageTextBox_KeyDown"
+					 RelativePanel.AlignLeftWithPanel="True" 
+					 RelativePanel.LeftOf="PostMessageButton"/>
+
 		</RelativePanel>
 	</Grid>
 </Page>

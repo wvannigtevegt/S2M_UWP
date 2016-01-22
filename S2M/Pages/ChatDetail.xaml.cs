@@ -1,6 +1,7 @@
 ﻿using S2M.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -58,34 +59,46 @@ namespace S2M.Pages
 					ChatMessageList.Add(message);
 				}
 			}
+			var test = "";
 		}
 
 		private async void Page_Loaded(object sender, RoutedEventArgs e)
 		{
-			var selectedIndex = ChatMessagesListView.Items.Count - 1;
-			ChatMessagesListView.SelectedIndex = selectedIndex;
-			ChatMessagesListView.UpdateLayout();
-
-			ChatMessagesListView.ScrollIntoView(ChatMessagesListView.SelectedItem);
-			ChatMessagesListView.UpdateLayout();
+			GoToLastMessage();
 		}
 
 		private async void PostMessageButton_Click(object sender, RoutedEventArgs e)
 		{
-			var chatMessage = ChatMessageTextBox.Text;
+			await PostNewMessage();
+		}
 
-			var chat = await ChatMessage.PostChatMessage(ChatObject.Id, chatMessage);
-			if (chat != null)
+		private async void ChatMessageTextBox_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+		{
+			if (e.Key == Windows.System.VirtualKey.Enter)
 			{
-				ChatMessageTextBox.Text = "";
+				await PostNewMessage();
+				e.Handled = true;
+			}
+		}
 
-				foreach (var message in chat.Messages)
+		private async Task PostNewMessage()
+		{
+			var chatMessage = ChatMessageTextBox.Text;
+			if (!string.IsNullOrEmpty(chatMessage))
+			{
+				var chat = await ChatMessage.PostChatMessage(ChatObject.Id, chatMessage);
+				if (chat != null)
 				{
-					if (!ChatMessageAlreadyExists(message))
-					{
-						ChatMessageList.Add(message);
+					ChatMessageTextBox.Text = "";
 
-						ChatMessagesListView.ScrollIntoView(message);
+					foreach (var message in chat.Messages)
+					{
+						if (!ChatMessageAlreadyExists(message))
+						{
+							ChatMessageList.Add(message);
+
+							GoToLastMessage();
+						}
 					}
 				}
 			}
@@ -98,6 +111,16 @@ namespace S2M.Pages
 				return true;
 			}
 			return false;
+		}
+
+		private void GoToLastMessage()
+		{
+			var selectedIndex = ChatMessagesListView.Items.Count - 1;
+			ChatMessagesListView.SelectedIndex = selectedIndex;
+			ChatMessagesListView.UpdateLayout();
+
+			ChatMessagesListView.ScrollIntoView(ChatMessagesListView.SelectedItem);
+			ChatMessagesListView.UpdateLayout();
 		}
 	}
 
