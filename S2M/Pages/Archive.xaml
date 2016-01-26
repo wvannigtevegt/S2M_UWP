@@ -49,7 +49,21 @@
 						  ItemClick="ReservationsListView_ItemClick" >
 					<ListView.ItemTemplate>
 						<DataTemplate x:DataType="data:CheckIn">
-							<TextBlock Text="{x:Bind Id}" />
+							<RelativePanel>
+								<Button x:Name="CancelCheckInButton" 
+										FontFamily="Segoe MDL2 Assets"
+										Background="Red"
+										Content="&#xE10A;" 
+										FontSize="10"
+										Width="24"
+										Height="24"
+										RelativePanel.AlignLeftWithPanel="True"
+										Click="CancelCheckInButton_Click" />
+							
+								<TextBlock Text="{x:Bind Id}"
+										   Margin="12,0,0,0"
+										   RelativePanel.RightOf="CancelCheckInButton"/>
+							</RelativePanel>
 						</DataTemplate>
 					</ListView.ItemTemplate>
 				</ListView>

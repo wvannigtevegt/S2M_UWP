@@ -76,7 +76,7 @@ namespace S2M.Models {
 
 					return imagePath;
 				}
-				return "";
+				return "Assets/StoreLogo.png";
 			}
 		}
 

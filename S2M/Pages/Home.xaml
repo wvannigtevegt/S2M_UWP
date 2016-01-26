@@ -45,7 +45,6 @@
 		</RelativePanel>
 
 
-
 		<Pivot x:Name="RecommendationsPivot" Grid.Row="1" SelectionChanged="RecommendationsPivot_SelectionChanged">
 			<PivotItem Header="Locations">
 				<GridView Grid.Row="1" 

@@ -128,7 +128,7 @@ namespace S2M.Models
 				catch (Exception e) { }
 			}
 
-			foreach (var checkin in checkins)
+			foreach (var checkin in checkInResult.Results)
 			{
 				checkinList.Add(checkin);
 			}

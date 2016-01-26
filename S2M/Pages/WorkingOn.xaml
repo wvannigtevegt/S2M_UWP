@@ -3,16 +3,28 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:S2M.Pages"
+	xmlns:data="using:S2M.Models"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	Loaded="Page_Loaded"
     mc:Ignorable="d">
 
-		<StackPanel x:Name="WorkinOnInputStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<StackPanel x:Name="WorkinOnInputStackPanel"
+					Grid.Row="1"
+					HorizontalAlignment="Center" 
+					VerticalAlignment="Center">
 			<TextBox x:Name="WorkingOnTextBox" 
 					 Header="What is on top of your mind today" 
 					 Text="{x:Bind WorkingOnString, Mode=TwoWay}" 
-					 HorizontalAlignment="Stretch" 
+					 HorizontalAlignment="Stretch"
+					 KeyUp="WorkingOnTextBox_KeyUp"
 					 Width="400" />
 
 			<Button x:Name="SaveWorkingOnButton" 
@@ -22,4 +34,63 @@
 					Background="Lime" 
 					Click="SaveWorkingOnButton_Click" />
 		</StackPanel>
+
+		<FlipView x:Name="WorkingOnFlipView"
+				  Grid.Row="2"
+				  Background="LightGray"
+				  ItemsSource="{x:Bind CheckInList}">
+			<FlipView.ItemTemplate>
+				<DataTemplate x:DataType="data:CheckIn">
+					<RelativePanel Width="500" Height="100" Background="DimGray">
+						<Ellipse x:Name="CheckInImageEllipse"
+								 RelativePanel.AlignLeftWithPanel="True"
+								 Margin="12,12,12,12"
+								 Width="75" 
+								 Height="75">
+							<Ellipse.Fill>
+								<ImageBrush Stretch="Fill">
+									<ImageBrush.ImageSource>
+										<BitmapImage x:Name="CheckInImageBitmap" 
+										 DecodePixelHeight="75" 
+										 DecodePixelWidth="75" 
+										 UriSource="{x:Bind ProfileImage_150}" />
+									</ImageBrush.ImageSource>
+								</ImageBrush>
+							</Ellipse.Fill>
+						</Ellipse>
+
+						<StackPanel x:Name="CheckInLocationStackPanel"
+									Margin="0,12,0,0"
+									RelativePanel.RightOf="CheckInImageEllipse">
+
+							<TextBlock x:Name="CheckinWorkingTextBlock" 
+									   Text="{x:Bind WorkingOn}"
+									   TextWrapping="Wrap"
+									   Foreground="#FF001E2D"
+									   FontWeight="Bold"
+									   VerticalAlignment="Bottom"/>
+
+							<TextBlock x:Name="CheckInNameTextBlock" 
+									   Text="{x:Bind ProfileName}"
+									   Margin="5,5,5,5"
+									   HorizontalAlignment="Left"
+									   Height="Auto"
+									   FontSize="12"
+									   Foreground="DarkGray"/>
+
+							<TextBlock x:Name="CheckinLocationTextBlock" 
+									   Text="{x:Bind LocationName}"
+									   Margin="5,0,0,0"
+									   FontSize="12"
+									   Foreground="DarkGray"/>
+
+
+						</StackPanel>
+
+
+					</RelativePanel>
+				</DataTemplate>
+			</FlipView.ItemTemplate>
+		</FlipView>
+	</Grid>
 </Page>

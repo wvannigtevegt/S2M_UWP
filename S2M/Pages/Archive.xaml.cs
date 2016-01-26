@@ -109,5 +109,10 @@ namespace S2M.Pages {
 		private void ReservationsListView_ItemClick(object sender, ItemClickEventArgs e) {
 
 		}
+
+		private void CancelCheckInButton_Click(object sender, RoutedEventArgs e)
+		{
+
+		}
 	}
 }
