@@ -25,7 +25,7 @@
 			</GridView.ItemContainerTransitions>
 
 			<GridView.ItemTemplate>
-				<DataTemplate x:DataType="data:Event">
+				<DataTemplate x:DataType="data:EventCalendar">
 					<control:EventTemplate />
 				</DataTemplate>
 			</GridView.ItemTemplate>

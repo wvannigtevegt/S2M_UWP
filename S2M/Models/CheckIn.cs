@@ -66,7 +66,7 @@ namespace S2M.Models
 			}
 		}
 
-		public static async Task<CheckIn> CheckInToEvent(CancellationToken token, int eventId)
+		public static async Task<CheckIn> CheckInToEvent(CancellationToken token, int eventDateId)
 		{
 			var checkIn = new CheckIn();
 
@@ -83,16 +83,16 @@ namespace S2M.Models
 
 				try
 				{
-					var url = apiUrl + "/api/checkin/event/" + eventId;
+					var url = apiUrl + "/api/checkin/event/" + eventDateId;
 
-					using (var httpResponse = await httpClient.PostAsync(new Uri(url), null))
+					using (var httpResponse = await httpClient.PostAsync(new Uri(url), null).AsTask(token))
 					{
 						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
 						json = json.Replace("<br>", Environment.NewLine);
 						checkIn = JsonConvert.DeserializeObject<CheckIn>(json);
 					}
 				}
-				catch (Exception e) { }
+				catch (Exception) { }
 			}
 
 			return checkIn;
@@ -125,7 +125,7 @@ namespace S2M.Models
 					json = json.Replace("<br>", Environment.NewLine);
 					checkInResult = JsonConvert.DeserializeObject<CheckInResult>(json);
 				}
-				catch (Exception e) { }
+				catch (Exception) { }
 			}
 
 			foreach (var checkin in checkInResult.Results)
@@ -147,6 +147,41 @@ namespace S2M.Models
 			foreach (var checkin in checkins)
 			{
 				checkinList.Add(checkin);
+			}
+		}
+
+		public static async Task GetCheckInsEventDateAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList, EventCalendar eventObject)
+		{
+			var checkInResult = new CheckInResult();
+
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var url = apiUrl + "/api/checkin/event/" + eventObject.EventId + "/" + eventObject.Date.Year + "/" + eventObject.Date.Month + "/" + eventObject.Date.Day;
+
+					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token))
+					{
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						checkInResult = JsonConvert.DeserializeObject<CheckInResult>(json);
+
+						foreach(var checkin in checkInResult.Results)
+						{
+							checkinList.Add(checkin);
+						}
+					}
+				}
+				catch (Exception) { }
 			}
 		}
 
@@ -173,10 +208,42 @@ namespace S2M.Models
 					tileContent = json;
 					//checkInResult = JsonConvert.DeserializeObject<string>(json);
 				}
-				catch (Exception e) { }
+				catch (Exception) { }
 			}
 
 			return tileContent;
+		}
+
+		public static async Task<int> CancelCheckIn(CancellationToken token, int id)
+		{
+			var result = -1;
+
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var url = apiUrl + "/api/checkin/" + id;
+
+					using (var httpResponse = await httpClient.DeleteAsync(new Uri(url)).AsTask(token))
+					{
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						result = JsonConvert.DeserializeObject<int>(json);
+					}
+				}
+				catch (Exception) { }
+			}
+
+			return result;
 		}
 
 		private static async Task<CheckInResult> GetCheckInsDataAsync(CancellationToken token, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false)

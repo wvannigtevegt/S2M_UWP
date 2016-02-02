@@ -148,6 +148,7 @@
     <Compile Include="Models\AvailableLocation.cs" />
     <Compile Include="Models\AvailableUnit.cs" />
     <Compile Include="Models\Cart.cs" />
+    <Compile Include="Models\Channel.cs" />
     <Compile Include="Models\Chat.cs" />
     <Compile Include="Models\ChatMessage.cs" />
     <Compile Include="Models\ChatProfile.cs" />
@@ -157,7 +158,8 @@
     <Compile Include="Models\CheckInKnowledgeTagResult.cs" />
     <Compile Include="Models\CheckInResult.cs" />
     <Compile Include="Models\ChosenUnit.cs" />
-    <Compile Include="Models\Event.cs" />
+    <Compile Include="Models\Country.cs" />
+    <Compile Include="Models\EventCalendar.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\LocationResult.cs" />
     <Compile Include="Models\LocationText.cs" />
@@ -187,6 +189,9 @@
     </Compile>
     <Compile Include="Pages\CheckIns.xaml.cs">
       <DependentUpon>CheckIns.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\EventCheckInNFC.xaml.cs">
+      <DependentUpon>EventCheckInNFC.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\EventDetail.xaml.cs">
       <DependentUpon>EventDetail.xaml</DependentUpon>
@@ -326,6 +331,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Pages\CheckIns.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\EventCheckInNFC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

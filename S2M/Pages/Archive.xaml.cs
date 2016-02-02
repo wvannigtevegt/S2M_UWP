@@ -1,6 +1,7 @@
 ﻿using S2M.Models;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -10,32 +11,39 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace S2M.Pages {
+namespace S2M.Pages
+{
 	/// <summary>
 	/// An empty page that can be used on its own or navigated to within a Frame.
 	/// </summary>
-	public sealed partial class Archive : Page {
+	public sealed partial class Archive : Page
+	{
 		public ObservableCollection<Chat> ChatList { get; set; }
 		public ObservableCollection<CheckIn> CheckInList { get; set; }
 
 		private CancellationTokenSource _cts = null;
 
-		public Archive() {
+		public Archive()
+		{
 			this.InitializeComponent();
 
 			ChatList = new ObservableCollection<Chat>();
 			CheckInList = new ObservableCollection<CheckIn>();
 		}
 
-		protected async override void OnNavigatedTo(NavigationEventArgs e) {
+		protected async override void OnNavigatedTo(NavigationEventArgs e)
+		{
 			var localSettings = ApplicationData.Current.LocalSettings;
-			if (localSettings.Values["ArchivePivotSelectedIndex"] != null) {
+			if (localSettings.Values["ArchivePivotSelectedIndex"] != null)
+			{
 				ArchivePivot.SelectedIndex = (int)localSettings.Values["ArchivePivotSelectedIndex"];
 			}
 		}
 
-		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
-			if (_cts != null) {
+		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+		{
+			if (_cts != null)
+			{
 				_cts.Cancel();
 				_cts = null;
 			}
@@ -46,23 +54,28 @@ namespace S2M.Pages {
 			base.OnNavigatingFrom(e);
 		}
 
-		private async void Page_Loaded(object sender, RoutedEventArgs e) {
-			
+		private async void Page_Loaded(object sender, RoutedEventArgs e)
+		{
+
 		}
 
-		private async void ArchivePivot_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+		private async void ArchivePivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
 			await LoadArchiveData();
 		}
 
-		private async Task LoadArchiveData() {
+		private async Task LoadArchiveData()
+		{
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
 			ChatsProgressRing.IsActive = true;
 			ChatsProgressRing.Visibility = Visibility.Visible;
 
-			try {
-				switch (ArchivePivot.SelectedIndex) {
+			try
+			{
+				switch (ArchivePivot.SelectedIndex)
+				{
 					case 0:
 						await GetArchiveChats(token);
 						break;
@@ -75,8 +88,9 @@ namespace S2M.Pages {
 
 
 			}
-			catch (Exception e) { }
-			finally {
+			catch (Exception) { }
+			finally
+			{
 				_cts = null;
 
 				ChatsProgressRing.IsActive = false;
@@ -84,18 +98,22 @@ namespace S2M.Pages {
 			}
 		}
 
-		private async Task GetArchiveChats(CancellationToken token) {
+		private async Task GetArchiveChats(CancellationToken token)
+		{
 			ChatList.Clear();
 			await Chat.GetProfileChatsAsync(ChatList);
 		}
-		private async Task GetArchiveCheckIns(CancellationToken token) {
+		private async Task GetArchiveCheckIns(CancellationToken token)
+		{
 			CheckInList.Clear();
 			await CheckIn.GetProfileCheckInsAsync(token, CheckInList);
 		}
 
-		private void ChatsListView_ItemClick(object sender, ItemClickEventArgs e) {
+		private void ChatsListView_ItemClick(object sender, ItemClickEventArgs e)
+		{
 			var chat = (Chat)e.ClickedItem;
-			if (chat != null) {
+			if (chat != null)
+			{
 				var criteria = new ChatDetailPageCriteria
 				{
 					Chat = chat,
@@ -106,13 +124,33 @@ namespace S2M.Pages {
 			}
 		}
 
-		private void ReservationsListView_ItemClick(object sender, ItemClickEventArgs e) {
+		private void ReservationsListView_ItemClick(object sender, ItemClickEventArgs e)
+		{
 
 		}
 
-		private void CancelCheckInButton_Click(object sender, RoutedEventArgs e)
+		private async void CancelCheckInButton_Click(object sender, RoutedEventArgs e)
 		{
+			Button _button = (Button)sender;
+			var id = int.Parse(_button.Tag.ToString());
 
+			_cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				var result = await CheckIn.CancelCheckIn(token, id);
+				if (result == 1)
+				{
+					var itemToRemove = CheckInList.Single(cl => cl.Id == id);
+					CheckInList.Remove(itemToRemove);
+				}
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+			}
 		}
 	}
 }

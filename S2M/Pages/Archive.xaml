@@ -58,7 +58,8 @@
 										Width="24"
 										Height="24"
 										RelativePanel.AlignLeftWithPanel="True"
-										Click="CancelCheckInButton_Click" />
+										Click="CancelCheckInButton_Click"
+										Tag="{x:Bind Id}" />
 							
 								<TextBlock Text="{x:Bind Id}"
 										   Margin="12,0,0,0"

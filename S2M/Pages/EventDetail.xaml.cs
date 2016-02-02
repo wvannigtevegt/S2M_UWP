@@ -31,7 +31,7 @@ namespace S2M.Pages
 	/// </summary>
 	public sealed partial class EventDetail : Page
 	{
-		public Event EventObject { get; set; }
+		public EventCalendar EventObject { get; set; }
 		public ObservableCollection<CheckIn> CheckInList { get; set; }
 		public ObservableCollection<CheckInKnowledgeTag> TagCheckInList { get; set; }
 
@@ -48,7 +48,7 @@ namespace S2M.Pages
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e)
 		{
-			var eventObject = (Models.Event)e.Parameter;
+			var eventObject = (Models.EventCalendar)e.Parameter;
 			if (eventObject != null)
 			{
 				EventObject = eventObject;
@@ -93,12 +93,21 @@ namespace S2M.Pages
 
 			try
 			{
-				await CheckIn.GetCheckInsAsync(token, CheckInList, 0, EventObject.Id, "", 0, 0, 0, "", 0, 0, false);
+				var oldCheckInList = CheckInList;
+				var newCheckInList = new ObservableCollection<CheckIn>();
+
+				await CheckIn.GetCheckInsEventDateAsync(token, newCheckInList, EventObject);
+				foreach(var checkIn in newCheckInList)
+				{
+					if (!oldCheckInList.Where(ocl => ocl.Id == checkIn.Id).Any())
+					{
+						CheckInList.Add(checkIn);
+					}
+				}
+
 				CheckIfProfileAlreadyCheckedInEvent();
 
 				await CheckInKnowledgeTag.GetEventCheckInKnowledgeTagsAsync(token, TagCheckInList, EventObject.Id);
-
-
 			}
 			catch (Exception) { }
 			finally

@@ -1,4 +1,5 @@
 ﻿using S2M.Models;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,6 +19,8 @@ namespace S2M.Pages
 		public ObservableCollection<ChatMessage> ChatMessageList { get; set; }
 
 		public Chat ChatObject { get; set; }
+
+		private DispatcherTimer _timer;
 
 		public ChatDetail()
 		{
@@ -65,6 +68,13 @@ namespace S2M.Pages
 		private async void Page_Loaded(object sender, RoutedEventArgs e)
 		{
 			GoToLastMessage();
+
+			_timer = new DispatcherTimer()
+			{
+				Interval = TimeSpan.FromSeconds(3)
+			};
+			_timer.Tick += UpdateChatMessages;
+			_timer.Start();
 		}
 
 		private async void PostMessageButton_Click(object sender, RoutedEventArgs e)
@@ -79,6 +89,11 @@ namespace S2M.Pages
 				await PostNewMessage();
 				e.Handled = true;
 			}
+		}
+
+		private void UpdateChatMessages(object sender, object o)
+		{
+			//var newMessages = ChatMessage
 		}
 
 		private async Task PostNewMessage()

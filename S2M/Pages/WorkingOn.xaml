@@ -16,16 +16,18 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
+
 		<StackPanel x:Name="WorkinOnInputStackPanel"
 					Grid.Row="1"
+					Background="Pink"
 					HorizontalAlignment="Center" 
 					VerticalAlignment="Center">
+
 			<TextBox x:Name="WorkingOnTextBox" 
-					 Header="What is on top of your mind today" 
-					 Text="{x:Bind WorkingOnString, Mode=TwoWay}" 
-					 HorizontalAlignment="Stretch"
-					 KeyUp="WorkingOnTextBox_KeyUp"
-					 Width="400" />
+					Header="What are you working on today?" 
+					Text="{x:Bind WorkingOnString, Mode=TwoWay}" 
+					HorizontalAlignment="Stretch"
+					KeyUp="WorkingOnTextBox_KeyUp" />
 
 			<Button x:Name="SaveWorkingOnButton" 
 					Content="See matches" 

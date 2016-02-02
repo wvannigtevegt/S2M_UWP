@@ -5,7 +5,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace S2M.Controls {
 	public sealed partial class EventTemplate : UserControl {
-		public Event Event { get { return this.DataContext as Event; } }
+		public EventCalendar EventCalendar { get { return this.DataContext as EventCalendar; } }
 
 		public EventTemplate() {
 			this.InitializeComponent();

@@ -249,7 +249,19 @@ namespace S2M
 
 					SetSearchAvailabilityStatus(false);
 					break;
-				
+				case "EventCheckInNFC":
+					EventsRadioButton.IsChecked = true;
+					NavigationHeaderTextBlock.Text = "Check-in";
+
+					//var chatDetailPageCriteria = new Pages.ChatDetailPageCriteria
+					//{
+					//	Chat = null,
+					//	ChatId = id
+					//};
+					NavigationFrame.Navigate(typeof(Pages.EventCheckInNFC), id);
+
+					SetSearchAvailabilityStatus(false);
+					break;
 			}
 
 			//ResetPageHeader();

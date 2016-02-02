@@ -57,8 +57,15 @@ namespace S2M.Pages {
 
 		private async void StartChatButton_Click(object sender, RoutedEventArgs e) {
 			var chat = await Chat.CreateChat(CheckInObject.ProfileId);
-			if (chat != null) {
-				Frame.Navigate(typeof(ChatDetail), chat);
+			if (chat != null)
+			{
+				var criteria = new ChatDetailPageCriteria
+				{
+					Chat = chat,
+					ChatId = 0
+				};
+
+				Frame.Navigate(typeof(ChatDetail), criteria);
 			}
 		}
 
