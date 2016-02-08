@@ -85,7 +85,7 @@
 						<AdaptiveTrigger MinWindowWidth="0"/>
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						<Setter Target="LocationDataStackPanel.Height" Value="250" />
+						
 					</VisualState.Setters>
 				</VisualState>
 				<VisualState x:Name="VisualStateDesktop">

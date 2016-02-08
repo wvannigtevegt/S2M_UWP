@@ -23,9 +23,13 @@
 					   Margin="20,0,0,0" />
 		</RelativePanel>
 
-		<StackPanel  Grid.Row="1">
+		<StackPanel Grid.Row="1">
+			<TextBlock Text="Notifications" />
+			<ToggleSwitch x:Name="NotificationsToggleSwitch"
+							Toggled="NotificationsToggleSwitch_Toggled"/>
+
+			<TextBlock Text="Channel" />
 			<ComboBox x:Name="ChannelComboBox"
-				 
 				  ItemsSource="{x:Bind ChannelList}"
 				  SelectionChanged="ChannelComboBox_SelectionChanged">
 				<ComboBox.ItemTemplate>
@@ -37,6 +41,7 @@
 				</ComboBox.ItemTemplate>
 			</ComboBox>
 
+			<TextBlock Text="Country" />
 			<ComboBox x:Name="CountryComboBox"
 				  ItemsSource="{x:Bind CountryList}"
 				  SelectionChanged="CountryComboBox_SelectionChanged"

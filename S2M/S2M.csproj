@@ -165,6 +165,7 @@
     <Compile Include="Models\LocationText.cs" />
     <Compile Include="Models\Login.cs" />
     <Compile Include="Models\LoginResult.cs" />
+    <Compile Include="Models\Option.cs" />
     <Compile Include="Models\Profile.cs" />
     <Compile Include="Models\ProfileDevice.cs" />
     <Compile Include="Models\Reservation.cs" />
@@ -213,6 +214,9 @@
     </Compile>
     <Compile Include="Pages\Profile.xaml.cs">
       <DependentUpon>Profile.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Register.xaml.cs">
+      <DependentUpon>Register.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
@@ -363,6 +367,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Profile.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Register.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

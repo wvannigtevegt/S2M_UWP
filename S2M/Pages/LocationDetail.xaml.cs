@@ -9,14 +9,18 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace S2M.Pages {
+namespace S2M.Pages
+{
 	/// <summary>
 	/// An empty page that can be used on its own or navigated to within a Frame.
 	/// </summary>
-	public sealed partial class LocationDetail : Page {
+	public sealed partial class LocationDetail : Page
+	{
 		public Location LocationObject { get; set; }
 		public ObservableCollection<Activity> ActivityList { get; set; }
+		public Cart CartObject { get; set; }
 		public ObservableCollection<CheckIn> CheckInList { get; set; }
+		public ObservableCollection<Option> OptionList { get; set; }
 		public ObservableCollection<CheckInKnowledgeTag> TagCheckInList { get; set; }
 
 		protected string CartKey { get; set; }
@@ -26,15 +30,18 @@ namespace S2M.Pages {
 
 		private CancellationTokenSource _cts = null;
 
-		public LocationDetail() {
+		public LocationDetail()
+		{
 			this.InitializeComponent();
 
 			ActivityList = new ObservableCollection<Activity>();
 			CheckInList = new ObservableCollection<CheckIn>();
+			OptionList = new ObservableCollection<Option>();
 			TagCheckInList = new ObservableCollection<CheckInKnowledgeTag>();
 		}
 
-		protected async override void OnNavigatedTo(NavigationEventArgs e) {
+		protected async override void OnNavigatedTo(NavigationEventArgs e)
+		{
 			var criteria = (LocationDetailPageCriteria)e.Parameter;
 			if (criteria != null)
 			{
@@ -60,8 +67,10 @@ namespace S2M.Pages {
 			}
 		}
 
-		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
-			if (_cts != null) {
+		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+		{
+			if (_cts != null)
+			{
 				_cts.Cancel();
 				_cts = null;
 			}
@@ -69,20 +78,25 @@ namespace S2M.Pages {
 			base.OnNavigatingFrom(e);
 		}
 
-		private async void Page_Loaded(object sender, RoutedEventArgs e) {
+		private async void Page_Loaded(object sender, RoutedEventArgs e)
+		{
 			LocationNameTextBlock.Text = LocationObject.Name;
 
 			var addressLine = "";
-			if (!string.IsNullOrEmpty(LocationObject.Address)) {
+			if (!string.IsNullOrEmpty(LocationObject.Address))
+			{
 				addressLine += LocationObject.Address;
 			}
-			if (!string.IsNullOrEmpty(LocationObject.Zipcode)) {
+			if (!string.IsNullOrEmpty(LocationObject.Zipcode))
+			{
 				addressLine += ", " + LocationObject.Zipcode;
 			}
-			if (!string.IsNullOrEmpty(LocationObject.City)) {
+			if (!string.IsNullOrEmpty(LocationObject.City))
+			{
 				addressLine += ", " + LocationObject.City;
 			}
-			if (!string.IsNullOrEmpty(LocationObject.State)) {
+			if (!string.IsNullOrEmpty(LocationObject.State))
+			{
 				addressLine += " " + LocationObject.State;
 			}
 			LocationAddressLineTextBlock.Text = addressLine;
@@ -90,7 +104,8 @@ namespace S2M.Pages {
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
-			try {
+			try
+			{
 				var locationText = await LocationText.GetLocationDescriptionAsync(token, LocationObject.Id);
 				//LocationDescriptionTextBlock.Text = locationText.Description;
 
@@ -98,75 +113,168 @@ namespace S2M.Pages {
 				await CheckInKnowledgeTag.GetLocationCheckInKnowledgeTagsAsync(token, TagCheckInList, LocationObject.Id);
 			}
 			catch (Exception) { }
-			finally {
+			finally
+			{
 				_cts = null;
 			}
 		}
 
-		private void LocationCheckInsGridView_ItemClick(object sender, ItemClickEventArgs e) {
+		private void LocationCheckInsGridView_ItemClick(object sender, ItemClickEventArgs e)
+		{
 			var checkIn = (CheckIn)e.ClickedItem;
 
 			Frame.Navigate(typeof(CheckInDetail), checkIn);
 		}
 
-		private void TagCheckInsListView_ItemClick(object sender, ItemClickEventArgs e) {
+		private void TagCheckInsListView_ItemClick(object sender, ItemClickEventArgs e)
+		{
 			var tagCheckIn = (CheckInKnowledgeTag)e.ClickedItem;
 
 			CheckInList.Clear();
-			foreach (var checkIn in tagCheckIn.CheckIns) {
+			foreach (var checkIn in tagCheckIn.CheckIns)
+			{
 				CheckInList.Add(checkIn);
 			}
 		}
 
-		private async void CheckInButton_Click(object sender, RoutedEventArgs e) {
+		private async void CheckInButton_Click(object sender, RoutedEventArgs e)
+		{
 			CheckInButton.IsEnabled = false;
 
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
-			try {
+			try
+			{
 				Date = new DateTime(2016, 2, 12);
 				StartTime = new TimeSpan(9, 0, 0);
 				EndTime = new TimeSpan(17, 0, 0);
 
+				CheckInProgressRing.IsActive = true;
+				CheckInProgressRing.Visibility = Visibility.Visible;
+
+				NoAvailabilityTextBlock.Visibility = Visibility.Collapsed;
+
 				var availability = await Availability.GetAvailableLocations(token, LocationObject.Id, Date, StartTime, EndTime);
-				if (availability.Locations.Count > 0) {
+				if (availability.Locations.Count > 0)
+				{
 					var availableLocation = availability.Locations.First();
 					var availableUnits = availableLocation.Units;
 
+					var selectedUnit = availableUnits.First();
+					if (selectedUnit != null)
+					{
 
-					var availableUnit = availableUnits.First();
-					if (availableUnit != null) {
-						var cart = await Availability.SelectAvailableLocation(token, availability.SearchKey, availableLocation.LocationId, availableUnit.SearchDateId, availableUnit.UnitId, 0);
+						CartObject = await Availability.SelectAvailableLocation(token, availability.SearchKey, availableLocation.LocationId, selectedUnit.SearchDateId, selectedUnit.UnitId, 0);
+						if (CartObject != null)
+						{
 
-						if (cart != null) {
-							CartKey = cart.CartKey;
 							AvailableUnitsListView.ItemsSource = availableUnits;
-							//await cart.FinalizeCart();
+							AvailableUnitsListView.SelectedItem = selectedUnit;
+
+
+							await Option.GetLocationOptionsAsync(token, CartObject.CartKey, OptionList);
+							OptionsListView.ItemsSource = OptionList;
+
+							FinalizeCartButton.Visibility = Visibility.Visible;
+						}
+					}
+				}
+				else
+				{
+					NoAvailabilityTextBlock.Visibility = Visibility.Visible;
+				}
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+
+				CheckInButton.IsEnabled = true;
+
+				CheckInProgressRing.IsActive = false;
+				CheckInProgressRing.Visibility = Visibility.Collapsed;
+			}
+		}
+
+		private async void AvailableUnitsListView_ItemClick(object sender, ItemClickEventArgs e)
+		{
+			var selectedUnit = (AvailableUnit)e.ClickedItem;
+			_cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				await Cart.SetCarUnit(token, CartKey, selectedUnit.SearchDateId, selectedUnit.UnitId, selectedUnit.CurrencyId, (double)selectedUnit.Price, selectedUnit.TaxId, selectedUnit.Crc);
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+			}
+		}
+
+		private async void OptionToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+		{
+			var toggleSwitch = sender as ToggleSwitch;
+			if (toggleSwitch != null)
+			{
+				var optionId = int.Parse(toggleSwitch.Tag.ToString());
+				var option = OptionList.Where(ol => ol.OptionId == optionId).First();
+				if (option != null)
+				{
+					if (option.IsEnabled)
+					{
+						_cts = new CancellationTokenSource();
+						CancellationToken token = _cts.Token;
+
+						try
+						{
+							if (toggleSwitch.IsOn)
+							{
+								await Option.SaveOptionToCart(token, CartObject.CartKey, option);
+							}
+							else
+							{
+								await Option.DeleteOptionFromCart(token, CartObject.CartKey, option.OptionId);
+							}
+						}
+						catch (Exception) { }
+						finally
+						{
+							_cts = null;
 						}
 					}
 				}
 			}
-			catch (Exception) { }
-			finally {
-				_cts = null;
-
-				CheckInButton.IsEnabled = true;
-			}
 		}
 
-		private async void AvailableUnitsListView_ItemClick(object sender, ItemClickEventArgs e) {
-			var availableUnit = (AvailableUnit)e.ClickedItem;
-
+		private async void FinalizeCartButton_Click(object sender, RoutedEventArgs e)
+		{
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
-			try {
-				await Cart.SetCarUnit(token, CartKey, availableUnit.SearchDateId, availableUnit.UnitId, availableUnit.CurrencyId, (double)availableUnit.Price, availableUnit.TaxId, availableUnit.Crc);
+			CheckInProgressRing.IsActive = true;
+			CheckInProgressRing.Visibility = Visibility.Visible;
+
+			CheckInButton.Visibility = Visibility.Collapsed;
+			FinalizeCartButton.Visibility = Visibility.Collapsed;
+			AvailableUnitsListView.Visibility = Visibility.Collapsed;
+			OptionsListView.Visibility = Visibility.Collapsed;
+
+			try
+			{
+				await CartObject.FinalizeCart(token);
 			}
 			catch (Exception) { }
-			finally {
+			finally
+			{
 				_cts = null;
+
+				CheckInButton.Visibility = Visibility.Visible;
+
+				CheckInProgressRing.IsActive = false;
+				CheckInProgressRing.Visibility = Visibility.Collapsed;
 			}
 		}
 	}

@@ -55,7 +55,14 @@
 
 			<control:DateTimeControl Date="{x:Bind Date}" />
 
-			<Button x:Name="CheckInButton" Content="CheckIn" Click="CheckInButton_Click" />
+			<Button x:Name="CheckInButton" Content="Search" Click="CheckInButton_Click" />
+
+			<ProgressRing Name="CheckInProgressRing"
+                      Width="24"
+                      Height="24"
+                      Foreground="Gray"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Center" />
 
 			<ListView x:Name="AvailableUnitsListView"
 					  IsItemClickEnabled="True"
@@ -66,6 +73,25 @@
 					</DataTemplate>
 				</ListView.ItemTemplate>
 			</ListView>
+
+			<ListView x:Name="OptionsListView">
+				<ListView.ItemTemplate>
+					<DataTemplate x:DataType="data:Option">
+						<StackPanel>
+							<TextBlock Text="{x:Bind OptionName}" />
+							<ToggleSwitch x:Name="OptionToggleSwitch"
+										  Tag="{x:Bind OptionId}"
+										  IsOn="{x:Bind IsSelected}"
+										  IsEnabled="{x:Bind IsEnabled}"
+										  Toggled="OptionToggleSwitch_Toggled"/>
+						</StackPanel>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+
+			<TextBlock x:Name="NoAvailabilityTextBlock" Text="No availability" Visibility="Collapsed" />
+
+			<Button x:Name="FinalizeCartButton" Content="Check-in" Click="FinalizeCartButton_Click" Visibility="Collapsed" />
 		</StackPanel>
 
 		<ListView x:Name="TagCheckInsListView"

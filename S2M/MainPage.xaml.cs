@@ -60,11 +60,6 @@ namespace S2M
 			}
 		}
 
-		private void textBlockregister_Tapped(object sender, TappedRoutedEventArgs e)
-		{
-
-		}
-
 		private void btnLogin_Click(object sender, RoutedEventArgs e)
 		{
 			var username = textBoxUserName.Text;
@@ -158,21 +153,31 @@ namespace S2M
 
 		private async void InitNotificationsAsync(string profileKey)
 		{
-			var channel = await PushNotificationChannelManager.CreatePushNotificationChannelForApplicationAsync();
-
-			var hub = new NotificationHub("notifications", "Endpoint=sb://seats2meet.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=bJT+rNOH5GzBi04UQG2hnnF/mhKHh5FM424nQhBD3M8=");
-			var tags = new List<string>();
-			tags.Add(profileKey);
-			var result = await hub.RegisterNativeAsync(channel.Uri, tags);
-
-			// Displays the registration ID so you know it was successful
-			if (result.RegistrationId != null)
+			var _recieveNotifications = StorageService.LoadSetting("RecieveNotifications");
+			if (string.IsNullOrEmpty(_recieveNotifications))
 			{
-				//var dialog = new MessageDialog("Registration successful: " + result.RegistrationId);
-				//dialog.Commands.Add(new UICommand("OK"));
-				//await dialog.ShowAsync();
+				var channel = await PushNotificationChannelManager.CreatePushNotificationChannelForApplicationAsync();
+
+				var hub = new NotificationHub("notifications", "Endpoint=sb://seats2meet.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=bJT+rNOH5GzBi04UQG2hnnF/mhKHh5FM424nQhBD3M8=");
+				var tags = new List<string>();
+				tags.Add(profileKey);
+				var result = await hub.RegisterNativeAsync(channel.Uri, tags);
+
+				// Displays the registration ID so you know it was successful
+				if (result.RegistrationId != null)
+				{
+					StorageService.SaveSetting("RecieveNotifications", "1");
+					//var dialog = new MessageDialog("Registration successful: " + result.RegistrationId);
+					//dialog.Commands.Add(new UICommand("OK"));
+					//await dialog.ShowAsync();
+				}
 			}
 
+		}
+
+		private void RegisterHyperlinkButton_Click(object sender, RoutedEventArgs e)
+		{
+			Frame.Navigate(typeof(Pages.Register));
 		}
 
 		//private async void ScheduleNotificationButton() {

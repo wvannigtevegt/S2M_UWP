@@ -53,11 +53,13 @@ namespace S2M.Models {
 			var credentialList = vault.FindAllByResource(vaultResource);
 
 			if (credentialList.Any()) {
-				var credentials = credentialList.First();
-				var username = credentials.UserName;
-				var password = vault.Retrieve(vaultResource, username).Password;
+				foreach (var credential in credentialList)
+				{
+					var username = credential.UserName;
+					var password = vault.Retrieve(vaultResource, username).Password;
 
-				vault.Remove(new PasswordCredential(vaultResource, username, password));
+					vault.Remove(new PasswordCredential(vaultResource, username, password));
+				}
 			}
 
 			await Common.StorageService.DeleteObjectAsync("Profile");

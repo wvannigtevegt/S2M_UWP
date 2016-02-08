@@ -85,7 +85,7 @@
 
 		<SplitView Name="NavigationSplitView" 
                    Grid.Row="1" 
-                   DisplayMode="CompactOverlay"
+                   
 				   Background="LightGray"
                    CompactPaneLength="48">
 			<SplitView.Pane>
@@ -199,6 +199,7 @@
 						<AdaptiveTrigger MinWindowWidth="0"/>
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
+						<Setter Target="NavigationSplitView.DisplayMode " Value="Overlay" />
 						<Setter Target="SharedAutoSuggestBox.(RelativePanel.AlignLeftWithPanel)" Value="True" />
 						<Setter Target="SharedAutoSuggestBox.(RelativePanel.LeftOf)" Value="HideSearchButton" />
 						<Setter Target="SharedAutoSuggestBox.(RelativePanel.AlignRightWithPanel)" Value="True" />
@@ -220,6 +221,7 @@
 						<AdaptiveTrigger MinWindowWidth="720" />
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
+						<Setter Target="NavigationSplitView.DisplayMode " Value="CompactOverlay" />
 						<Setter Target="SharedAutoSuggestBox.Visibility" Value="Visible" />
 						<Setter Target="SearchButton.Visibility" Value="Collapsed" />
 						<Setter Target="HideSearchButton.Visibility" Value="Collapsed" />

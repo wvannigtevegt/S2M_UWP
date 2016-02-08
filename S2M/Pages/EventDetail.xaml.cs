@@ -191,13 +191,13 @@ namespace S2M.Pages
 					Text = content
 				},
 
-				InlineImages =
-				{
-					new ToastImage()
-					{
-						Source = new ToastImageSource(image)
-					}
-				},
+				//InlineImages =
+				//{
+				//	new ToastImage()
+				//	{
+				//		Source = new ToastImageSource(image)
+				//	}
+				//},
 
 				AppLogoOverride = new ToastAppLogo()
 				{
