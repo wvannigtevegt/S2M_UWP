@@ -14,11 +14,11 @@
 		<converters:StringFormatConverter x:Key="StrFormatConverter" />
 	</UserControl.Resources>
 
-	<Grid Name="CheckInPane" HorizontalAlignment="Center">
-		<RelativePanel Width="300" Height="Auto" Background="White">
+	<Grid Name="CheckInPane" HorizontalAlignment="Stretch">
+		<RelativePanel Height="Auto" Background="White">
 			<TextBlock x:Name="CheckInNameTextBlock" 
 					   Text="{x:Bind CheckIn.ProfileName}"
-					   Margin="5,5,5,5"
+					   Margin="12,5,5,5"
 					   HorizontalAlignment="Left"
 					   Height="Auto"
 					   TextWrapping="Wrap"
@@ -29,7 +29,7 @@
 
 			<Ellipse x:Name="CheckInImageEllipse"
 					 RelativePanel.Below="CheckInNameTextBlock"
-					 Margin="5,0,0,5"
+					 Margin="12,0,0,5"
 					 Width="75" 
 					 Height="75">
 				<Ellipse.Fill>
@@ -59,7 +59,7 @@
 
 				<TextBlock x:Name="CheckLocationTextBlock" 
 						   Text="{x:Bind CheckIn.LocationName}"
-						   Margin="5,0,0,0"
+						   Margin="12,0,0,0"
 						   FontSize="12"
 						   Foreground="DarkGray"
 						   VerticalAlignment="Bottom"/>
@@ -118,7 +118,7 @@
 			</StackPanel>
 		</RelativePanel>
 
-		<VisualStateManager.VisualStateGroups>
+		<!--<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup x:Name="VisualStateGroup">
 				<VisualState x:Name="VisualStatePhone">
 					<VisualState.StateTriggers>
@@ -143,6 +143,6 @@
 					</VisualState.Setters>
 				</VisualState>
 			</VisualStateGroup>
-		</VisualStateManager.VisualStateGroups>
+		</VisualStateManager.VisualStateGroups>-->
 	</Grid>
 </UserControl>

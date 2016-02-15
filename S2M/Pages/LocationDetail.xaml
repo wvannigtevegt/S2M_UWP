@@ -10,158 +10,133 @@
 	Loaded="Page_Loaded"
     mc:Ignorable="d">
 
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="48" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
+	<ScrollViewer VerticalScrollMode="Auto">
+		<RelativePanel>
+			<StackPanel x:Name="LocationDataStackPanel"
+						Margin="12,12,12,0" 
+						RelativePanel.AlignLeftWithPanel="True"
+						RelativePanel.AlignRightWithPanel="True"
+						Background="Orange">
+				
+				<TextBlock x:Name="LocationNameTextBlock"
+						   Margin="4,4,12,0"
+						   Style="{ThemeResource SubheaderTextBlockStyle}" 
+						   TextWrapping="WrapWholeWords" />
 
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="Auto" />
-			<ColumnDefinition Width="*" />
-		</Grid.ColumnDefinitions>
+				<TextBlock x:Name="LocationAddressLineTextBlock" 
+						   Margin="4,4,12,0"
+						   TextWrapping="WrapWholeWords" 
+						   FontStyle="Italic" />
 
-		<RelativePanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Width="Auto" Background="White">
+				<TextBlock x:Name="LocationDescriptionTextBlock" 
+						   Height="Auto" 
+						   TextWrapping="WrapWholeWords" />
+			</StackPanel>
 
-		</RelativePanel>
+			<StackPanel x:Name="LocationAvailabilityStackPanel"
+						Background="#FF00BAFF"
+						Margin="12,12,12,0" 
+						RelativePanel.AlignLeftWithPanel="True"
+						RelativePanel.AlignRightWithPanel="True"
+						RelativePanel.Below="LocationDataStackPanel">
 
-		<StackPanel x:Name="LocationDataStackPanel" 
-					Width="400" 
-					MinHeight="250" 
-					Margin="14,0,0,0" 
-					Grid.Row="1" 
-					Grid.Column="0" 
-					Background="Orange" 
-					VerticalAlignment="Top">
-			<TextBlock x:Name="LocationNameTextBlock"
-					   Style="{ThemeResource SubheaderTextBlockStyle}" 
-					   TextWrapping="WrapWholeWords"
-					   RelativePanel.AlignLeftWithPanel="True" 
-					   RelativePanel.AlignTopWithPanel="True" />
+				<TextBlock x:Name="SearchIdTextBlock" />
 
-			<TextBlock x:Name="LocationAddressLineTextBlock" 
-					   TextWrapping="WrapWholeWords" 
-					   FontStyle="Italic" />
+				<HyperlinkButton x:Name="DateTimeHyperLinkButton" 
+								 Click="DateTimeHyperLinkButton_Click" 
+								 Foreground="White">
+					<StackPanel Orientation="Horizontal">
+						<FontIcon x:Name="LocationFontIcon" 
+						  FontFamily="Segoe MDL2 Assets"
+						  FontSize="12"
+						  Glyph="&#xE121;" 					  
+						  Margin="4,0,0,0" />
+						<TextBlock x:Name="DateTextBlock" Margin="4,0,0,0" />
+						<TextBlock x:Name="TimeTextBlock" Margin="4,0,0,0" />
+					</StackPanel>
+				</HyperlinkButton>
 
-			<TextBlock x:Name="LocationDescriptionTextBlock" 
-					   MinWidth="300"
-					   Grid.Row="1" 
-					   Grid.Column="0" 
-					   Height="Auto" 
-					   TextWrapping="WrapWholeWords" />
+				<Button x:Name="SearchAvailabilityButton"
+						Margin="4,12,12,12"
+						Content="Search" 
+						Click="SearchAvailabilityButton_Click" />
 
+				<ProgressRing Name="CheckInProgressRing"
+							  Width="24"
+							  Height="24"
+							  Foreground="Gray"
+							  HorizontalAlignment="Left"
+							  Margin="4,12,12,12" />
 
-			<control:DateTimeControl Date="{x:Bind Date}" />
-
-			<Button x:Name="CheckInButton" Content="Search" Click="CheckInButton_Click" />
-
-			<ProgressRing Name="CheckInProgressRing"
-                      Width="24"
-                      Height="24"
-                      Foreground="Gray"
-                      VerticalAlignment="Center"
-                      HorizontalAlignment="Center" />
-
-			<ListView x:Name="AvailableUnitsListView"
+				<ListView x:Name="AvailableUnitsListView"
 					  IsItemClickEnabled="True"
 					  ItemClick="AvailableUnitsListView_ItemClick">
-				<ListView.ItemTemplate>
-					<DataTemplate x:DataType="data:AvailableUnit">
-						<TextBlock Text="{x:Bind Name}" />
-					</DataTemplate>
-				</ListView.ItemTemplate>
-			</ListView>
+					<ListView.ItemTemplate>
+						<DataTemplate x:DataType="data:AvailableUnit">
+							<TextBlock Text="{x:Bind Name}" />
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
 
-			<ListView x:Name="OptionsListView">
-				<ListView.ItemTemplate>
-					<DataTemplate x:DataType="data:Option">
-						<StackPanel>
-							<TextBlock Text="{x:Bind OptionName}" />
-							<ToggleSwitch x:Name="OptionToggleSwitch"
+				<ListView x:Name="OptionsListView" IsItemClickEnabled="False" IsTapEnabled="False">
+					<ListView.ItemTemplate>
+						<DataTemplate x:DataType="data:Option">
+							<StackPanel>
+								<TextBlock Text="{x:Bind OptionName}" />
+								<ToggleSwitch x:Name="OptionToggleSwitch"
 										  Tag="{x:Bind OptionId}"
 										  IsOn="{x:Bind IsSelected}"
 										  IsEnabled="{x:Bind IsEnabled}"
 										  Toggled="OptionToggleSwitch_Toggled"/>
-						</StackPanel>
+							</StackPanel>
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+
+				<TextBlock x:Name="NoAvailabilityTextBlock"
+						   Margin="4,12,12,4"
+						   Text="No availability" 
+						   Visibility="Collapsed" />
+
+				<Button x:Name="FinalizeCartButton"
+						Margin="4,12,12,4"
+						Content="Check-in" 
+						Click="FinalizeCartButton_Click" 
+						Visibility="Collapsed" />
+			</StackPanel>
+
+			<ListView x:Name="TagCheckInsListView"
+					  HorizontalAlignment="Stretch"
+					  HorizontalContentAlignment="Stretch"
+					  Width="400"
+					  ItemsSource="{x:Bind TagCheckInList}"
+					  IsItemClickEnabled="True"
+					  ItemClick="TagCheckInsListView_ItemClick"
+					  RelativePanel.Below="LocationAvailabilityStackPanel"
+					  ScrollViewer.VerticalScrollMode="Auto"
+					  ScrollViewer.VerticalScrollBarVisibility="Auto"
+					  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+				<ListView.ItemTemplate>
+					<DataTemplate x:DataType="data:CheckInKnowledgeTag">
+						<control:TagCheckinTemplate />
 					</DataTemplate>
 				</ListView.ItemTemplate>
 			</ListView>
 
-			<TextBlock x:Name="NoAvailabilityTextBlock" Text="No availability" Visibility="Collapsed" />
-
-			<Button x:Name="FinalizeCartButton" Content="Check-in" Click="FinalizeCartButton_Click" Visibility="Collapsed" />
-		</StackPanel>
-
-		<ListView x:Name="TagCheckInsListView"
-				  Grid.Row="2"
-				  Grid.RowSpan="2"
-				  HorizontalAlignment="Stretch"
-				  HorizontalContentAlignment="Stretch"
-				  Width="400"
-				  ItemsSource="{x:Bind TagCheckInList}"
-				  IsItemClickEnabled="True"
-				  ItemClick="TagCheckInsListView_ItemClick"
-				  ScrollViewer.VerticalScrollMode="Auto"
-				  ScrollViewer.VerticalScrollBarVisibility="Auto"
-				  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-			<ListView.ItemTemplate>
-				<DataTemplate x:DataType="data:CheckInKnowledgeTag">
-					<control:TagCheckinTemplate />
-				</DataTemplate>
-			</ListView.ItemTemplate>
-		</ListView>
-
-		<GridView x:Name="LocationCheckInsGridView"
-				  Grid.Row="1"
-				  Grid.Column="1"
-				  Margin="12,0,0,0"
-				  ItemsSource="{x:Bind CheckInList}" 
-				  IsItemClickEnabled="True" 
-				  ItemClick="LocationCheckInsGridView_ItemClick"
-				  HorizontalAlignment="Stretch"
-				  HorizontalContentAlignment="Stretch">
-			<GridView.ItemTemplate>
-				<DataTemplate x:DataType="data:CheckIn">
-					<control:CheckInTemplate />
-				</DataTemplate>
-			</GridView.ItemTemplate>
-		</GridView>
-
-		<VisualStateManager.VisualStateGroups>
-			<VisualStateGroup x:Name="VisualStateGroup">
-				<VisualState x:Name="VisualStatePhone">
-					<VisualState.StateTriggers>
-						<AdaptiveTrigger MinWindowWidth="0"/>
-					</VisualState.StateTriggers>
-					<VisualState.Setters>
-						<Setter Target="LocationDataStackPanel.Height" Value="250" />
-						<Setter Target="LocationDataStackPanel.(Grid.ColumnSpan)" Value="2" />
-						<Setter Target="TagCheckInsListView.(Grid.Column)" Value="0" />
-						<Setter Target="TagCheckInsListView.(Grid.Row)" Value="2" />
-						<Setter Target="TagCheckInsListView.(Grid.ColumnSpan)" Value="2" />
-						<Setter Target="LocationCheckInsGridView.(Grid.Column)" Value="0" />
-						<Setter Target="LocationCheckInsGridView.(Grid.Row)" Value="3" />
-						<Setter Target="LocationCheckInsGridView.(Grid.ColumnSpan)" Value="2" />
-					</VisualState.Setters>
-				</VisualState>
-				<VisualState x:Name="VisualStateDesktop">
-					<VisualState.StateTriggers>
-						<AdaptiveTrigger MinWindowWidth="600" />
-					</VisualState.StateTriggers>
-					<VisualState.Setters>
-						<Setter Target="LocationDataStackPanel.(Grid.ColumnSpan)" Value="1" />
-						<Setter Target="TagCheckInsListView.(Grid.Column)" Value="0" />
-						<Setter Target="TagCheckInsListView.(Grid.Row)" Value="2" />
-						<Setter Target="TagCheckInsListView.(Grid.ColumnSpan)" Value="1" />
-						<Setter Target="LocationCheckInsGridView.(Grid.Column)" Value="1" />
-						<Setter Target="LocationCheckInsGridView.(Grid.Row)" Value="1" />
-						<Setter Target="LocationCheckInsGridView.(Grid.RowSpan)" Value="3" />
-						<Setter Target="LocationCheckInsGridView.(Grid.ColumnSpan)" Value="1" />
-					</VisualState.Setters>
-				</VisualState>
-			</VisualStateGroup>
-		</VisualStateManager.VisualStateGroups>
-	</Grid>
+			<GridView x:Name="LocationCheckInsGridView"
+					  Margin="12,0,0,0"
+					  ItemsSource="{x:Bind CheckInList}" 
+					  IsItemClickEnabled="True" 
+					  ItemClick="LocationCheckInsGridView_ItemClick"
+					  RelativePanel.Below="TagCheckInsListView"
+					  HorizontalAlignment="Stretch"
+					  HorizontalContentAlignment="Stretch">
+				<GridView.ItemTemplate>
+					<DataTemplate x:DataType="data:CheckIn">
+						<control:CheckInTemplate />
+					</DataTemplate>
+				</GridView.ItemTemplate>
+			</GridView>
+		</RelativePanel>
+	</ScrollViewer>
 </Page>

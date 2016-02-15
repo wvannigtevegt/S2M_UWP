@@ -66,7 +66,7 @@ namespace S2M.Models
 			}
 		}
 
-		public static async Task<CheckIn> CheckInToEvent(CancellationToken token, int eventDateId)
+		public static async Task<CheckIn> CheckInToEvent(CancellationToken token, int eventDateId, string workingOn = "")
 		{
 			var checkIn = new CheckIn();
 
@@ -83,9 +83,15 @@ namespace S2M.Models
 
 				try
 				{
-					var url = apiUrl + "/api/checkin/event/" + eventDateId;
+					var criteria = new SaveEventCheckInCriteria
+					{
+						WorkingOn = workingOn
+					};
 
-					using (var httpResponse = await httpClient.PostAsync(new Uri(url), null).AsTask(token))
+					var url = apiUrl + "/api/checkin/event/" + eventDateId;
+					var queryString = new HttpStringContent(JsonConvert.SerializeObject(criteria), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
+
+					using (var httpResponse = await httpClient.PostAsync(new Uri(url), queryString).AsTask(token))
 					{
 						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
 						json = json.Replace("<br>", Environment.NewLine);
@@ -185,6 +191,49 @@ namespace S2M.Models
 			}
 		}
 
+		public static async Task GetEventCheckinRecommendationsAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList, int eventCalendarId, string workingOn = "", int page = 1, int itemsPerPage = 10)
+		{
+			var checkInResult = new CheckInResult();
+
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var criteria = new CheckInListCriteria
+					{
+						ItemsPerPage = itemsPerPage,
+						Page = page,
+						WorkingOn = workingOn,
+					};
+
+					var url = apiUrl + "/api/checkin/recommendation/event/" + eventCalendarId;
+					url = url + "?" + JsonConvert.SerializeObject(criteria);
+
+					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token))
+					{
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						checkInResult = JsonConvert.DeserializeObject<CheckInResult>(json);
+
+						foreach (var checkin in checkInResult.Results)
+						{
+							checkinList.Add(checkin);
+						}
+					}
+				}
+				catch (Exception) { }
+			}
+		}
+
 		public static async Task<string> GetNrOfCheckInsLiveTileAsync(int locationId = 0)
 		{
 			var tileContent = "";
@@ -212,6 +261,35 @@ namespace S2M.Models
 			}
 
 			return tileContent;
+		}
+
+		public static async Task UpdateCheckIn(CancellationToken token, CheckIn checkin)
+		{
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var url = apiUrl + "/api/checkin";
+					var queryString = new HttpStringContent(JsonConvert.SerializeObject(checkin), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
+
+					using (var httpResponse = await httpClient.PostAsync(new Uri(url), queryString).AsTask(token))
+					{
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						//result = JsonConvert.DeserializeObject<int>(json);
+					}
+				}
+				catch (Exception) { }
+			}
 		}
 
 		public static async Task<int> CancelCheckIn(CancellationToken token, int id)
@@ -310,14 +388,19 @@ namespace S2M.Models
 
 	public class CheckInListCriteria
 	{
-		public long DateTimeStamp { get; set; }
-		public int ItemsPerPage { get; set; }
-		public double Latitude { get; set; }
-		public double Longitude { get; set; }
-		public int Page { get; set; }
-		public int Radius { get; set; }
-		public string SearchTerm { get; set; }
-		public string WorkingOn { get; set; }
-		public int FilterProfileId { get; set; }
+		public long DateTimeStamp { get; set; } = 0;
+		public int ItemsPerPage { get; set; } = 0;
+		public double Latitude { get; set; } = 0;
+		public double Longitude { get; set; } = 0;
+		public int Page { get; set; } = 0;
+		public int Radius { get; set; } = 0;
+		public string SearchTerm { get; set; } = "";
+		public string WorkingOn { get; set; } = "";
+		public int FilterProfileId { get; set; } = 0;
+	}
+
+	public class SaveEventCheckInCriteria
+	{
+		public string WorkingOn { get; set; } = "";
 	}
 }

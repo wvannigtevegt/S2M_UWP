@@ -8,7 +8,11 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-		<TextBlock x:Name="EventNameTextBlock" Style="{StaticResource HeaderTextBlockStyle}" />
-		<TextBlock Text="Check-in completed!" />
+		<ProgressRing Name="EventCheckInProgressRing"
+                      Width="100"
+                      Height="100"
+                      Foreground="Gray"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Center" />
 	</Grid>
 </Page>

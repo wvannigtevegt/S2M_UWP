@@ -126,6 +126,9 @@
     <Compile Include="Controls\DateTimeControl.xaml.cs">
       <DependentUpon>DateTimeControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\DateTimeDialog.xaml.cs">
+      <DependentUpon>DateTimeDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\EventTemplate.xaml.cs">
       <DependentUpon>EventTemplate.xaml</DependentUpon>
     </Compile>
@@ -165,6 +168,7 @@
     <Compile Include="Models\LocationText.cs" />
     <Compile Include="Models\Login.cs" />
     <Compile Include="Models\LoginResult.cs" />
+    <Compile Include="Models\OpeningHour.cs" />
     <Compile Include="Models\Option.cs" />
     <Compile Include="Models\Profile.cs" />
     <Compile Include="Models\ProfileDevice.cs" />
@@ -295,6 +299,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\DateTimeControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\DateTimeDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

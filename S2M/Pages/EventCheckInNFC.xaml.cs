@@ -41,13 +41,20 @@ namespace S2M.Pages
 			EventObject = await EventCalendar.GetEventCalendarById(token, eventId);
 			if (EventObject != null && EventObject.Id > 0)
 			{
-				EventNameTextBlock.Text = EventObject.Name;
+				EventCheckInProgressRing.IsActive = true;
+				EventCheckInProgressRing.Visibility = Visibility.Visible;
 
 				var checkIn = await CheckIn.CheckInToEvent(token, EventObject.Id);
 				if (checkIn != null)
 				{
-					//ShowToast(checkIn.Id, checkIn.EventName);
+					EventCheckInProgressRing.IsActive = false;
+					EventCheckInProgressRing.Visibility = Visibility.Collapsed;
+
+					Frame.Navigate(typeof(EventDetail), EventObject);
 				}
+
+				EventCheckInProgressRing.IsActive = false;
+				EventCheckInProgressRing.Visibility = Visibility.Collapsed;
 			}
 		}
 

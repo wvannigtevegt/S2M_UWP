@@ -99,13 +99,13 @@ namespace S2M.Pages
 		private async Task PostNewMessage()
 		{
 			var chatMessage = ChatMessageTextBox.Text;
+			ChatMessageTextBox.Text = "";
+
 			if (!string.IsNullOrEmpty(chatMessage))
 			{
 				var chat = await ChatMessage.PostChatMessage(ChatObject.Id, chatMessage);
 				if (chat != null)
 				{
-					ChatMessageTextBox.Text = "";
-
 					foreach (var message in chat.Messages)
 					{
 						if (!ChatMessageAlreadyExists(message))

@@ -102,8 +102,6 @@ namespace S2M
 				var login = await Models.Login.LoginUser(username, password);
 				if (login != null)
 				{
-					await Models.ProfileDevice.RegisterProfileDevice(token);
-
 					if (!string.IsNullOrEmpty(login.ProfileToken))
 					{
 						StorageService.SaveSetting("ProfileToken", login.ProfileToken);
@@ -173,6 +171,18 @@ namespace S2M
 				}
 			}
 
+			_cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				await Models.ProfileDevice.RegisterProfileDevice(token);
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+			}
 		}
 
 		private void RegisterHyperlinkButton_Click(object sender, RoutedEventArgs e)

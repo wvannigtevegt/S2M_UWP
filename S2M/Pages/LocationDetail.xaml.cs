@@ -1,8 +1,10 @@
-﻿using S2M.Models;
+﻿using S2M.Controls;
+using S2M.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -101,6 +103,14 @@ namespace S2M.Pages
 			}
 			LocationAddressLineTextBlock.Text = addressLine;
 
+			Date = DateTime.Now;
+			
+			StartTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
+			StartTime = TimeSpan.FromMinutes(15 * Math.Ceiling(StartTime.TotalMinutes / 15));
+			EndTime = new TimeSpan(17, 0, 0);
+
+			await SetDateTimeTextBoxes();
+
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
@@ -137,64 +147,9 @@ namespace S2M.Pages
 			}
 		}
 
-		private async void CheckInButton_Click(object sender, RoutedEventArgs e)
+		private async void SearchAvailabilityButton_Click(object sender, RoutedEventArgs e)
 		{
-			CheckInButton.IsEnabled = false;
-
-			_cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
-
-			try
-			{
-				Date = new DateTime(2016, 2, 12);
-				StartTime = new TimeSpan(9, 0, 0);
-				EndTime = new TimeSpan(17, 0, 0);
-
-				CheckInProgressRing.IsActive = true;
-				CheckInProgressRing.Visibility = Visibility.Visible;
-
-				NoAvailabilityTextBlock.Visibility = Visibility.Collapsed;
-
-				var availability = await Availability.GetAvailableLocations(token, LocationObject.Id, Date, StartTime, EndTime);
-				if (availability.Locations.Count > 0)
-				{
-					var availableLocation = availability.Locations.First();
-					var availableUnits = availableLocation.Units;
-
-					var selectedUnit = availableUnits.First();
-					if (selectedUnit != null)
-					{
-
-						CartObject = await Availability.SelectAvailableLocation(token, availability.SearchKey, availableLocation.LocationId, selectedUnit.SearchDateId, selectedUnit.UnitId, 0);
-						if (CartObject != null)
-						{
-
-							AvailableUnitsListView.ItemsSource = availableUnits;
-							AvailableUnitsListView.SelectedItem = selectedUnit;
-
-
-							await Option.GetLocationOptionsAsync(token, CartObject.CartKey, OptionList);
-							OptionsListView.ItemsSource = OptionList;
-
-							FinalizeCartButton.Visibility = Visibility.Visible;
-						}
-					}
-				}
-				else
-				{
-					NoAvailabilityTextBlock.Visibility = Visibility.Visible;
-				}
-			}
-			catch (Exception) { }
-			finally
-			{
-				_cts = null;
-
-				CheckInButton.IsEnabled = true;
-
-				CheckInProgressRing.IsActive = false;
-				CheckInProgressRing.Visibility = Visibility.Collapsed;
-			}
+			await CheckLocationAvailability();
 		}
 
 		private async void AvailableUnitsListView_ItemClick(object sender, ItemClickEventArgs e)
@@ -257,7 +212,7 @@ namespace S2M.Pages
 			CheckInProgressRing.IsActive = true;
 			CheckInProgressRing.Visibility = Visibility.Visible;
 
-			CheckInButton.Visibility = Visibility.Collapsed;
+			SearchAvailabilityButton.Visibility = Visibility.Collapsed;
 			FinalizeCartButton.Visibility = Visibility.Collapsed;
 			AvailableUnitsListView.Visibility = Visibility.Collapsed;
 			OptionsListView.Visibility = Visibility.Collapsed;
@@ -271,11 +226,126 @@ namespace S2M.Pages
 			{
 				_cts = null;
 
-				CheckInButton.Visibility = Visibility.Visible;
+				SearchAvailabilityButton.Visibility = Visibility.Visible;
 
 				CheckInProgressRing.IsActive = false;
 				CheckInProgressRing.Visibility = Visibility.Collapsed;
 			}
+		}
+
+		private async void DateTimeHyperLinkButton_Click(object sender, RoutedEventArgs e)
+		{
+			Controls.DateTimeDialog dateDialog = new Controls.DateTimeDialog();
+			dateDialog.Date = Date;
+			dateDialog.LocationId = LocationObject.Id;
+			dateDialog.StartTime = StartTime;
+			dateDialog.EndTime = EndTime;
+
+			await dateDialog.ShowAsync();
+			if (dateDialog.Result == ChangeDateTimeResult.ChangeDateTimeOK)
+			{
+				var changeCounter = 0;
+
+				if (dateDialog.Date != Date)
+				{
+					Date = dateDialog.Date;
+					changeCounter++;
+				}
+				if (dateDialog.StartTime != StartTime)
+				{
+					StartTime = dateDialog.StartTime;
+					changeCounter++;
+				}
+				if (dateDialog.EndTime != EndTime)
+				{
+					EndTime = dateDialog.EndTime;
+					changeCounter++;
+				}
+
+				if (changeCounter > 0)
+				{
+					await SetDateTimeTextBoxes();
+					await CheckLocationAvailability();
+				}
+			}
+		}
+
+		private async Task SetDateTimeTextBoxes()
+		{
+			DateTextBlock.Text = Date.ToString("dd MMM yyyy");
+			TimeTextBlock.Text = string.Format("{0:hh\\:mm}", StartTime) + " - " + string.Format("{0:hh\\:mm}", EndTime);
+
+			//await CheckLocationAvailability();
+		}
+
+		private async Task CheckLocationAvailability()
+		{
+			SearchAvailabilityButton.IsEnabled = false;
+
+			_cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+
+				DateTimeHyperLinkButton.IsEnabled = false;
+				CheckInProgressRing.IsActive = true;
+				CheckInProgressRing.Visibility = Visibility.Visible;
+
+				NoAvailabilityTextBlock.Visibility = Visibility.Collapsed;
+				AvailableUnitsListView.Visibility = Visibility.Collapsed;
+				OptionsListView.Visibility = Visibility.Collapsed;
+				FinalizeCartButton.Visibility = Visibility.Collapsed;
+				
+				OptionList.Clear();
+
+				var availability = await Availability.GetAvailableLocations(token, LocationObject.Id, Date, StartTime, EndTime);
+				if (availability.Locations.Count > 0)
+				{
+					var availableLocation = availability.Locations.First();
+					var availableUnits = availableLocation.Units;
+
+					var selectedUnit = availableUnits.First();
+					if (selectedUnit != null)
+					{
+						CartObject = await Availability.SelectAvailableLocation(token, availability.SearchKey, availableLocation.LocationId, selectedUnit.SearchDateId, selectedUnit.UnitId, 0);
+						if (CartObject != null)
+						{
+							SearchIdTextBlock.Text = selectedUnit.SearchDateId.ToString(); // TODO: remove test value
+
+							AvailableUnitsListView.ItemsSource = availableUnits;
+							AvailableUnitsListView.SelectedItem = selectedUnit;
+
+							AvailableUnitsListView.Visibility = Visibility.Visible;
+
+							await Option.GetLocationOptionsAsync(token, CartObject.CartKey, OptionList);
+							if (OptionList.Any())
+							{
+								OptionsListView.Visibility = Visibility.Visible;
+								OptionsListView.ItemsSource = OptionList;
+							}
+
+							FinalizeCartButton.Visibility = Visibility.Visible;
+						}
+					}
+				}
+				else
+				{
+					NoAvailabilityTextBlock.Visibility = Visibility.Visible;
+				}
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+
+				DateTimeHyperLinkButton.IsEnabled = true;
+				SearchAvailabilityButton.IsEnabled = true;
+
+				CheckInProgressRing.IsActive = false;
+				CheckInProgressRing.Visibility = Visibility.Collapsed;
+			}
+
 		}
 	}
 

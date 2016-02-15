@@ -1,24 +1,13 @@
-﻿using S2M.Models;
+﻿using NotificationsExtensions.Toasts; // using NotificationsExtensions.Win10;
+using S2M.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Windows.UI.Notifications;
-using NotificationsExtensions.Toasts; // using NotificationsExtensions.Win10;
-using Microsoft.QueryStringDotNET; // QueryString.NET
-using System.Threading.Tasks;
 
 
 
@@ -31,8 +20,10 @@ namespace S2M.Pages
 	/// </summary>
 	public sealed partial class EventDetail : Page
 	{
+		public CheckIn CheckInObject { get; set; }
 		public EventCalendar EventObject { get; set; }
 		public ObservableCollection<CheckIn> CheckInList { get; set; }
+		public ObservableCollection<CheckIn> RecommendationCheckInList { get; set; }
 		public ObservableCollection<CheckInKnowledgeTag> TagCheckInList { get; set; }
 
 		private CancellationTokenSource _cts = null;
@@ -43,6 +34,7 @@ namespace S2M.Pages
 			this.InitializeComponent();
 
 			CheckInList = new ObservableCollection<CheckIn>();
+			RecommendationCheckInList = new ObservableCollection<CheckIn>();
 			TagCheckInList = new ObservableCollection<CheckInKnowledgeTag>();
 		}
 
@@ -97,7 +89,8 @@ namespace S2M.Pages
 				var newCheckInList = new ObservableCollection<CheckIn>();
 
 				await CheckIn.GetCheckInsEventDateAsync(token, newCheckInList, EventObject);
-				foreach(var checkIn in newCheckInList)
+
+				foreach (var checkIn in newCheckInList)
 				{
 					if (!oldCheckInList.Where(ocl => ocl.Id == checkIn.Id).Any())
 					{
@@ -116,6 +109,34 @@ namespace S2M.Pages
 			}
 		}
 
+		private async void GetEventCheckRecommendations()
+		{
+			if (!string.IsNullOrEmpty(CheckInObject.WorkingOn))
+			{
+				_cts = new CancellationTokenSource();
+				CancellationToken token = _cts.Token;
+
+				try
+				{
+					RecommendationCheckInList.Clear();
+
+					await CheckIn.GetEventCheckinRecommendationsAsync(token, RecommendationCheckInList, EventObject.Id, CheckInObject.WorkingOn, 1, 3);
+					foreach (var checkIn in RecommendationCheckInList)
+					{
+						if (CheckInList.Where(cl => cl.Id == checkIn.Id).Any())
+						{
+							CheckInList.Remove(checkIn);
+						}
+					}
+				}
+				catch (Exception) { }
+				finally
+				{
+					_cts = null;
+				}
+			}
+		}
+
 		private void CheckIfProfileAlreadyCheckedInEvent()
 		{
 			var profileCheckIn =
@@ -126,6 +147,36 @@ namespace S2M.Pages
 			if (profileCheckIn.Any())
 			{
 				EventCheckInButton.Visibility = Visibility.Collapsed;
+
+				CheckInObject = profileCheckIn.First();
+				if (CheckInObject != null)
+				{
+					WorkingOnRelativePanel.Visibility = Visibility.Visible;
+
+					if (!string.IsNullOrEmpty(CheckInObject.WorkingOn))
+					{
+						WorkingOnTextBlock.Text = CheckInObject.WorkingOn;
+						WorkingOnTextBox.Text = CheckInObject.WorkingOn;
+
+						MatchingBasedOnStackPanel.Visibility = Visibility.Visible;
+						SetWorkingOnStackPanel.Visibility = Visibility.Collapsed;
+					}
+					else
+					{
+						MatchingBasedOnStackPanel.Visibility = Visibility.Collapsed;
+						SetWorkingOnStackPanel.Visibility = Visibility.Visible;
+					}
+				}
+				else
+				{
+					WorkingOnRelativePanel.Visibility = Visibility.Collapsed;
+				}
+
+				GetEventCheckRecommendations();
+			}
+			else
+			{
+				EventCheckInButton.Visibility = Visibility.Visible;
 			}
 		}
 
@@ -152,12 +203,24 @@ namespace S2M.Pages
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
+			EventCheckInButton.Visibility = Visibility.Collapsed;
+
+			CheckInProgressRing.IsActive = true;
+			CheckInProgressRing.Visibility = Visibility.Visible;
+
 			try
 			{
-				var checkIn = await CheckIn.CheckInToEvent(token, EventObject.Id);
-				if (checkIn != null)
+				string workingOn = "";
+				var _workingOn = await Common.StorageService.RetrieveObjectAsync<Models.WorkingOn>("WorkingOn");
+				if (_workingOn != null)
 				{
-					ShowToast(checkIn.Id, checkIn.EventName);
+					workingOn = _workingOn.Text;
+				}
+
+				CheckInObject = await CheckIn.CheckInToEvent(token, EventObject.Id, workingOn);
+				if (CheckInObject != null)
+				{
+					ShowToast(CheckInObject.Id, CheckInObject.EventName);
 
 					GetEventCheckInData();
 				}
@@ -167,6 +230,9 @@ namespace S2M.Pages
 			finally
 			{
 				_cts = null;
+
+				CheckInProgressRing.IsActive = false;
+				CheckInProgressRing.Visibility = Visibility.Collapsed;
 			}
 		}
 
@@ -229,9 +295,9 @@ namespace S2M.Pages
 			//			ActivationType = ToastActivationType.Background,
 			//			ImageUri = "Assets/Reply.png",
 
-   //                     // Reference the text box's ID in order to
-   //                     // place this button next to the text box
-   //                     TextBoxId = "tbReply"
+			//                     // Reference the text box's ID in order to
+			//                     // place this button next to the text box
+			//                     TextBoxId = "tbReply"
 			//		},
 
 			//		new ToastButton("Like", new QueryString()
@@ -258,7 +324,7 @@ namespace S2M.Pages
 			ToastContent toastContent = new ToastContent()
 			{
 				Visual = visual//,
-				//Actions = actions,
+							   //Actions = actions,
 
 				// Arguments when the user taps body of toast
 				//Launch = new QueryString()
@@ -278,5 +344,40 @@ namespace S2M.Pages
 			ToastNotificationManager.CreateToastNotifier().Show(notification);
 		}
 
+		private async void SetWorkingOnButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (CheckInObject != null)
+			{
+				CheckInObject.WorkingOn = WorkingOnTextBox.Text.ToLower().Trim();
+				WorkingOnTextBlock.Text = WorkingOnTextBox.Text.ToLower().Trim();
+
+				MatchingBasedOnStackPanel.Visibility = Visibility.Visible;
+				SetWorkingOnStackPanel.Visibility = Visibility.Collapsed;
+
+				_cts = new CancellationTokenSource();
+				CancellationToken token = _cts.Token;
+
+				try
+				{
+					await CheckIn.UpdateCheckIn(token, CheckInObject);
+				}
+				catch (Exception) { }
+				finally
+				{
+					_cts = null;
+
+					CheckInProgressRing.IsActive = false;
+					CheckInProgressRing.Visibility = Visibility.Collapsed;
+				}
+
+				GetEventCheckRecommendations();
+			}
+		}
+
+		private void ShowEditWorkingOnButton_Click(object sender, RoutedEventArgs e)
+		{
+			MatchingBasedOnStackPanel.Visibility = Visibility.Collapsed;
+			SetWorkingOnStackPanel.Visibility = Visibility.Visible;
+		}
 	}
 }

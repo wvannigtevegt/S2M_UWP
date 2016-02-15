@@ -60,10 +60,6 @@ namespace S2M.Models
 
 				try
 				{
-					//var criteria = new LocationListCriteria {
-					//	SearchTerm = searchTerm
-					//};
-
 					var url = apiUrl + "/api/cart/location/option/" + cartKey;
 
 					using (var httpResponse = await httpClient.GetAsync(new Uri(url)))
@@ -78,7 +74,7 @@ namespace S2M.Models
 						}
 					}
 				}
-				catch (Exception e) { }
+				catch (Exception) { }
 			}
 		}
 

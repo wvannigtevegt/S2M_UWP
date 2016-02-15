@@ -27,7 +27,7 @@
 			</Grid>-->
 		</DataTemplate>
 	</Page.Resources>
-	
+
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="*" />
@@ -36,50 +36,52 @@
 			
 		</RelativePanel>-->
 
-		<RelativePanel>
-			<StackPanel x:Name="CheckInStackPanel" 
+		<ScrollViewer VerticalScrollMode="Auto">
+			<RelativePanel>
+				<StackPanel x:Name="CheckInStackPanel" 
 					RelativePanel.AlignLeftWithPanel="True"
 					RelativePanel.AlignTopWithPanel="True"
 					Background="#FF00BAFF">
-				<Ellipse Margin="0,12,0,0" Width="125" Height="125">
-					<Ellipse.Fill>
-						<ImageBrush Stretch="Fill">
-							<ImageBrush.ImageSource>
-								<BitmapImage x:Name="CheckInImageBrush" DecodePixelHeight="125" DecodePixelWidth="125" />
-							</ImageBrush.ImageSource>
-						</ImageBrush>
-					</Ellipse.Fill>
-				</Ellipse>
+					<Ellipse Margin="0,12,0,0" Width="125" Height="125">
+						<Ellipse.Fill>
+							<ImageBrush Stretch="Fill">
+								<ImageBrush.ImageSource>
+									<BitmapImage x:Name="CheckInImageBrush" DecodePixelHeight="125" DecodePixelWidth="125" />
+								</ImageBrush.ImageSource>
+							</ImageBrush>
+						</Ellipse.Fill>
+					</Ellipse>
 
-				<TextBlock x:Name="CheckInNameTextBlock"
+					<TextBlock x:Name="CheckInNameTextBlock"
 					   Margin="12,12,12,0"
 					   Style="{ThemeResource SubheaderTextBlockStyle}"
 					   Foreground="White"/>
 
-				<TextBlock Margin="12,12,12,0" Text="Working on:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
-				<TextBlock Margin="12,0,0,0" x:Name="CheckInWorkingOnTextBlock" TextWrapping="WrapWholeWords" Foreground="White" />
+					<TextBlock Margin="12,12,12,0" Text="Working on:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
+					<TextBlock Margin="12,0,0,0" x:Name="CheckInWorkingOnTextBlock" TextWrapping="WrapWholeWords" Foreground="White" />
 
-				<TextBlock Margin="12,12,12,0" Text="Location:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
-				<TextBlock Margin="12,0,0,0" x:Name="CheckInLocationTextBlock" TextWrapping="WrapWholeWords" Foreground="White" Visibility="Collapsed" />
-				<HyperlinkButton Margin="12,0,0,0" x:Name="CheckInLocationHyperlinkButton" Click="CheckInLocationHyperlinkButton_Click" Foreground="White" Visibility="Collapsed" />
+					<TextBlock Margin="12,12,12,0" Text="Location:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
+					<TextBlock Margin="12,0,0,0" x:Name="CheckInLocationTextBlock" TextWrapping="WrapWholeWords" Foreground="White" Visibility="Collapsed" />
+					<HyperlinkButton Margin="12,0,0,0" x:Name="CheckInLocationHyperlinkButton" Click="CheckInLocationHyperlinkButton_Click" Foreground="White" Visibility="Collapsed" />
 
-				<!--<TextBlock Margin="12,12,12,0" Text="Date:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
+					<!--<TextBlock Margin="12,12,12,0" Text="Date:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
 			<TextBlock Margin="12,0,0,0" x:Name="CheckInDateTextBlock" TextWrapping="WrapWholeWords" Foreground="White" />-->
 
-				<TextBlock Margin="12,12,12,0" Text="Checked in:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
-				<TextBlock Margin="12,0,0,0" x:Name="CheckInTimeTextBlock" TextWrapping="WrapWholeWords" Foreground="White" />
+					<TextBlock Margin="12,12,12,0" Text="Checked in:" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="White" />
+					<TextBlock Margin="12,0,0,0" x:Name="CheckInTimeTextBlock" TextWrapping="WrapWholeWords" Foreground="White" />
 
-				<Button Margin="12,12,12,0" x:Name="StartChatButton" Content="Start chat" Click="StartChatButton_Click" />
-			</StackPanel>
+					<Button Margin="12,12,12,0" x:Name="StartChatButton" Content="Start chat" Click="StartChatButton_Click" />
+				</StackPanel>
 
-			<ListView x:Name="CheckInTagsListView"
+				<ListView x:Name="CheckInTagsListView"
 				  RelativePanel.AlignTopWithPanel="True"
 				  RelativePanel.RightOf="CheckInStackPanel"
 				  Margin="12,0,0,0"
 				  Height="400"
 				  ItemTemplate="{StaticResource TagItemTemplate}">
-			</ListView>
-		</RelativePanel>
+				</ListView>
+			</RelativePanel>
+		</ScrollViewer>
 
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup x:Name="VisualStateGroup">
