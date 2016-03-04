@@ -20,6 +20,7 @@ namespace S2M.Pages
 	{
 		public ObservableCollection<Chat> ChatList { get; set; }
 		public ObservableCollection<CheckIn> CheckInList { get; set; }
+		public ObservableCollection<MeetRequest> MeetRequestList { get; set; }
 
 		private CancellationTokenSource _cts = null;
 
@@ -29,6 +30,7 @@ namespace S2M.Pages
 
 			ChatList = new ObservableCollection<Chat>();
 			CheckInList = new ObservableCollection<CheckIn>();
+			MeetRequestList = new ObservableCollection<MeetRequest>();
 		}
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e)
@@ -80,9 +82,12 @@ namespace S2M.Pages
 						await GetArchiveChats(token);
 						break;
 					case 1:
-						await GetArchiveCheckIns(token);
+						await GetArchiveMeetRequests(token);
 						break;
 					case 2:
+						await GetArchiveCheckIns(token);
+						break;
+					case 3:
 						break;
 				}
 
@@ -102,6 +107,11 @@ namespace S2M.Pages
 		{
 			ChatList.Clear();
 			await Chat.GetProfileChatsAsync(ChatList);
+		}
+		private async Task GetArchiveMeetRequests(CancellationToken token)
+		{
+			MeetRequestList.Clear();
+			await MeetRequest.GetProfileMeetRequestsAsync(MeetRequestList);
 		}
 		private async Task GetArchiveCheckIns(CancellationToken token)
 		{
@@ -126,7 +136,7 @@ namespace S2M.Pages
 
 		private void ReservationsListView_ItemClick(object sender, ItemClickEventArgs e)
 		{
-
+			
 		}
 
 		private async void CancelCheckInButton_Click(object sender, RoutedEventArgs e)
@@ -144,12 +154,36 @@ namespace S2M.Pages
 				{
 					var itemToRemove = CheckInList.Single(cl => cl.Id == id);
 					CheckInList.Remove(itemToRemove);
+
+					var currentCheckIn = await Common.StorageService.RetrieveObjectAsync<Models.CurrentCheckIn>("CurrentCheckIn");
+					if (currentCheckIn != null)
+					{
+						if (currentCheckIn.CheckIn.Id == id)
+						{
+							await Common.StorageService.DeleteObjectAsync("CurrentCheckIn");
+						}
+					}
 				}
 			}
 			catch (Exception) { }
 			finally
 			{
 				_cts = null;
+			}
+		}
+
+		private void MeetRequestsListView_ItemClick(object sender, ItemClickEventArgs e)
+		{
+			var meetRequest = (MeetRequest)e.ClickedItem;
+			if (meetRequest != null)
+			{
+				var criteria = new MeetRequestDetailPageCriteria
+				{
+					MeetRequest = meetRequest,
+					MeetRequestId = 0
+				};
+
+				Frame.Navigate(typeof(MeetRequestDetail), criteria);
 			}
 		}
 	}

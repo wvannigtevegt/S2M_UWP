@@ -25,16 +25,33 @@
 						   RelativePanel.AlignLeftWithPanel="True" 
 						   RelativePanel.AlignTopWithPanel="True" />
 
-				<TextBlock x:Name="EventLocationTextBlock" 
+				<StackPanel Orientation="Horizontal"
+							Margin="12,4,0,4">
+					<FontIcon x:Name="EventDateFontIcon" 
+						  FontFamily="Segoe MDL2 Assets"
+						  FontSize="12"
+						  Glyph="&#xE163;" 					  
+						  Margin="4,0,0,0" />
+					<TextBlock x:Name="EventDataTextBlock"
 						   Margin="12,0,0,0"
 						   TextWrapping="WrapWholeWords" 
 						   FontStyle="Italic" />
+				</StackPanel>
 
-				<TextBlock x:Name="EventDataTextBlock"
+				<StackPanel Orientation="Horizontal"
+							Margin="12,0,0,0">
+					<FontIcon x:Name="EventLocationFontIcon" 
+						  FontFamily="Segoe MDL2 Assets"
+						  FontSize="12"
+						  Glyph="&#xEB49;" 					  
+						  Margin="4,0,0,0" />
+					<TextBlock x:Name="EventLocationTextBlock" 
 						   Margin="12,0,0,0"
 						   TextWrapping="WrapWholeWords" 
 						   FontStyle="Italic" />
+				</StackPanel>
 
+				
 				<TextBlock x:Name="EventDescriptionTextBlock" 
 						   Margin="12,0,0,0"
 						   MinWidth="300"
@@ -77,20 +94,25 @@
 							Margin="12,0,0,0">
 					<RelativePanel x:Name="MatchingBasedOnStackPanel" 
 							Visibility="Collapsed">
-						<TextBlock x:Name="BasedOnTextBlock" 
+						
+						<HyperlinkButton RelativePanel.AlignTopWithPanel="True"
+										 Click="ShowEditWorkingOnButton_Click"
+										 Foreground="White"
+										 Margin="0,-6,0,0">
+							<StackPanel Orientation="Horizontal">
+								<TextBlock x:Name="BasedOnTextBlock" 
 								   Text="Based on: " />
-						<TextBlock x:Name="WorkingOnTextBlock"
-								   Margin="12,0,0,0"
-								   RelativePanel.RightOf="BasedOnTextBlock"/>
+								
+								<TextBlock x:Name="WorkingOnTextBlock"
+										   Margin="12,0,0,0" />
 
-						<Button x:Name="ShowEditWorkingOnButton"
-								FontFamily="Segoe MDL2 Assets" 
-								Content="&#xE104;"
-								Margin="12,0,0,0"
-								Width="24"
-								Height="24"
-								RelativePanel.RightOf="WorkingOnTextBlock"
-								Click="ShowEditWorkingOnButton_Click" />
+								<FontIcon x:Name="EventEditWorkingOnFontIcon" 
+										  FontFamily="Segoe MDL2 Assets"
+										  Glyph="&#xE104;"
+										  FontSize="12"
+										  Margin="8,0,0,0" />
+							</StackPanel>
+						</HyperlinkButton>
 					</RelativePanel>
 
 					<RelativePanel x:Name="SetWorkingOnStackPanel" 
@@ -109,7 +131,7 @@
 						<TextBox x:Name="WorkingOnTextBox"
 								 Height="48"
 								 FontSize="24"
-								 Margin="12,0,60,0"
+								 Margin="0,0,60,0"
 								 Background="#FF00BAFF"
 								 Foreground="White"
 								 RelativePanel.AlignLeftWithPanel="True"

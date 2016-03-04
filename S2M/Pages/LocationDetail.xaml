@@ -58,8 +58,10 @@
 
 				<Button x:Name="SearchAvailabilityButton"
 						Margin="4,12,12,12"
-						Content="Search" 
+						Content="Check-in" 
 						Click="SearchAvailabilityButton_Click" />
+
+				<TextBlock x:Name="CheckInMessageTextBlock" />
 
 				<ProgressRing Name="CheckInProgressRing"
 							  Width="24"
@@ -93,16 +95,31 @@
 					</ListView.ItemTemplate>
 				</ListView>
 
-				<TextBlock x:Name="NoAvailabilityTextBlock"
-						   Margin="4,12,12,4"
-						   Text="No availability" 
-						   Visibility="Collapsed" />
+				<HyperlinkButton x:Name="HideOptionsHyperLinkButton" 
+								 Click="HideOptionsHyperLinkButton_Click" 
+								 Foreground="White"
+								 Visibility="Collapsed">
+					<StackPanel Orientation="Horizontal">
+						<FontIcon x:Name="SlideUpFontIcon" 
+						  FontFamily="Segoe MDL2 Assets"
+						  FontSize="12"
+						  Glyph="&#xE014;" 					  
+						  Margin="4,0,0,0" />
+					</StackPanel>
+				</HyperlinkButton>
 
-				<Button x:Name="FinalizeCartButton"
-						Margin="4,12,12,4"
-						Content="Check-in" 
-						Click="FinalizeCartButton_Click" 
-						Visibility="Collapsed" />
+				<HyperlinkButton x:Name="ShowOptionsHyperLinkButton" 
+								 Click="ShowOptionsHyperLinkButton_Click" 
+								 Foreground="White"
+								 Visibility="Collapsed">
+					<StackPanel Orientation="Horizontal">
+						<FontIcon x:Name="SlideDownFontIcon" 
+						  FontFamily="Segoe MDL2 Assets"
+						  FontSize="12"
+						  Glyph="&#xE015;" 					  
+						  Margin="4,0,0,0" />
+					</StackPanel>
+				</HyperlinkButton>
 			</StackPanel>
 
 			<ListView x:Name="TagCheckInsListView"

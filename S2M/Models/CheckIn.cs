@@ -104,6 +104,44 @@ namespace S2M.Models
 			return checkIn;
 		}
 
+		public static async Task<CheckIn> GetCurrentCheckIn(CancellationToken token)
+		{
+			var checkInResult = new CheckInResult();
+			var checkIn = new CheckIn();
+
+			var authenticatedProfile = await Common.StorageService.RetrieveObjectAsync<Profile>("Profile");
+
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var url = apiUrl + "/api/checkin/current/" + authenticatedProfile.Id;
+
+					var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token);
+					string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+					json = json.Replace("<br>", Environment.NewLine);
+					checkInResult = JsonConvert.DeserializeObject<CheckInResult>(json);
+
+					if (checkInResult.Results.Any())
+					{
+						checkIn = checkInResult.Results.First();
+					}
+				}
+				catch (Exception) { }
+			}
+
+			return checkIn;
+		}
+
 		public static async Task GetProfileCheckInsAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList)
 		{
 			var checkInResult = new CheckInResult();
@@ -233,6 +271,8 @@ namespace S2M.Models
 				catch (Exception) { }
 			}
 		}
+
+		//public static async Task GetCheckinRecommendationsByCheckInAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList, int checkinId, )
 
 		public static async Task<string> GetNrOfCheckInsLiveTileAsync(int locationId = 0)
 		{

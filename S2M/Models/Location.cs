@@ -131,7 +131,7 @@ namespace S2M.Models {
 						Longitude = longitude,
 						Page = page,
 						Radius = radius,
-						WorkingOn = workingOn
+						WorkingOn = workingOn.ToLower().Trim()
 					};
 
 					var url = apiUrl + "/api/locations/recommendation?" + JsonConvert.SerializeObject(criteria);

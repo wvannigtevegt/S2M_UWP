@@ -15,6 +15,7 @@ namespace S2M.Pages {
 	/// An empty page that can be used on its own or navigated to within a Frame.
 	/// </summary>
 	public sealed partial class WorkingOn : Page {
+		protected CurrentCheckIn CurrentCheckIn { get; set; }
 		public ObservableCollection<CheckIn> CheckInList { get; set; }
 		protected string WorkingOnString { get; set; }
 
@@ -26,6 +27,12 @@ namespace S2M.Pages {
 
 			CheckInList = new ObservableCollection<CheckIn>();
 			WorkingOnString = "";
+		}
+
+		protected async override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			await Common.StorageService.DeleteObjectAsync("CurrentCheckIn");
+			await GetCurrentCheckInData();
 		}
 
 		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
@@ -43,6 +50,29 @@ namespace S2M.Pages {
 			await LoadCheckInsAsync();
 		}
 
+		private async Task GetCurrentCheckInData()
+		{
+			_cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				var checkIn = await CheckIn.GetCurrentCheckIn(token);
+				var currentCheckIn = new CurrentCheckIn();
+				currentCheckIn.Date = DateTime.Now;
+				if (checkIn != null)
+				{
+					currentCheckIn.CheckIn = checkIn;
+				}
+				await Common.StorageService.PersistObjectAsync("CurrentCheckIn", currentCheckIn);
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+			}
+		}
+
 		private async Task LoadCheckInsAsync()
 		{
 			_cts = new CancellationTokenSource();
@@ -50,7 +80,6 @@ namespace S2M.Pages {
 
 			try
 			{
-
 				var _checkinList = new ObservableCollection<CheckIn>();
 				await CheckIn.GetCheckInsAsync(token, _checkinList, 0, 0, "", 0, 0, 0, "", 1, 25, true);
 				foreach(var checkin in _checkinList)
@@ -86,14 +115,14 @@ namespace S2M.Pages {
 		{
 			if (e.Key == Windows.System.VirtualKey.Enter)
 			{
-				await SetWorkingOn();
 				e.Handled = true;
+				await SetWorkingOn();
 			}
 		}
 
 		private async Task SetWorkingOn()
 		{
-			WorkingOnString = WorkingOnTextBox.Text;
+			WorkingOnString = WorkingOnTextBox.Text.ToLower().Trim();
 			if (!string.IsNullOrEmpty(WorkingOnString))
 			{
 				var workingOnObj = new Models.WorkingOn()

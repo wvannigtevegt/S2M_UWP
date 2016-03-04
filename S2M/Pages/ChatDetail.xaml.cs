@@ -17,7 +17,6 @@ namespace S2M.Pages
 	public sealed partial class ChatDetail : Page
 	{
 		public ObservableCollection<ChatMessage> ChatMessageList { get; set; }
-
 		public Chat ChatObject { get; set; }
 
 		private DispatcherTimer _timer;
@@ -62,7 +61,6 @@ namespace S2M.Pages
 					ChatMessageList.Add(message);
 				}
 			}
-			var test = "";
 		}
 
 		private async void Page_Loaded(object sender, RoutedEventArgs e)

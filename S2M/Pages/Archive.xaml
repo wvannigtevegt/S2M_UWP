@@ -42,6 +42,31 @@
 								  HorizontalAlignment="Center" />
 				</StackPanel>
 			</PivotItem>
+			<PivotItem Header="Meet requests">
+				<StackPanel>
+					<ListView x:Name="MeetRequestsListView" ItemsSource="{x:Bind MeetRequestList}" 
+							  IsItemClickEnabled="True" 
+							  ItemClick="MeetRequestsListView_ItemClick" >
+						<ListView.ItemContainerTransitions>
+							<TransitionCollection>
+								<EntranceThemeTransition IsStaggeringEnabled="True" 
+                                 FromVerticalOffset="0" 
+                                 FromHorizontalOffset="200"/>
+								<AddDeleteThemeTransition/>
+								<NavigationThemeTransition/>
+								<ContentThemeTransition/>
+							</TransitionCollection>
+
+						</ListView.ItemContainerTransitions>
+
+						<ListView.ItemTemplate>
+							<DataTemplate x:DataType="data:MeetRequest">
+								<control:MeetRequestTemplate />
+							</DataTemplate>
+						</ListView.ItemTemplate>
+					</ListView>
+				</StackPanel>
+			</PivotItem>
 			<PivotItem Header="Checkins">
 				<ListView x:Name="ReservationsListView" 
 						  ItemsSource="{x:Bind CheckInList}" 

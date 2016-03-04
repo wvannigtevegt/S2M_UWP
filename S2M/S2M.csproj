@@ -135,6 +135,9 @@
     <Compile Include="Controls\LocationTemplate.xaml.cs">
       <DependentUpon>LocationTemplate.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\MeetRequestTemplate.xaml.cs">
+      <DependentUpon>MeetRequestTemplate.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TagCheckinTemplate.xaml.cs">
       <DependentUpon>TagCheckinTemplate.xaml</DependentUpon>
     </Compile>
@@ -162,12 +165,15 @@
     <Compile Include="Models\CheckInResult.cs" />
     <Compile Include="Models\ChosenUnit.cs" />
     <Compile Include="Models\Country.cs" />
+    <Compile Include="Models\CurrentCheckIn.cs" />
     <Compile Include="Models\EventCalendar.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\LocationResult.cs" />
     <Compile Include="Models\LocationText.cs" />
     <Compile Include="Models\Login.cs" />
     <Compile Include="Models\LoginResult.cs" />
+    <Compile Include="Models\MeetRequest.cs" />
+    <Compile Include="Models\MeetRequestResult.cs" />
     <Compile Include="Models\OpeningHour.cs" />
     <Compile Include="Models\Option.cs" />
     <Compile Include="Models\Profile.cs" />
@@ -215,6 +221,9 @@
     </Compile>
     <Compile Include="Pages\LocationsMap.xaml.cs">
       <DependentUpon>LocationsMap.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\MeetRequestDetail.xaml.cs">
+      <DependentUpon>MeetRequestDetail.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Profile.xaml.cs">
       <DependentUpon>Profile.xaml</DependentUpon>
@@ -314,6 +323,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\MeetRequestTemplate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\TagCheckinTemplate.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -371,6 +384,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\LocationsMap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\MeetRequestDetail.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

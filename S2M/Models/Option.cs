@@ -45,7 +45,7 @@ namespace S2M.Models
 			}
 		}
 
-		public static async Task GetLocationOptionsAsync(CancellationToken token, string cartKey, ObservableCollection<Option> optionList)
+		public static async Task GetLocationOptionsAsync(CancellationToken token, int reservationId, ObservableCollection<Option> optionList)
 		{
 			using (var httpClient = new Windows.Web.Http.HttpClient())
 			{
@@ -60,7 +60,7 @@ namespace S2M.Models
 
 				try
 				{
-					var url = apiUrl + "/api/cart/location/option/" + cartKey;
+					var url = apiUrl + "/api/reservation/wizard/options/" + reservationId;
 
 					using (var httpResponse = await httpClient.GetAsync(new Uri(url)))
 					{
@@ -78,9 +78,9 @@ namespace S2M.Models
 			}
 		}
 
-		public static async Task<Cart> SaveOptionToCart(CancellationToken token, string cartKey, Option option)
+		public static async Task<Reservation> SaveOptionToReservation(CancellationToken token, int reservationId, Option option)
 		{
-			var cart = new Cart();
+			var reservation = new Reservation();
 
 			using (var httpClient = new HttpClient())
 			{
@@ -95,7 +95,7 @@ namespace S2M.Models
 
 				var criteria = new SaveOptionCriteria
 				{
-					CartKey = cartKey,
+					ReservationId = reservationId,
 					OptionId = option.OptionId,
 					Amount = option.Amount,
 					CurrencyId = option.CurrencyId,
@@ -105,22 +105,22 @@ namespace S2M.Models
 					Crc = option.Crc
 				};
 
-				var uri = new Uri(apiUrl + "/api/cart/option");
+				var uri = new Uri(apiUrl + "/api/reservation/option");
 				var queryString = new HttpStringContent(JsonConvert.SerializeObject(criteria), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
 
 				using (var httpResponse = await httpClient.PostAsync(uri, queryString))
 				{
 					string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
 					json = json.Replace("<br>", Environment.NewLine);
-					cart = JsonConvert.DeserializeObject<Cart>(json);
+					reservation = JsonConvert.DeserializeObject<Reservation>(json);
 				}
 			}
-			return cart;
+			return reservation;
 		}
 
-		public static async Task<Cart> DeleteOptionFromCart(CancellationToken token, string cartKey, int optionId)
+		public static async Task<int> DeleteOptionFromReservation(CancellationToken token, int reservationId, int optionId)
 		{
-			var cart = new Cart();
+			var result = 0;
 
 			using (var httpClient = new HttpClient())
 			{
@@ -130,25 +130,25 @@ namespace S2M.Models
 
 				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
 				httpClient.DefaultRequestHeaders.Add("token", apiKey);
-				httpClient.DefaultRequestHeaders.Add("api-version", "1");
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
 				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
 
-				var uri = new Uri(apiUrl + "/api/cart/" + cartKey + "/option/" + optionId);
+				var uri = new Uri(apiUrl + "/api/reservation/" + reservationId + "/option/" + optionId);
 
 				using (var httpResponse = await httpClient.DeleteAsync(uri))
 				{
 					string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
 					json = json.Replace("<br>", Environment.NewLine);
-					cart = JsonConvert.DeserializeObject<Cart>(json);
+					result = JsonConvert.DeserializeObject<int>(json);
 				}
 			}
-			return cart;
+			return result;
 		}
 	}
 
 	public class SaveOptionCriteria
 	{
-		public string CartKey { get; set; }
+		public int ReservationId { get; set; }
 		public int OptionId { get; set; }
 		public int Amount { get; set; }
 		public int CurrencyId { get; set; }

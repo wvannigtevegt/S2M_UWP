@@ -18,9 +18,13 @@ namespace S2M.Pages
 	/// </summary>
 	public sealed partial class LocationDetail : Page
 	{
+		protected CheckIn ActiveCheckIn { get; set; }
+		protected CurrentCheckIn CurrentCheckIn { get; set; }
 		public Location LocationObject { get; set; }
 		public ObservableCollection<Activity> ActivityList { get; set; }
 		public Cart CartObject { get; set; }
+		public int ReservationId { get; set; }
+		public Reservation ReservationObject { get; set; }
 		public ObservableCollection<CheckIn> CheckInList { get; set; }
 		public ObservableCollection<Option> OptionList { get; set; }
 		public ObservableCollection<CheckInKnowledgeTag> TagCheckInList { get; set; }
@@ -67,6 +71,32 @@ namespace S2M.Pages
 					}
 				}
 			}
+
+			var currentCheckIn = await Common.StorageService.RetrieveObjectAsync<Models.CurrentCheckIn>("CurrentCheckIn");
+			if (currentCheckIn != null)
+			{
+				if (currentCheckIn.Date.Date == DateTime.Now.Date)
+				{
+					CurrentCheckIn = currentCheckIn;
+					if (CurrentCheckIn.CheckIn.Id > 0)
+					{						
+						ActiveCheckIn = CurrentCheckIn.CheckIn;
+						ReservationId = ActiveCheckIn.ReservationId;
+
+						CheckInMessageTextBlock.Text = "You are checked-in! #" + ActiveCheckIn.ReservationId.ToString();
+						await GetLocationOptions(ActiveCheckIn.ReservationId);
+					}
+				}
+				else
+				{
+					await Common.StorageService.DeleteObjectAsync("CurrentCheckIn");
+					await GetCurrentCheckInData();
+				}
+			}
+			else
+			{
+				await GetCurrentCheckInData();
+			}
 		}
 
 		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
@@ -104,7 +134,7 @@ namespace S2M.Pages
 			LocationAddressLineTextBlock.Text = addressLine;
 
 			Date = DateTime.Now;
-			
+
 			StartTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
 			StartTime = TimeSpan.FromMinutes(15 * Math.Ceiling(StartTime.TotalMinutes / 15));
 			EndTime = new TimeSpan(17, 0, 0);
@@ -121,6 +151,29 @@ namespace S2M.Pages
 
 				await CheckIn.GetCheckInsAsync(token, CheckInList, LocationObject.Id);
 				await CheckInKnowledgeTag.GetLocationCheckInKnowledgeTagsAsync(token, TagCheckInList, LocationObject.Id);
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+			}
+		}
+
+		private async Task GetCurrentCheckInData()
+		{
+			_cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				var checkIn = await CheckIn.GetCurrentCheckIn(token);
+				var currentCheckIn = new CurrentCheckIn();
+				currentCheckIn.Date = DateTime.Now;
+				if (checkIn != null)
+				{
+					currentCheckIn.CheckIn = checkIn;
+				}
+				await Common.StorageService.PersistObjectAsync("CurrentCheckIn", currentCheckIn);
 			}
 			catch (Exception) { }
 			finally
@@ -160,7 +213,9 @@ namespace S2M.Pages
 
 			try
 			{
+				CheckInMessageTextBlock.Text = "Saving your selection...";
 				await Cart.SetCarUnit(token, CartKey, selectedUnit.SearchDateId, selectedUnit.UnitId, selectedUnit.CurrencyId, (double)selectedUnit.Price, selectedUnit.TaxId, selectedUnit.Crc);
+				await FinalizeCart();
 			}
 			catch (Exception) { }
 			finally
@@ -187,11 +242,11 @@ namespace S2M.Pages
 						{
 							if (toggleSwitch.IsOn)
 							{
-								await Option.SaveOptionToCart(token, CartObject.CartKey, option);
+								await Option.SaveOptionToReservation(token, ReservationId, option);
 							}
 							else
 							{
-								await Option.DeleteOptionFromCart(token, CartObject.CartKey, option.OptionId);
+								await Option.DeleteOptionFromReservation(token, ReservationId, option.OptionId);
 							}
 						}
 						catch (Exception) { }
@@ -206,31 +261,7 @@ namespace S2M.Pages
 
 		private async void FinalizeCartButton_Click(object sender, RoutedEventArgs e)
 		{
-			_cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
-
-			CheckInProgressRing.IsActive = true;
-			CheckInProgressRing.Visibility = Visibility.Visible;
-
-			SearchAvailabilityButton.Visibility = Visibility.Collapsed;
-			FinalizeCartButton.Visibility = Visibility.Collapsed;
-			AvailableUnitsListView.Visibility = Visibility.Collapsed;
-			OptionsListView.Visibility = Visibility.Collapsed;
-
-			try
-			{
-				await CartObject.FinalizeCart(token);
-			}
-			catch (Exception) { }
-			finally
-			{
-				_cts = null;
-
-				SearchAvailabilityButton.Visibility = Visibility.Visible;
-
-				CheckInProgressRing.IsActive = false;
-				CheckInProgressRing.Visibility = Visibility.Collapsed;
-			}
+			await FinalizeCart();
 		}
 
 		private async void DateTimeHyperLinkButton_Click(object sender, RoutedEventArgs e)
@@ -292,12 +323,15 @@ namespace S2M.Pages
 				CheckInProgressRing.IsActive = true;
 				CheckInProgressRing.Visibility = Visibility.Visible;
 
-				NoAvailabilityTextBlock.Visibility = Visibility.Collapsed;
 				AvailableUnitsListView.Visibility = Visibility.Collapsed;
 				OptionsListView.Visibility = Visibility.Collapsed;
-				FinalizeCartButton.Visibility = Visibility.Collapsed;
-				
+
+				HideOptionsHyperLinkButton.Visibility = Visibility.Collapsed;
+				ShowOptionsHyperLinkButton.Visibility = Visibility.Collapsed;
+
 				OptionList.Clear();
+
+				CheckInMessageTextBlock.Text = "Checking availability...";
 
 				var availability = await Availability.GetAvailableLocations(token, LocationObject.Id, Date, StartTime, EndTime);
 				if (availability.Locations.Count > 0)
@@ -311,27 +345,24 @@ namespace S2M.Pages
 						CartObject = await Availability.SelectAvailableLocation(token, availability.SearchKey, availableLocation.LocationId, selectedUnit.SearchDateId, selectedUnit.UnitId, 0);
 						if (CartObject != null)
 						{
-							SearchIdTextBlock.Text = selectedUnit.SearchDateId.ToString(); // TODO: remove test value
-
-							AvailableUnitsListView.ItemsSource = availableUnits;
-							AvailableUnitsListView.SelectedItem = selectedUnit;
-
-							AvailableUnitsListView.Visibility = Visibility.Visible;
-
-							await Option.GetLocationOptionsAsync(token, CartObject.CartKey, OptionList);
-							if (OptionList.Any())
+							if (availableUnits.Count() == 1)
 							{
-								OptionsListView.Visibility = Visibility.Visible;
-								OptionsListView.ItemsSource = OptionList;
+								CheckInMessageTextBlock.Text = "Check-in in progress... ";
+								await FinalizeCart();
 							}
+							else
+							{
+								CheckInMessageTextBlock.Text = "Please select your space...";
 
-							FinalizeCartButton.Visibility = Visibility.Visible;
+								AvailableUnitsListView.ItemsSource = availableUnits;
+								AvailableUnitsListView.Visibility = Visibility.Visible;
+							}
 						}
 					}
 				}
 				else
 				{
-					NoAvailabilityTextBlock.Visibility = Visibility.Visible;
+					CheckInMessageTextBlock.Text = "No availability, please try an other date or time";
 				}
 			}
 			catch (Exception) { }
@@ -346,6 +377,80 @@ namespace S2M.Pages
 				CheckInProgressRing.Visibility = Visibility.Collapsed;
 			}
 
+		}
+
+		public async Task FinalizeCart()
+		{
+			_cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			CheckInProgressRing.IsActive = true;
+			CheckInProgressRing.Visibility = Visibility.Visible;
+
+			SearchAvailabilityButton.Visibility = Visibility.Collapsed;
+			//FinalizeCartButton.Visibility = Visibility.Collapsed;
+			AvailableUnitsListView.Visibility = Visibility.Collapsed;
+			OptionsListView.Visibility = Visibility.Collapsed;
+
+			try
+			{
+				ReservationObject = await CartObject.FinalizeCart(token);
+				ReservationId = ReservationObject.Id;
+				CheckInMessageTextBlock.Text = "You are checked-in! #" + ReservationId.ToString();
+
+				await GetLocationOptions(ReservationId);
+
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+
+				SearchAvailabilityButton.Visibility = Visibility.Visible;
+
+				CheckInProgressRing.IsActive = false;
+				CheckInProgressRing.Visibility = Visibility.Collapsed;
+			}
+		}
+
+		private async Task GetLocationOptions(int reservationId)
+		{
+			_cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				await Option.GetLocationOptionsAsync(token, reservationId, OptionList);
+				if (OptionList.Any())
+				{
+					OptionsListView.Visibility = Visibility.Visible;
+					OptionsListView.ItemsSource = OptionList;
+
+					HideOptionsHyperLinkButton.Visibility = Visibility.Visible;
+				}
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+			}
+		}
+
+		private void HideOptionsHyperLinkButton_Click(object sender, RoutedEventArgs e)
+		{
+
+			HideOptionsHyperLinkButton.Visibility = Visibility.Collapsed;
+			ShowOptionsHyperLinkButton.Visibility = Visibility.Visible;
+
+			OptionsListView.Visibility = Visibility.Collapsed;
+		}
+
+		private void ShowOptionsHyperLinkButton_Click(object sender, RoutedEventArgs e)
+		{
+			HideOptionsHyperLinkButton.Visibility = Visibility.Visible;
+			ShowOptionsHyperLinkButton.Visibility = Visibility.Collapsed;
+
+			OptionsListView.Visibility = Visibility.Visible;
 		}
 	}
 
