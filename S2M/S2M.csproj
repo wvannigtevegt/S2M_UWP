@@ -168,6 +168,7 @@
     <Compile Include="Models\CurrentCheckIn.cs" />
     <Compile Include="Models\EventCalendar.cs" />
     <Compile Include="Models\Location.cs" />
+    <Compile Include="Models\LocationImage.cs" />
     <Compile Include="Models\LocationResult.cs" />
     <Compile Include="Models\LocationText.cs" />
     <Compile Include="Models\Login.cs" />
@@ -212,6 +213,9 @@
     </Compile>
     <Compile Include="Pages\Home.xaml.cs">
       <DependentUpon>Home.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\LocationCheckInNFC.xaml.cs">
+      <DependentUpon>LocationCheckInNFC.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\LocationDetail.xaml.cs">
       <DependentUpon>LocationDetail.xaml</DependentUpon>
@@ -372,6 +376,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Home.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\LocationCheckInNFC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

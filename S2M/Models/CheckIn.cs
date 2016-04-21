@@ -133,8 +133,49 @@ namespace S2M.Models
 
 					if (checkInResult.Results.Any())
 					{
-						checkIn = checkInResult.Results.First();
+						var currentTimeStamp = Common.DateService.ToJavaScriptMilliseconds(DateTime.UtcNow);
+						var checkinsNow = checkInResult.Results.Where(c => c.StartTimeStamp < currentTimeStamp
+																			&& c.EndTimeStamp > currentTimeStamp
+																			&& !c.HasLeft).ToList();
+						if (checkinsNow.Any())
+						{
+							checkIn = checkinsNow.FirstOrDefault();
+						}
+						
 					}
+				}
+				catch (Exception) { }
+			}
+
+			return checkIn;
+		}
+
+		public static async Task<CheckIn> GetCheckInByReservation(CancellationToken token, int reservationId)
+		{
+			var checkInResult = new CheckInResult();
+			var checkIn = new CheckIn();
+
+			var authenticatedProfile = await Common.StorageService.RetrieveObjectAsync<Profile>("Profile");
+
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var url = apiUrl + "/api/checkin/reservation/" + reservationId;
+
+					var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token);
+					string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+					json = json.Replace("<br>", Environment.NewLine);
+					checkIn = JsonConvert.DeserializeObject<CheckIn>(json);
 				}
 				catch (Exception) { }
 			}
@@ -330,6 +371,70 @@ namespace S2M.Models
 				}
 				catch (Exception) { }
 			}
+		}
+
+		public static async Task<CheckIn> ConfirmCheckIn(CancellationToken token, CheckIn checkin)
+		{
+			CheckIn checkinObject = null;
+
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var url = apiUrl + "/api/checkin/confirm/" + checkin.Id;
+
+					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token))
+					{
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						checkinObject = JsonConvert.DeserializeObject<CheckIn>(json);
+					}
+				}
+				catch (Exception) { }
+			}
+
+			return checkinObject;
+		}
+
+		public static async Task<CheckIn> Checkout(CancellationToken token, CheckIn checkin)
+		{
+			CheckIn checkinObject = null;
+
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var url = apiUrl + "/api/checkout/" + checkin.Id;
+
+					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token))
+					{
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						checkinObject = JsonConvert.DeserializeObject<CheckIn>(json);
+					}
+				}
+				catch (Exception) { }
+			}
+
+			return checkinObject;
 		}
 
 		public static async Task<int> CancelCheckIn(CancellationToken token, int id)

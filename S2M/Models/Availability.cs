@@ -89,8 +89,8 @@ namespace S2M.Models {
 			return searchObject;
 		}
 
-		public static async Task<Cart> SelectAvailableLocation(CancellationToken token, string searchKey, int locationId, int searchDateId, int unitId, int settingId) {
-			var cart = new Cart();
+		public static async Task<Reservation> SelectAvailableLocation(CancellationToken token, string searchKey, int locationId, int searchDateId, int unitId, int settingId) {
+			var reservation = new Reservation();
 
 			var chosenUnits = new List<ChosenUnit>();
 			var chosenUnit = new ChosenUnit {
@@ -120,19 +120,19 @@ namespace S2M.Models {
 				};
 
 				try {
-					var url = apiUrl + "/api/availability/choselocation";
+					var url = apiUrl + "/api/availability/choselocation/finalize";
 					var queryString = new HttpStringContent(JsonConvert.SerializeObject(criteria), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
 
 					using (var httpResponse = await httpClient.PostAsync(new Uri(url), queryString)) {
 						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
 						json = json.Replace("<br>", Environment.NewLine);
-						cart = JsonConvert.DeserializeObject<Cart>(json);
+						reservation = JsonConvert.DeserializeObject<Reservation>(json);
 					}
 				}
 				catch (Exception) { }			
 			}
 
-			return cart;
+			return reservation;
 		}
 
 		public class AvailabilityCriteria {

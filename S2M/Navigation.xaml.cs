@@ -73,7 +73,10 @@ namespace S2M
 		{
 			ProfileObject = await Profile.GetProfile();
 
-			ProfileImageBrush.ImageSource = new BitmapImage(new Uri(ProfileObject.ProfileImage_84));
+			if (!string.IsNullOrEmpty(ProfileObject.ProfileImage_84))
+			{
+				ProfileImageBrush.ImageSource = new BitmapImage(new Uri(ProfileObject.ProfileImage_84));
+			}			
 			LocationNameTextBlock.Text = ProfileObject.FullName;
 
 			await Common.StorageService.DeleteObjectAsync("WorkingOn"); //TODO: Remove
@@ -259,6 +262,19 @@ namespace S2M
 					//	ChatId = id
 					//};
 					NavigationFrame.Navigate(typeof(Pages.EventCheckInNFC), id);
+
+					SetSearchAvailabilityStatus(false);
+					break;
+				case "LocationCheckInNFC":
+					EventsRadioButton.IsChecked = true;
+					NavigationHeaderTextBlock.Text = "Check-in";
+
+					//var chatDetailPageCriteria = new Pages.ChatDetailPageCriteria
+					//{
+					//	Chat = null,
+					//	ChatId = id
+					//};
+					NavigationFrame.Navigate(typeof(Pages.LocationCheckInNFC), id);
 
 					SetSearchAvailabilityStatus(false);
 					break;

@@ -58,7 +58,8 @@
 
 				<Button x:Name="SearchAvailabilityButton"
 						Margin="4,12,12,12"
-						Content="Check-in" 
+						Content="Check-in"
+						Visibility="Collapsed"
 						Click="SearchAvailabilityButton_Click" />
 
 				<TextBlock x:Name="CheckInMessageTextBlock" />
@@ -121,6 +122,27 @@
 					</StackPanel>
 				</HyperlinkButton>
 			</StackPanel>
+
+			<!--<StackPanel>
+				<FlipView x:Name="LocationImagesFlipView" Width="320" Height="240" ItemsSource="{x:Bind LocationImageList}" >
+					<FlipView.ItemTemplate>
+						<DataTemplate x:DataType="data:LocationImage">
+							--><!--<Image Source="{x:Bind Image_320}" Stretch="UniformToFill" />--><!--
+							<Rectangle x:Name="LocationImagaRectangle" 
+							   Margin="5,0,0,5"
+							   Width="320" 
+							   Height="240" 
+							   RelativePanel.Below="LocationNameTextBlock">
+										<Rectangle.Fill>
+											<ImageBrush x:Name="LocationImageBrush" 
+										ImageSource="{x:Bind Image_320}" 
+										Stretch="Fill" />
+										</Rectangle.Fill>
+									</Rectangle>
+						</DataTemplate>
+					</FlipView.ItemTemplate>
+				</FlipView>
+			</StackPanel>-->
 
 			<ListView x:Name="TagCheckInsListView"
 					  HorizontalAlignment="Stretch"

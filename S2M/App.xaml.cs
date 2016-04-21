@@ -84,13 +84,25 @@ namespace S2M
 					case "eventcheckin":
 						var eventId = int.Parse(args["id"]);
 
-						var criteria = new NavigationPageCriteria
+						var ec_criteria = new NavigationPageCriteria
 						{
 							Action = "EventCheckInNFC",
 							Id = eventId
 						};
 
-						frame.Navigate(typeof(MainPage), criteria);
+						frame.Navigate(typeof(MainPage), ec_criteria);
+
+						break;
+					case "locationcheckin":
+						var locationId = int.Parse(args["id"]);
+
+						var lc_criteria = new NavigationPageCriteria
+						{
+							Action = "LocationCheckInNFC",
+							Id = locationId
+						};
+
+						frame.Navigate(typeof(MainPage), lc_criteria);
 
 						break;
 				}

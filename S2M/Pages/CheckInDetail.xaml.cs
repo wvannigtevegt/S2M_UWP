@@ -49,8 +49,8 @@ namespace S2M.Pages {
 			}
 			
 			//CheckInDateTextBlock.Text = DateService.ConvertFromUnixTimestamp(CheckInObject.StartTimeStamp).ToString("yyyy-MM-dd");
-			CheckInTimeTextBlock.Text = DateService.ConvertFromUnixTimestamp(CheckInObject.StartTimeStamp).ToString("HH:mm") + " - " +
-											DateService.ConvertFromUnixTimestamp(CheckInObject.EndTimeStamp).ToString("HH:mm");
+			CheckInTimeTextBlock.Text = DateService.ConvertFromUnixTimestamp(CheckInObject.StartTimeStamp).ToLocalTime().ToString("HH:mm") + " - " +
+											DateService.ConvertFromUnixTimestamp(CheckInObject.EndTimeStamp).ToLocalTime().ToString("HH:mm");
 
 			CheckInTagsListView.ItemsSource = CheckInObject.Tags;
 		}

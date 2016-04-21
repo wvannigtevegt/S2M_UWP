@@ -1,4 +1,5 @@
-﻿using S2M.Controls;
+﻿using S2M.Common;
+using S2M.Controls;
 using S2M.Models;
 using System;
 using System.Collections.ObjectModel;
@@ -20,9 +21,12 @@ namespace S2M.Pages
 	{
 		protected CheckIn ActiveCheckIn { get; set; }
 		protected CurrentCheckIn CurrentCheckIn { get; set; }
+		protected bool IsBookable = false;
 		public Location LocationObject { get; set; }
+		public OpeningHour LocationOpeningHours { get; set; }
 		public ObservableCollection<Activity> ActivityList { get; set; }
-		public Cart CartObject { get; set; }
+		public ObservableCollection<LocationImage> LocationImageList { get; set; }
+		//public Cart CartObject { get; set; }
 		public int ReservationId { get; set; }
 		public Reservation ReservationObject { get; set; }
 		public ObservableCollection<CheckIn> CheckInList { get; set; }
@@ -79,12 +83,16 @@ namespace S2M.Pages
 				{
 					CurrentCheckIn = currentCheckIn;
 					if (CurrentCheckIn.CheckIn.Id > 0)
-					{						
+					{
 						ActiveCheckIn = CurrentCheckIn.CheckIn;
 						ReservationId = ActiveCheckIn.ReservationId;
 
 						CheckInMessageTextBlock.Text = "You are checked-in! #" + ActiveCheckIn.ReservationId.ToString();
-						await GetLocationOptions(ActiveCheckIn.ReservationId);
+
+						if (ActiveCheckIn.LocationId == LocationObject.Id)
+						{
+							await GetLocationOptions(ActiveCheckIn.ReservationId);
+						}
 					}
 				}
 				else
@@ -139,7 +147,7 @@ namespace S2M.Pages
 			StartTime = TimeSpan.FromMinutes(15 * Math.Ceiling(StartTime.TotalMinutes / 15));
 			EndTime = new TimeSpan(17, 0, 0);
 
-			await SetDateTimeTextBoxes();
+			await GetLocationOpeningHours();
 
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
@@ -149,7 +157,10 @@ namespace S2M.Pages
 				var locationText = await LocationText.GetLocationDescriptionAsync(token, LocationObject.Id);
 				//LocationDescriptionTextBlock.Text = locationText.Description;
 
-				await CheckIn.GetCheckInsAsync(token, CheckInList, LocationObject.Id);
+				LocationImageList = await LocationImage.GetLocationImagesById(token, LocationObject.Id);
+				//LocationImagesFlipView.ItemsSource = LocationImageList;
+
+				await GetLocationCheckIns();
 				await CheckInKnowledgeTag.GetLocationCheckInKnowledgeTagsAsync(token, TagCheckInList, LocationObject.Id);
 			}
 			catch (Exception) { }
@@ -157,6 +168,70 @@ namespace S2M.Pages
 			{
 				_cts = null;
 			}
+		}
+
+		private async Task GetLocationOpeningHours()
+		{
+			_cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				LocationOpeningHours = await OpeningHour.GetLocationOpeningHourssAsync(token, LocationObject.Id, DateTime.Now);
+
+				if (LocationOpeningHours.NrOfLocations > 0 && DateTime.Now <= LocationOpeningHours.MaxTimeClose)
+				{
+					IsBookable = true;
+
+					EndTime = new TimeSpan(LocationOpeningHours.MaxTimeClose.Hour, LocationOpeningHours.MaxTimeClose.Minute, 0);
+
+					SearchAvailabilityButton.Visibility = Visibility.Visible;
+				}
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+			}
+
+			await SetDateTimeTextBoxes();
+		}
+
+		private async Task GetLocationCheckIns()
+		{
+			_cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				var newCheckIns = new ObservableCollection<CheckIn>();
+
+				await CheckIn.GetCheckInsAsync(token, newCheckIns, LocationObject.Id);
+
+				foreach(var newCheckIn in newCheckIns)
+				{
+					if (!CheckIfCheckInExistsInList(newCheckIn))
+					{
+						CheckInList.Add(newCheckIn);
+					}
+				}
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+			}
+		}
+
+		private bool CheckIfCheckInExistsInList(CheckIn checkin)
+		{
+			var checkIns = CheckInList.Where(c => c.Id == checkin.Id);
+			if (checkIns.Any())
+			{
+				return true;
+			}
+
+			return false;
 		}
 
 		private async Task GetCurrentCheckInData()
@@ -213,9 +288,9 @@ namespace S2M.Pages
 
 			try
 			{
-				CheckInMessageTextBlock.Text = "Saving your selection...";
-				await Cart.SetCarUnit(token, CartKey, selectedUnit.SearchDateId, selectedUnit.UnitId, selectedUnit.CurrencyId, (double)selectedUnit.Price, selectedUnit.TaxId, selectedUnit.Crc);
-				await FinalizeCart();
+				//CheckInMessageTextBlock.Text = "Saving your selection...";
+				//await Cart.SetCarUnit(token, CartKey, selectedUnit.SearchDateId, selectedUnit.UnitId, selectedUnit.CurrencyId, (double)selectedUnit.Price, selectedUnit.TaxId, selectedUnit.Crc);
+				//await FinalizeCart();
 			}
 			catch (Exception) { }
 			finally
@@ -259,9 +334,9 @@ namespace S2M.Pages
 			}
 		}
 
-		private async void FinalizeCartButton_Click(object sender, RoutedEventArgs e)
+		private async Task FinalizeCartButton_Click(object sender, RoutedEventArgs e)
 		{
-			await FinalizeCart();
+			//await FinalizeCart();
 		}
 
 		private async void DateTimeHyperLinkButton_Click(object sender, RoutedEventArgs e)
@@ -339,25 +414,24 @@ namespace S2M.Pages
 					var availableLocation = availability.Locations.First();
 					var availableUnits = availableLocation.Units;
 
-					var selectedUnit = availableUnits.First();
-					if (selectedUnit != null)
+					if (availableUnits.Count() == 1)
 					{
-						CartObject = await Availability.SelectAvailableLocation(token, availability.SearchKey, availableLocation.LocationId, selectedUnit.SearchDateId, selectedUnit.UnitId, 0);
-						if (CartObject != null)
+						var selectedUnit = availableUnits.First();
+						if (selectedUnit != null)
 						{
-							if (availableUnits.Count() == 1)
+							ReservationObject = await CheckinUser(availability.SearchKey, availableLocation.LocationId, selectedUnit.SearchDateId, selectedUnit.UnitId);
+							if (ReservationObject != null)
 							{
-								CheckInMessageTextBlock.Text = "Check-in in progress... ";
-								await FinalizeCart();
-							}
-							else
-							{
-								CheckInMessageTextBlock.Text = "Please select your space...";
-
-								AvailableUnitsListView.ItemsSource = availableUnits;
-								AvailableUnitsListView.Visibility = Visibility.Visible;
+								CheckInMessageTextBlock.Text = "You're checked in! #" + ReservationObject.Id;
 							}
 						}
+					}
+					else
+					{
+						CheckInMessageTextBlock.Text = "Please select your space...";
+
+						AvailableUnitsListView.ItemsSource = availableUnits;
+						AvailableUnitsListView.Visibility = Visibility.Visible;
 					}
 				}
 				else
@@ -379,38 +453,42 @@ namespace S2M.Pages
 
 		}
 
-		public async Task FinalizeCart()
+		public async Task<Reservation> CheckinUser(string searchKey, int locationId, int searchDateId, int unitId)
 		{
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
-			CheckInProgressRing.IsActive = true;
-			CheckInProgressRing.Visibility = Visibility.Visible;
+			//CheckInProgressRing.IsActive = true;
+			//CheckInProgressRing.Visibility = Visibility.Visible;
 
-			SearchAvailabilityButton.Visibility = Visibility.Collapsed;
-			//FinalizeCartButton.Visibility = Visibility.Collapsed;
-			AvailableUnitsListView.Visibility = Visibility.Collapsed;
-			OptionsListView.Visibility = Visibility.Collapsed;
+			//SearchAvailabilityButton.Visibility = Visibility.Collapsed;
+			////FinalizeCartButton.Visibility = Visibility.Collapsed;
+			//AvailableUnitsListView.Visibility = Visibility.Collapsed;
+			//OptionsListView.Visibility = Visibility.Collapsed;
 
 			try
 			{
-				ReservationObject = await CartObject.FinalizeCart(token);
-				ReservationId = ReservationObject.Id;
-				CheckInMessageTextBlock.Text = "You are checked-in! #" + ReservationId.ToString();
+				var reservation = await Availability.SelectAvailableLocation(token, searchKey, locationId, searchDateId, unitId, 0);
+				ReservationObject = reservation;
+				ReservationId = reservation.Id;
 
-				await GetLocationOptions(ReservationId);
+				await GetCurrentCheckInData();
+				await GetLocationCheckIns();
 
+				return reservation;
 			}
 			catch (Exception) { }
 			finally
 			{
 				_cts = null;
 
-				SearchAvailabilityButton.Visibility = Visibility.Visible;
+				//	SearchAvailabilityButton.Visibility = Visibility.Visible;
 
-				CheckInProgressRing.IsActive = false;
-				CheckInProgressRing.Visibility = Visibility.Collapsed;
+				//	CheckInProgressRing.IsActive = false;
+				//	CheckInProgressRing.Visibility = Visibility.Collapsed;
 			}
+
+			return null;
 		}
 
 		private async Task GetLocationOptions(int reservationId)
