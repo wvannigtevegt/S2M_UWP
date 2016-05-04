@@ -4,13 +4,132 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:S2M.Pages"
 	xmlns:control="using:S2M.Controls"
+	xmlns:converters="using:S2M.Converters"
 	xmlns:data="using:S2M.Models"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	Loaded="Page_Loaded"
     mc:Ignorable="d">
 
-    <Grid>
+	<Page.Resources>
+		<converters:RelativeTimeConverter x:Key="RelativeTimeConverter" />
+		
+		<ItemsPanelTemplate x:Key="ItemsPanelTemplate">
+			<ItemsStackPanel />
+		</ItemsPanelTemplate>
+
+		<DataTemplate x:Key="SelectingChatTemplate">
+			<local:ChatTemplateSelector Content="{Binding}"
+				ImageLeft="{StaticResource ChatItemImageLeftTemplate}"
+				ImageRight="{StaticResource ChatItemImageRightTemplate}"
+				HorizontalContentAlignment="Stretch" />
+		</DataTemplate>
+
+		<DataTemplate x:Key="ChatItemImageLeftTemplate" x:DataType="data:ChatMessage">
+			<Grid Background="White" Margin="48,0,0,4">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="2*" />
+				</Grid.ColumnDefinitions>
+
+				<Ellipse Margin="4,4,4,4"
+						 Width="24" 
+						 Height="24"
+						 HorizontalAlignment="Left"
+						 VerticalAlignment="Top"
+						 Grid.Row="0"
+						 Grid.RowSpan="2"
+						 Grid.Column="0">
+					<Ellipse.Fill>
+						<ImageBrush Stretch="Fill">
+							<ImageBrush.ImageSource>
+								<BitmapImage DecodePixelHeight="24" 
+										DecodePixelWidth="24" 
+										UriSource="{x:Bind ProfileImage_84}" />
+							</ImageBrush.ImageSource>
+						</ImageBrush>
+					</Ellipse.Fill>
+				</Ellipse>
+
+				<StackPanel Grid.Column="1"
+						   Grid.Row="0">
+					<TextBlock Text="{x:Bind ProfileName}"
+							   Margin="12,4,0,0"
+							   Foreground="Gray"
+							   FontSize="11"/>
+
+					<TextBlock Text="{x:Bind Message}"
+							   TextWrapping="WrapWholeWords"
+							   Margin="12,4,12,0"
+							   Foreground="#FF001E2D"/>
+				</StackPanel>
+
+				<TextBlock Text="{x:Bind CreatedOnDate, Converter={StaticResource RelativeTimeConverter}}"
+							TextWrapping="WrapWholeWords"
+							Margin="12,0,12,12"
+							Foreground="Gray"
+							FontSize="11"
+							Grid.Column="1"
+							Grid.Row="1"/>
+			</Grid>
+		</DataTemplate>
+
+		<DataTemplate x:Key="ChatItemImageRightTemplate" x:DataType="data:ChatMessage">
+			<Grid Background="White" Margin="0,0,48,4">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="2*" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+
+				<Ellipse Margin="4,4,4,4"
+						 Width="24" 
+						 Height="24"
+						 HorizontalAlignment="Left"
+						 VerticalAlignment="Top"
+						 Grid.Row="0"
+						 Grid.RowSpan="2"
+						 Grid.Column="1">
+					<Ellipse.Fill>
+						<ImageBrush Stretch="Fill">
+							<ImageBrush.ImageSource>
+								<BitmapImage DecodePixelHeight="24" 
+										DecodePixelWidth="24" 
+										UriSource="{x:Bind ProfileImage_84}" />
+							</ImageBrush.ImageSource>
+						</ImageBrush>
+					</Ellipse.Fill>
+				</Ellipse>
+
+				<TextBlock Text="{x:Bind Message}"
+						   TextWrapping="WrapWholeWords"
+						   Margin="12,4,12,0"
+						   Foreground="#FF001E2D"
+						   Grid.Column="0"
+						   Grid.Row="0"/>
+
+				<TextBlock Text="{x:Bind CreatedOnDate, Converter={StaticResource RelativeTimeConverter}}"
+						   TextWrapping="WrapWholeWords"
+						   Margin="12,0,12,12"
+						   Foreground="Gray"
+						   FontSize="11"
+						   Grid.Column="0"
+						   Grid.Row="1"/>
+			</Grid>
+		</DataTemplate>
+	</Page.Resources>
+
+
+	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="48" />
 			<RowDefinition Height="*" />
@@ -46,23 +165,34 @@
 					   Margin="8,0,0,0" />
 		</RelativePanel>
 
-		<ListView 
-			Grid.Row="1" 
-			x:Name="ChatMessagesListView" 
-			ItemsSource="{x:Bind ChatMessageList}" 
-			ScrollViewer.HorizontalScrollBarVisibility="Auto"
-			ScrollViewer.IsHorizontalRailEnabled="True">
+		<ListView Grid.Row="1"
+				  x:Name="ChatMessagesListView" 
+				  ItemsSource="{x:Bind ChatMessageList}"
+				  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
+				  ItemTemplate="{StaticResource SelectingChatTemplate}"
+				  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+				  ScrollViewer.IsHorizontalRailEnabled="True">
 
-			<ListView.ItemTemplate>
-				<DataTemplate x:DataType="data:ChatMessage">
-					<control:ChatMessageTemplate />
-				</DataTemplate>
-			</ListView.ItemTemplate>
+			<ListView.ItemContainerStyle>
+				<Style TargetType="ListViewItem">
+					<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+				</Style>
+			</ListView.ItemContainerStyle>
 		</ListView>
 
-		<RelativePanel Grid.Row="2">
+		<Grid Grid.Row="2">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+
+			<TextBox x:Name="ChatMessageTextBox"
+					 Grid.Column="0"
+					 HorizontalContentAlignment="Stretch"
+					 KeyUp="ChatMessageTextBox_KeyDown"/>
+
 			<Button x:Name="PostMessageButton" 
-					Margin="0,0,12,0"
+					Grid.Column="1"
 					FontFamily="Segoe MDL2 Assets" 
 					Content="&#xE122;" 
 					FontSize="20"
@@ -70,13 +200,6 @@
 					Height="48"
 					RelativePanel.AlignRightWithPanel="True"
 					Click="PostMessageButton_Click" />
-			
-			<TextBox x:Name="ChatMessageTextBox"
-					 Margin="12,12,12,0"
-					 KeyUp="ChatMessageTextBox_KeyDown"
-					 RelativePanel.AlignLeftWithPanel="True" 
-					 RelativePanel.LeftOf="PostMessageButton"/>
-
-		</RelativePanel>
+		</Grid>
 	</Grid>
 </Page>

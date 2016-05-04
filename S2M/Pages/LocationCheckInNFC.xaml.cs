@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -58,6 +60,7 @@ namespace S2M.Pages
 				if (LocationObject != null && LocationObject.Id > 0)
 				{
 					LocationNameTextBlock.Text = LocationObject.Name;
+					LocationImage.Source = new BitmapImage(new Uri(LocationObject.Image_320));
 				}
 				LocationCheckInProgressRing.IsActive = false;
 				LocationCheckInProgressRing.Visibility = Visibility.Collapsed;
@@ -122,6 +125,10 @@ namespace S2M.Pages
 					var endTime = new TimeSpan(LocationOpeningHours.MaxTimeClose.Hour, LocationOpeningHours.MaxTimeClose.Minute, 0);
 
 					await CheckLocationAvailability(DateTime.Now, startTime, endTime);
+				}
+				else
+				{
+					MessageTextBlock.Text = "Location closed! Please try another date & time";
 				}
 			}
 			catch (Exception) { }

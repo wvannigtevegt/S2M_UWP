@@ -144,7 +144,7 @@ namespace S2M.Pages
 		private async Task GetCheckinRecommendations(CancellationToken token)
 		{
 			CheckInRecommendations.Clear();
-			await CheckIn.GetCheckInsAsync(token, CheckInRecommendations, 0, 0, SearchTerm, 0, 0, 0, WorkingOn, 1, 10, false);
+			await CheckIn.GetCheckInsAsync(token, CheckInRecommendations, DateTime.Now, 0, 0, SearchTerm, 0, 0, 0, WorkingOn, 1, 10, false);
 		}
 		private async Task GetLocationRecommendations(CancellationToken token)
 		{

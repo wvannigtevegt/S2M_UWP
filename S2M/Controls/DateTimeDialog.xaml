@@ -7,14 +7,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title="TITLE"
-    PrimaryButtonText="Search"
+    PrimaryButtonText="Ok"
     SecondaryButtonText="Cancel"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
     SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
 
     <StackPanel>
-		<!--<DatePicker x:Name="StartDateDatePicker" Date="{Binding Date,Mode=TwoWay}" Header="Date" DateChanged="StartDateDatePicker_DateChanged" />-->
-		<CalendarView x:Name="StartDateCalendarView" SelectedDatesChanged="StartDateCalendarView_SelectedDatesChanged" />
 		<TimePicker x:Name="StartTimeTimePicker" Time="{Binding StartTimeSpan,Mode=TwoWay}" Header="Start" MinuteIncrement="15" TimeChanged="StartTimeTimePicker_TimeChanged" />
 		<TimePicker x:Name="EndTimeTimePicker" Time="{Binding EndTimeSpan,Mode=TwoWay}" Header="End" MinuteIncrement="15" TimeChanged="EndTimeTimePicker_TimeChanged" />
     </StackPanel>

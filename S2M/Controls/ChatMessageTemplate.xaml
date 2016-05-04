@@ -5,44 +5,59 @@
     xmlns:local="using:S2M.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
+    mc:Ignorable="d">
 
-	<Grid>
-		<RelativePanel Grid.Column="0" Height="Auto" Background="White" Margin="0,0,0,12">
-			<Ellipse x:Name="ChatMessageImageEllipse"
-					 RelativePanel.AlignLeftWithPanel="True"
-					 RelativePanel.AlignTopWithPanel="True"
-					 Margin="12,12,0,12"
-					 Width="24" 
-					 Height="24">
-				<Ellipse.Fill>
-					<ImageBrush Stretch="Fill">
-						<ImageBrush.ImageSource>
-							<BitmapImage x:Name="MessageProfileImageBitmap" 
-										 DecodePixelHeight="24" 
-										 DecodePixelWidth="24" 
-										 UriSource="{x:Bind ChatMessage.ProfileImage_84}" />
-						</ImageBrush.ImageSource>
-					</ImageBrush>
-				</Ellipse.Fill>
-			</Ellipse>
+	<Grid Name="ChatMessagePane" Background="White" Margin="4,0,0,4">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
 
-			<TextBlock x:Name="ChatMessageTextBlock" 
-					   RelativePanel.RightOf="ChatMessageImageEllipse"
-					   Text="{x:Bind ChatMessage.Message}"
-					   TextWrapping="WrapWholeWords"
-					   Margin="12,12,12,0"
-					   Foreground="#FF001E2D"/>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
 
-			<TextBlock x:Name="ChatMessageProfileNameTextBlock" 
-					   RelativePanel.RightOf="ChatMessageImageEllipse"
-					   RelativePanel.Below="ChatMessageTextBlock"
-					   Text="{x:Bind ChatMessage.ProfileName}"
-					   Margin="12,0,12,12"
-					   FontSize="12"
-					   Foreground="DarkGray"/>
-		</RelativePanel>
+		<Ellipse x:Name="ChatMessageImageEllipse"
+				 RelativePanel.AlignLeftWithPanel="True"
+				 RelativePanel.AlignTopWithPanel="True"
+				 Margin="4,4,4,4"
+				 Width="24" 
+				 Height="24"
+				 HorizontalAlignment="Left"
+				 VerticalAlignment="Top"
+				 Grid.Row="0"
+				 Grid.RowSpan="2"
+				 Grid.Column="0">
+			<Ellipse.Fill>
+				<ImageBrush Stretch="Fill">
+					<ImageBrush.ImageSource>
+						<BitmapImage x:Name="MessageProfileImageBitmap" 
+										DecodePixelHeight="24" 
+										DecodePixelWidth="24" 
+										UriSource="{x:Bind ChatMessage.ProfileImage_84}" />
+					</ImageBrush.ImageSource>
+				</ImageBrush>
+			</Ellipse.Fill>
+		</Ellipse>
+
+		<TextBlock x:Name="ChatMessageTextBlock" 
+				   RelativePanel.RightOf="ChatMessageImageEllipse"
+				   Text="{x:Bind ChatMessage.Message}"
+				   TextWrapping="WrapWholeWords"
+				   Margin="12,12,12,0"
+				   Foreground="#FF001E2D"
+				   Grid.Column="1"
+				   Grid.Row="0"/>
+
+		<TextBlock x:Name="ChatMessageProfileNameTextBlock" 
+				   RelativePanel.RightOf="ChatMessageImageEllipse"
+				   RelativePanel.Below="ChatMessageTextBlock"
+				   Text="{x:Bind ChatMessage.ProfileName}"
+				   Margin="12,0,12,12"
+				   Foreground="Gray"
+				   FontSize="11"
+				   Grid.Column="1"
+				   Grid.Row="1"/>
 	</Grid>
 </UserControl>

@@ -111,6 +111,7 @@
     <Compile Include="Common\StorageService.cs" />
     <Compile Include="Common\StringFormatter.cs" />
     <Compile Include="Common\TemplateSelector.cs" />
+    <Compile Include="ComponentModel\ObservableObjectBase.cs" />
     <Compile Include="Controls\ActivityTemplate.xaml.cs">
       <DependentUpon>ActivityTemplate.xaml</DependentUpon>
     </Compile>
@@ -142,9 +143,14 @@
       <DependentUpon>TagCheckinTemplate.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Converters\CheckInToIsPresentConverter.cs" />
     <Compile Include="Converters\DateTimeFormatConverter.cs" />
+    <Compile Include="Converters\NullToVisibilityConverter.cs" />
+    <Compile Include="Converters\RelativeTimeConverter.cs" />
+    <Compile Include="Converters\SelectedLegendItemToColorConverter.cs" />
     <Compile Include="Converters\StringConverter.cs" />
     <Compile Include="Converters\StringFormatConverter.cs" />
+    <Compile Include="Extensions\BoolExtensions.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -168,6 +174,7 @@
     <Compile Include="Models\CurrentCheckIn.cs" />
     <Compile Include="Models\EventCalendar.cs" />
     <Compile Include="Models\Location.cs" />
+    <Compile Include="Models\LocationDay.cs" />
     <Compile Include="Models\LocationImage.cs" />
     <Compile Include="Models\LocationResult.cs" />
     <Compile Include="Models\LocationText.cs" />
@@ -196,8 +203,8 @@
     <Compile Include="Pages\CheckInDetail.xaml.cs">
       <DependentUpon>CheckInDetail.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\CheckInKnowledge.xaml.cs">
-      <DependentUpon>CheckInKnowledge.xaml</DependentUpon>
+    <Compile Include="Pages\CheckInFinal.xaml.cs">
+      <DependentUpon>CheckInFinal.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\CheckIns.xaml.cs">
       <DependentUpon>CheckIns.xaml</DependentUpon>
@@ -243,6 +250,9 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
+    <Compile Include="ViewModel\CheckInFinalViewModel.cs" />
+    <Compile Include="ViewModel\LocationDetailViewModel.cs" />
+    <Compile Include="ViewModel\ViewModelHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -355,9 +365,9 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\CheckInKnowledge.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Pages\CheckInFinal.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\CheckIns.xaml">
       <SubType>Designer</SubType>

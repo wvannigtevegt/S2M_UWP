@@ -136,7 +136,9 @@ namespace S2M.Pages
 
 		private void ReservationsListView_ItemClick(object sender, ItemClickEventArgs e)
 		{
-			
+			var checkIn = (CheckIn)e.ClickedItem;
+
+			Frame.Navigate(typeof(CheckInFinal), checkIn);
 		}
 
 		private async void CancelCheckInButton_Click(object sender, RoutedEventArgs e)

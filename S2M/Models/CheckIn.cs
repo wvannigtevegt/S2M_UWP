@@ -19,7 +19,7 @@ namespace S2M.Models
 		public string ProfileKey { get; set; }
 		public string ProfileName { get; set; }
 		public string ProfileImage { get; set; }
-		public string[] Tags { get; set; }
+		public string Tags { get; set; }
 		public string WorkingOn { get; set; }
 		public int LocationId { get; set; }
 		public string LocationName { get; set; }
@@ -134,8 +134,7 @@ namespace S2M.Models
 					if (checkInResult.Results.Any())
 					{
 						var currentTimeStamp = Common.DateService.ToJavaScriptMilliseconds(DateTime.UtcNow);
-						var checkinsNow = checkInResult.Results.Where(c => c.StartTimeStamp < currentTimeStamp
-																			&& c.EndTimeStamp > currentTimeStamp
+						var checkinsNow = checkInResult.Results.Where(c => c.EndTimeStamp > currentTimeStamp
 																			&& !c.HasLeft).ToList();
 						if (checkinsNow.Any())
 						{
@@ -219,9 +218,9 @@ namespace S2M.Models
 			}
 		}
 
-		public static async Task GetCheckInsAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false)
+		public static async Task GetCheckInsAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList, DateTime date, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false)
 		{
-			var checkInResult = await GetCheckInsDataAsync(token, locationId, eventId, searchTerm, latitude, longitude, radius, workingOn, page, itemsPerPage, allDay);
+			var checkInResult = await GetCheckInsDataAsync(token, date, locationId, eventId, searchTerm, latitude, longitude, radius, workingOn, page, itemsPerPage, allDay);
 			var checkins = checkInResult.Results.ToList();
 
 			if (!string.IsNullOrEmpty(workingOn))
@@ -469,7 +468,7 @@ namespace S2M.Models
 			return result;
 		}
 
-		private static async Task<CheckInResult> GetCheckInsDataAsync(CancellationToken token, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false)
+		private static async Task<CheckInResult> GetCheckInsDataAsync(CancellationToken token, DateTime date, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false)
 		{
 			var checkInResult = new CheckInResult();
 			var checkins = new ObservableCollection<CheckIn>();
@@ -489,7 +488,7 @@ namespace S2M.Models
 				{
 					var criteria = new CheckInListCriteria
 					{
-						DateTimeStamp = Common.DateService.ToJavaScriptMilliseconds(DateTime.Now),
+						DateTimeStamp = Common.DateService.ToJavaScriptMilliseconds(date),
 						ItemsPerPage = itemsPerPage,
 						Latitude = latitude,
 						Longitude = longitude,

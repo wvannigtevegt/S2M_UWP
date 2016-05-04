@@ -81,7 +81,7 @@ namespace S2M.Pages {
 			try
 			{
 				var _checkinList = new ObservableCollection<CheckIn>();
-				await CheckIn.GetCheckInsAsync(token, _checkinList, 0, 0, "", 0, 0, 0, "", 1, 25, true);
+				await CheckIn.GetCheckInsAsync(token, _checkinList, DateTime.Now, 0, 0, "", 0, 0, 0, "", 1, 25, true);
 				foreach(var checkin in _checkinList)
 				{
 					if (checkin.WorkingOn.Length > 2)

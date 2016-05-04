@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using S2M.Common;
 using System;
 using System.Threading.Tasks;
 using Windows.Web.Http;
@@ -11,6 +12,13 @@ namespace S2M.Models {
 		public int ProfileId { get; set; }
 		public string ProfileName { get; set; }
 		public long CreatedOn { get; set; }
+		public DateTime CreatedOnDate
+		{
+			get
+			{
+				return DateService.ConvertFromUnixTimestamp(this.CreatedOn).ToLocalTime();
+			}
+		}
 		public bool IsSystem { get; set; }
 		public string Type { get; set; }
 		public string ProfileImage { get; set; }

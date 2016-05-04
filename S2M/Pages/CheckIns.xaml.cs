@@ -107,7 +107,7 @@ namespace S2M.Pages {
 						break;
 				}
 
-				await CheckIn.GetCheckInsAsync(token, CheckInList, 0, 0, searchTerm, Latitude, Longitude, 0, "", 0, 0, true);
+				await CheckIn.GetCheckInsAsync(token, CheckInList, DateTime.Now, 0, 0, searchTerm, Latitude, Longitude, 0, "", 0, 0, true);
 			}
 			catch (Exception) { }
 			finally {
@@ -121,10 +121,6 @@ namespace S2M.Pages {
 			Frame.Navigate(typeof(CheckInDetail), checkIn);
 		}
 
-		private void CheckInKnowledgeHyperLinkButton_Click(object sender, RoutedEventArgs e)
-		{
-			Frame.Navigate(typeof(Pages.CheckInKnowledge));
-		}
 
 		//private void CheckInssAutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args) {
 

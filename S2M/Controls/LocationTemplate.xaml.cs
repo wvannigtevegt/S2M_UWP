@@ -7,11 +7,12 @@ namespace S2M.Controls {
 	public sealed partial class LocationTemplate : UserControl {
 		public Location Location { get { return this.DataContext as Location; } }
 		public bool ShowLocationDistance { get; set; }
+		public bool ShowSerendipityIndex { get; set; }
 
 		public LocationTemplate() {
 			this.InitializeComponent();
 
-			ShowLocationDistance = false;
+			ShowSerendipityIndex = false;
 
 			this.DataContextChanged += (s, e) => Bindings.Update();
 		}

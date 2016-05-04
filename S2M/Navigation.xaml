@@ -85,9 +85,9 @@
 
 		<SplitView Name="NavigationSplitView" 
                    Grid.Row="1" 
-                   
 				   Background="LightGray"
-                   CompactPaneLength="48">
+                   CompactPaneLength="48"
+				   OpenPaneLength="240">
 			<SplitView.Pane>
 				<Grid Background="#FF2B2B2B">
 					<Grid.RowDefinitions>

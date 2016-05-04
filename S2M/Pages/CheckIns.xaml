@@ -10,9 +10,14 @@
 	Loaded="Page_Loaded"
     mc:Ignorable="d">
 
+	<Page.Resources>
+		<ItemsPanelTemplate x:Key="ItemsPanelTemplate">
+			<ItemsStackPanel />
+		</ItemsPanelTemplate>
+	</Page.Resources>
+
 	<Grid>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="48" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
@@ -20,29 +25,11 @@
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
 
-		<RelativePanel Grid.Row="0" Width="Auto">
-			<TextBlock x:Name="CheckInsTextBlock"
-					   Text="Check-ins" 
-					   Margin="12,0,0,0"
-					   FontWeight="Bold"
-					   RelativePanel.AlignLeftWithPanel="True" 
-					   RelativePanel.AlignVerticalCenterWithPanel="True" />
-			
-			<HyperlinkButton x:Name="CheckInKnowledgeHyperLinkButton"
-							 Margin="20,0,0,0"
-							 RelativePanel.RightOf="CheckInsTextBlock"
-							 RelativePanel.AlignVerticalCenterWithPanel="True"
-							 Click="CheckInKnowledgeHyperLinkButton_Click">Knowledge</HyperlinkButton>
-		</RelativePanel>
-
-		<GridView Grid.Row="1" 
-				  x:Name="CheckInsGridView"
-				  Margin="12,0,0,0"
+		<GridView x:Name="CheckInsGridView"
 				  ItemsSource="{x:Bind CheckInList}" 
-				  IsItemClickEnabled="True" 
-				  ItemClick="CheckInsGridView_ItemClick"
-				  HorizontalAlignment="Stretch"
-				  HorizontalContentAlignment="Stretch">
+				  IsItemClickEnabled="True"
+				  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
+				  ItemClick="CheckInsGridView_ItemClick">
 			<GridView.ItemContainerTransitions>
 				<!--<TransitionCollection>
 					<EntranceThemeTransition IsStaggeringEnabled="True" 
@@ -52,7 +39,6 @@
 					<NavigationThemeTransition/>
 					<ContentThemeTransition/>
 				</TransitionCollection>-->
-
 			</GridView.ItemContainerTransitions>
 
 			<GridView.ItemTemplate>
@@ -60,6 +46,11 @@
 					<control:CheckInTemplate />
 				</DataTemplate>
 			</GridView.ItemTemplate>
+			<GridView.ItemContainerStyle>
+				<Style TargetType="GridViewItem">
+					<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+				</Style>
+			</GridView.ItemContainerStyle>
 		</GridView>
 
 		<ProgressRing Name="CheckInsProgressRing"

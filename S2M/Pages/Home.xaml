@@ -13,6 +13,10 @@
 
 	<Page.Resources>
 		<converters:StringFormatConverter x:Key="StrFormatConverter" />
+
+		<ItemsPanelTemplate x:Key="ItemsPanelTemplate">
+			<ItemsStackPanel />
+		</ItemsPanelTemplate>
 	</Page.Resources>
 
 	<Grid>
@@ -52,7 +56,8 @@
 				  x:Name="LocationRecommendationsGridView"
 				  Margin="12,0,0,0"
 				  ItemsSource="{x:Bind LocationRecommendations}" 
-				  IsItemClickEnabled="True" 
+				  IsItemClickEnabled="True"
+						  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
 				  ItemClick="LocationRecommendationsGridView_ItemClick"
 				  HorizontalAlignment="Stretch"
 				  HorizontalContentAlignment="Stretch">
@@ -61,6 +66,11 @@
 							<control:LocationTemplate />
 						</DataTemplate>
 					</GridView.ItemTemplate>
+					<GridView.ItemContainerStyle>
+						<Style TargetType="GridViewItem">
+							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+						</Style>
+					</GridView.ItemContainerStyle>
 				</GridView>
 			</PivotItem>
 			<PivotItem Header="Checkins">
@@ -69,6 +79,7 @@
 				  Margin="12,0,0,0"
 				  ItemsSource="{x:Bind CheckInRecommendations}" 
 				  IsItemClickEnabled="True" 
+						  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
 				  ItemClick="CheckInRecommendationsGridView_ItemClick"
 				  HorizontalAlignment="Stretch"
 				  HorizontalContentAlignment="Stretch">
@@ -178,6 +189,11 @@
 							</RelativePanel>
 						</DataTemplate>
 					</GridView.ItemTemplate>
+					<GridView.ItemContainerStyle>
+						<Style TargetType="GridViewItem">
+							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+						</Style>
+					</GridView.ItemContainerStyle>
 				</GridView>
 			</PivotItem>
 			<PivotItem Header="Events">

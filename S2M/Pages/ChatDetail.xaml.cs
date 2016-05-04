@@ -137,6 +137,31 @@ namespace S2M.Pages
 		}
 	}
 
+	public class ChatTemplateSelector : Common.TemplateSelector
+	{
+		public DataTemplate ImageLeft
+		{
+			get;
+			set;
+		}
+
+		public DataTemplate ImageRight
+		{
+			get;
+			set;
+		}
+
+		public override DataTemplate SelectTemplate(object item, DependencyObject container)
+		{
+			var chatMessage = item as ChatMessage;
+			if (chatMessage != null)
+			{
+				return chatMessage.ProfileId != 96 ? ImageLeft : ImageRight;
+			}
+			return null;
+		}
+	}
+
 	public class ChatDetailPageCriteria
 	{
 		public int ChatId { get; set; } = 0;

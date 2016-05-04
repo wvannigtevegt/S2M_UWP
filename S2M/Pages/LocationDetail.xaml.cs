@@ -1,6 +1,6 @@
-﻿using S2M.Common;
-using S2M.Controls;
+﻿using S2M.Controls;
 using S2M.Models;
+using S2M.ViewModel;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -8,50 +8,39 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace S2M.Pages
 {
-	/// <summary>
-	/// An empty page that can be used on its own or navigated to within a Frame.
-	/// </summary>
 	public sealed partial class LocationDetail : Page
 	{
-		protected CheckIn ActiveCheckIn { get; set; }
-		protected CurrentCheckIn CurrentCheckIn { get; set; }
-		protected bool IsBookable = false;
+		private CancellationTokenSource _cts = null;
+
+		public CheckIn ActiveCheckIn { get; set; }
 		public Location LocationObject { get; set; }
 		public OpeningHour LocationOpeningHours { get; set; }
-		public ObservableCollection<Activity> ActivityList { get; set; }
-		public ObservableCollection<LocationImage> LocationImageList { get; set; }
-		//public Cart CartObject { get; set; }
 		public int ReservationId { get; set; }
 		public Reservation ReservationObject { get; set; }
 		public ObservableCollection<CheckIn> CheckInList { get; set; }
-		public ObservableCollection<Option> OptionList { get; set; }
-		public ObservableCollection<CheckInKnowledgeTag> TagCheckInList { get; set; }
-
-		protected string CartKey { get; set; }
-		protected DateTime Date { get; set; }
-		protected TimeSpan EndTime { get; set; }
-		protected TimeSpan StartTime { get; set; }
-
-		private CancellationTokenSource _cts = null;
+		public LocationDetailViewModel ViewModel { get; set; }
 
 		public LocationDetail()
 		{
 			this.InitializeComponent();
 
-			ActivityList = new ObservableCollection<Activity>();
+			ViewModel = new LocationDetailViewModel();
+			DataContext = ViewModel;
+
 			CheckInList = new ObservableCollection<CheckIn>();
-			OptionList = new ObservableCollection<Option>();
-			TagCheckInList = new ObservableCollection<CheckInKnowledgeTag>();
 		}
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e)
 		{
+			base.OnNavigatedTo(e);
+
 			var criteria = (LocationDetailPageCriteria)e.Parameter;
 			if (criteria != null)
 			{
@@ -75,36 +64,6 @@ namespace S2M.Pages
 					}
 				}
 			}
-
-			var currentCheckIn = await Common.StorageService.RetrieveObjectAsync<Models.CurrentCheckIn>("CurrentCheckIn");
-			if (currentCheckIn != null)
-			{
-				if (currentCheckIn.Date.Date == DateTime.Now.Date)
-				{
-					CurrentCheckIn = currentCheckIn;
-					if (CurrentCheckIn.CheckIn.Id > 0)
-					{
-						ActiveCheckIn = CurrentCheckIn.CheckIn;
-						ReservationId = ActiveCheckIn.ReservationId;
-
-						CheckInMessageTextBlock.Text = "You are checked-in! #" + ActiveCheckIn.ReservationId.ToString();
-
-						if (ActiveCheckIn.LocationId == LocationObject.Id)
-						{
-							await GetLocationOptions(ActiveCheckIn.ReservationId);
-						}
-					}
-				}
-				else
-				{
-					await Common.StorageService.DeleteObjectAsync("CurrentCheckIn");
-					await GetCurrentCheckInData();
-				}
-			}
-			else
-			{
-				await GetCurrentCheckInData();
-			}
 		}
 
 		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
@@ -120,54 +79,46 @@ namespace S2M.Pages
 
 		private async void Page_Loaded(object sender, RoutedEventArgs e)
 		{
-			LocationNameTextBlock.Text = LocationObject.Name;
+			await ViewModel.GetProfileCheckIns();
 
-			var addressLine = "";
+			LocationNameTextBlock.Text = LocationObject.Name;
+			LocationImage.Source = new BitmapImage(new Uri(LocationObject.Image_320));
+
 			if (!string.IsNullOrEmpty(LocationObject.Address))
 			{
-				addressLine += LocationObject.Address;
+				LocationAddressTextBlock.Text = LocationObject.Address;
 			}
 			if (!string.IsNullOrEmpty(LocationObject.Zipcode))
 			{
-				addressLine += ", " + LocationObject.Zipcode;
+				LocationPostalCodeTextBlock.Text = LocationObject.Zipcode;
 			}
 			if (!string.IsNullOrEmpty(LocationObject.City))
 			{
-				addressLine += ", " + LocationObject.City;
+				var city = LocationObject.City;
+				if (!string.IsNullOrEmpty(LocationObject.State))
+				{
+					city += " " + LocationObject.State;
+				}
+
+				LocationCityTextBlock.Text = city;
 			}
-			if (!string.IsNullOrEmpty(LocationObject.State))
+
+			ViewModel.SelectedDate.Date = DateTime.Now;
+
+			int i = 0;
+			while (i < 6)
 			{
-				addressLine += " " + LocationObject.State;
+				ViewModel.Dates.Add(new LocationDay()
+				{
+					ActiveCheckIn = CheckIfProfilehasCheckIn(ViewModel.SelectedDate.Date.AddDays(i)),
+					Date = ViewModel.SelectedDate.Date.AddDays(i)
+				});
+
+				i++;
 			}
-			LocationAddressLineTextBlock.Text = addressLine;
-
-			Date = DateTime.Now;
-
-			StartTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
-			StartTime = TimeSpan.FromMinutes(15 * Math.Ceiling(StartTime.TotalMinutes / 15));
-			EndTime = new TimeSpan(17, 0, 0);
 
 			await GetLocationOpeningHours();
-
-			_cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
-
-			try
-			{
-				var locationText = await LocationText.GetLocationDescriptionAsync(token, LocationObject.Id);
-				//LocationDescriptionTextBlock.Text = locationText.Description;
-
-				LocationImageList = await LocationImage.GetLocationImagesById(token, LocationObject.Id);
-				//LocationImagesFlipView.ItemsSource = LocationImageList;
-
-				await GetLocationCheckIns();
-				await CheckInKnowledgeTag.GetLocationCheckInKnowledgeTagsAsync(token, TagCheckInList, LocationObject.Id);
-			}
-			catch (Exception) { }
-			finally
-			{
-				_cts = null;
-			}
+			await GetLocationCheckIns();
 		}
 
 		private async Task GetLocationOpeningHours()
@@ -175,17 +126,35 @@ namespace S2M.Pages
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
+			ViewModel.IsBookable = false;
+
 			try
 			{
-				LocationOpeningHours = await OpeningHour.GetLocationOpeningHourssAsync(token, LocationObject.Id, DateTime.Now);
-
-				if (LocationOpeningHours.NrOfLocations > 0 && DateTime.Now <= LocationOpeningHours.MaxTimeClose)
+				LocationOpeningHours = await OpeningHour.GetLocationOpeningHourssAsync(token, LocationObject.Id, ViewModel.SelectedDate.Date);
+				if (ViewModel.SelectedDate.Date.Date == DateTime.Now.Date)
 				{
-					IsBookable = true;
+					if (LocationOpeningHours.MinTimeOpen > DateTime.Now)
+					{
+						ViewModel.StartTime = new TimeSpan(LocationOpeningHours.MinTimeOpen.Hour, LocationOpeningHours.MinTimeOpen.Minute, 0);
+					}
+					else
+					{
+						ViewModel.StartTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
+						ViewModel.StartTime = TimeSpan.FromMinutes(15 * Math.Ceiling(ViewModel.StartTime.TotalMinutes / 15));
+					}
+				}
+				else
+				{
+					ViewModel.StartTime = new TimeSpan(LocationOpeningHours.MinTimeOpen.Hour, LocationOpeningHours.MinTimeOpen.Minute, 0);
+				}
+				ViewModel.EndTime = new TimeSpan(LocationOpeningHours.MaxTimeClose.Hour, LocationOpeningHours.MaxTimeClose.Minute, 0);
 
-					EndTime = new TimeSpan(LocationOpeningHours.MaxTimeClose.Hour, LocationOpeningHours.MaxTimeClose.Minute, 0);
-
-					SearchAvailabilityButton.Visibility = Visibility.Visible;
+				if (LocationOpeningHours.NrOfLocations > 0)
+				{
+					if (ViewModel.SelectedDate.Date.Date != DateTime.Now.Date || (ViewModel.SelectedDate.Date.Date == DateTime.Now.Date && DateTime.Now <= LocationOpeningHours.MaxTimeClose))
+					{
+						ViewModel.IsBookable = true;
+					}
 				}
 			}
 			catch (Exception) { }
@@ -204,11 +173,13 @@ namespace S2M.Pages
 
 			try
 			{
+				CheckInList.Clear();
+
 				var newCheckIns = new ObservableCollection<CheckIn>();
 
-				await CheckIn.GetCheckInsAsync(token, newCheckIns, LocationObject.Id);
+				await CheckIn.GetCheckInsAsync(token, newCheckIns, ViewModel.SelectedDate.Date, LocationObject.Id);
 
-				foreach(var newCheckIn in newCheckIns)
+				foreach (var newCheckIn in newCheckIns)
 				{
 					if (!CheckIfCheckInExistsInList(newCheckIn))
 					{
@@ -216,11 +187,21 @@ namespace S2M.Pages
 					}
 				}
 			}
-			catch (Exception) { }
+			catch (Exception ex) { }
 			finally
 			{
 				_cts = null;
 			}
+		}
+
+		private CheckIn CheckIfProfilehasCheckIn(DateTime date)
+		{
+			var checkins = ViewModel.ProfileCheckIns.Where(p => Common.DateService.ConvertFromUnixTimestamp(p.StartTimeStamp).Date == date.Date);
+			if (checkins.Any())
+			{
+				return checkins.FirstOrDefault();
+			}
+			return null;
 		}
 
 		private bool CheckIfCheckInExistsInList(CheckIn checkin)
@@ -234,34 +215,21 @@ namespace S2M.Pages
 			return false;
 		}
 
-		private async Task GetCurrentCheckInData()
-		{
-			_cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
-
-			try
-			{
-				var checkIn = await CheckIn.GetCurrentCheckIn(token);
-				var currentCheckIn = new CurrentCheckIn();
-				currentCheckIn.Date = DateTime.Now;
-				if (checkIn != null)
-				{
-					currentCheckIn.CheckIn = checkIn;
-				}
-				await Common.StorageService.PersistObjectAsync("CurrentCheckIn", currentCheckIn);
-			}
-			catch (Exception) { }
-			finally
-			{
-				_cts = null;
-			}
-		}
-
-		private void LocationCheckInsGridView_ItemClick(object sender, ItemClickEventArgs e)
+		private async void LocationCheckInsGridView_ItemClick(object sender, ItemClickEventArgs e)
 		{
 			var checkIn = (CheckIn)e.ClickedItem;
+			var authenticatedProfile = await Common.StorageService.RetrieveObjectAsync<Models.Profile>("Profile");
 
-			Frame.Navigate(typeof(CheckInDetail), checkIn);
+			if (checkIn.ProfileId == authenticatedProfile.Id)
+			{
+				Frame.Navigate(typeof(CheckInFinal), checkIn);
+			}
+			else
+			{
+				Frame.Navigate(typeof(CheckInDetail), checkIn);
+			}
+
+			
 		}
 
 		private void TagCheckInsListView_ItemClick(object sender, ItemClickEventArgs e)
@@ -288,9 +256,7 @@ namespace S2M.Pages
 
 			try
 			{
-				//CheckInMessageTextBlock.Text = "Saving your selection...";
-				//await Cart.SetCarUnit(token, CartKey, selectedUnit.SearchDateId, selectedUnit.UnitId, selectedUnit.CurrencyId, (double)selectedUnit.Price, selectedUnit.TaxId, selectedUnit.Crc);
-				//await FinalizeCart();
+
 			}
 			catch (Exception) { }
 			finally
@@ -299,116 +265,62 @@ namespace S2M.Pages
 			}
 		}
 
-		private async void OptionToggleSwitch_Toggled(object sender, RoutedEventArgs e)
-		{
-			var toggleSwitch = sender as ToggleSwitch;
-			if (toggleSwitch != null)
-			{
-				var optionId = int.Parse(toggleSwitch.Tag.ToString());
-				var option = OptionList.Where(ol => ol.OptionId == optionId).First();
-				if (option != null)
-				{
-					if (option.IsEnabled)
-					{
-						_cts = new CancellationTokenSource();
-						CancellationToken token = _cts.Token;
-
-						try
-						{
-							if (toggleSwitch.IsOn)
-							{
-								await Option.SaveOptionToReservation(token, ReservationId, option);
-							}
-							else
-							{
-								await Option.DeleteOptionFromReservation(token, ReservationId, option.OptionId);
-							}
-						}
-						catch (Exception) { }
-						finally
-						{
-							_cts = null;
-						}
-					}
-				}
-			}
-		}
-
-		private async Task FinalizeCartButton_Click(object sender, RoutedEventArgs e)
-		{
-			//await FinalizeCart();
-		}
-
 		private async void DateTimeHyperLinkButton_Click(object sender, RoutedEventArgs e)
 		{
-			Controls.DateTimeDialog dateDialog = new Controls.DateTimeDialog();
-			dateDialog.Date = Date;
+			DateTimeDialog dateDialog = new DateTimeDialog();
 			dateDialog.LocationId = LocationObject.Id;
-			dateDialog.StartTime = StartTime;
-			dateDialog.EndTime = EndTime;
+			dateDialog.StartTime = ViewModel.StartTime;
+			dateDialog.EndTime = ViewModel.EndTime;
+			dateDialog.MinStartTime = ViewModel.StartTime;
+			dateDialog.MaxEndTimeSpan = ViewModel.EndTime;
 
 			await dateDialog.ShowAsync();
 			if (dateDialog.Result == ChangeDateTimeResult.ChangeDateTimeOK)
 			{
 				var changeCounter = 0;
 
-				if (dateDialog.Date != Date)
+				if (dateDialog.StartTime != ViewModel.StartTime)
 				{
-					Date = dateDialog.Date;
+					ViewModel.StartTime = dateDialog.StartTime;
 					changeCounter++;
 				}
-				if (dateDialog.StartTime != StartTime)
+				if (dateDialog.EndTime != ViewModel.EndTime)
 				{
-					StartTime = dateDialog.StartTime;
-					changeCounter++;
-				}
-				if (dateDialog.EndTime != EndTime)
-				{
-					EndTime = dateDialog.EndTime;
+					ViewModel.EndTime = dateDialog.EndTime;
 					changeCounter++;
 				}
 
 				if (changeCounter > 0)
 				{
 					await SetDateTimeTextBoxes();
-					await CheckLocationAvailability();
 				}
 			}
 		}
 
 		private async Task SetDateTimeTextBoxes()
 		{
-			DateTextBlock.Text = Date.ToString("dd MMM yyyy");
-			TimeTextBlock.Text = string.Format("{0:hh\\:mm}", StartTime) + " - " + string.Format("{0:hh\\:mm}", EndTime);
-
-			//await CheckLocationAvailability();
+			TimeTextBlock.Text = string.Format("{0:hh\\:mm}", ViewModel.StartTime) + " - " + string.Format("{0:hh\\:mm}", ViewModel.EndTime);
 		}
 
 		private async Task CheckLocationAvailability()
 		{
-			SearchAvailabilityButton.IsEnabled = false;
+			CheckInButton.IsEnabled = false;
 
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
 			try
 			{
-
 				DateTimeHyperLinkButton.IsEnabled = false;
 				CheckInProgressRing.IsActive = true;
 				CheckInProgressRing.Visibility = Visibility.Visible;
 
 				AvailableUnitsListView.Visibility = Visibility.Collapsed;
-				OptionsListView.Visibility = Visibility.Collapsed;
 
-				HideOptionsHyperLinkButton.Visibility = Visibility.Collapsed;
-				ShowOptionsHyperLinkButton.Visibility = Visibility.Collapsed;
-
-				OptionList.Clear();
 
 				CheckInMessageTextBlock.Text = "Checking availability...";
 
-				var availability = await Availability.GetAvailableLocations(token, LocationObject.Id, Date, StartTime, EndTime);
+				var availability = await Availability.GetAvailableLocations(token, LocationObject.Id, ViewModel.SelectedDate.Date, ViewModel.StartTime, ViewModel.EndTime);
 				if (availability.Locations.Count > 0)
 				{
 					var availableLocation = availability.Locations.First();
@@ -422,7 +334,15 @@ namespace S2M.Pages
 							ReservationObject = await CheckinUser(availability.SearchKey, availableLocation.LocationId, selectedUnit.SearchDateId, selectedUnit.UnitId);
 							if (ReservationObject != null)
 							{
-								CheckInMessageTextBlock.Text = "You're checked in! #" + ReservationObject.Id;
+								var checkin = await CheckIn.GetCheckInByReservation(token, ReservationId);
+								if (checkin != null)
+								{
+									ViewModel.ProfileCheckIns.Add(checkin);
+									CheckInList.Add(checkin);
+									ViewModel.SelectedDate.ActiveCheckIn = checkin;
+
+									Frame.Navigate(typeof(CheckInFinal), checkin);
+								}
 							}
 						}
 					}
@@ -445,7 +365,7 @@ namespace S2M.Pages
 				_cts = null;
 
 				DateTimeHyperLinkButton.IsEnabled = true;
-				SearchAvailabilityButton.IsEnabled = true;
+				CheckInButton.IsEnabled = true;
 
 				CheckInProgressRing.IsActive = false;
 				CheckInProgressRing.Visibility = Visibility.Collapsed;
@@ -458,22 +378,11 @@ namespace S2M.Pages
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
-			//CheckInProgressRing.IsActive = true;
-			//CheckInProgressRing.Visibility = Visibility.Visible;
-
-			//SearchAvailabilityButton.Visibility = Visibility.Collapsed;
-			////FinalizeCartButton.Visibility = Visibility.Collapsed;
-			//AvailableUnitsListView.Visibility = Visibility.Collapsed;
-			//OptionsListView.Visibility = Visibility.Collapsed;
-
 			try
 			{
 				var reservation = await Availability.SelectAvailableLocation(token, searchKey, locationId, searchDateId, unitId, 0);
 				ReservationObject = reservation;
 				ReservationId = reservation.Id;
-
-				await GetCurrentCheckInData();
-				await GetLocationCheckIns();
 
 				return reservation;
 			}
@@ -481,54 +390,26 @@ namespace S2M.Pages
 			finally
 			{
 				_cts = null;
-
-				//	SearchAvailabilityButton.Visibility = Visibility.Visible;
-
-				//	CheckInProgressRing.IsActive = false;
-				//	CheckInProgressRing.Visibility = Visibility.Collapsed;
 			}
 
 			return null;
 		}
 
-		private async Task GetLocationOptions(int reservationId)
+		private async void DatesFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			_cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
-
-			try
-			{
-				await Option.GetLocationOptionsAsync(token, reservationId, OptionList);
-				if (OptionList.Any())
-				{
-					OptionsListView.Visibility = Visibility.Visible;
-					OptionsListView.ItemsSource = OptionList;
-
-					HideOptionsHyperLinkButton.Visibility = Visibility.Visible;
-				}
-			}
-			catch (Exception) { }
-			finally
-			{
-				_cts = null;
-			}
+			await GetLocationCheckIns();
+			await GetLocationOpeningHours();
 		}
 
-		private void HideOptionsHyperLinkButton_Click(object sender, RoutedEventArgs e)
+		private void LocationNameHyoperLinkButton_Click(object sender, RoutedEventArgs e)
 		{
+			var criteria = new LocationDetailPageCriteria
+			{
+				LocationId = ViewModel.SelectedDate.ActiveCheckIn.LocationId,
+				Location = null
+			};
 
-			HideOptionsHyperLinkButton.Visibility = Visibility.Collapsed;
-			ShowOptionsHyperLinkButton.Visibility = Visibility.Visible;
-
-			OptionsListView.Visibility = Visibility.Collapsed;
-		}
-
-		private void ShowOptionsHyperLinkButton_Click(object sender, RoutedEventArgs e)
-		{
-			HideOptionsHyperLinkButton.Visibility = Visibility.Visible;
-			ShowOptionsHyperLinkButton.Visibility = Visibility.Collapsed;
-
-			OptionsListView.Visibility = Visibility.Visible;
+			Frame.Navigate(typeof(LocationDetail), criteria);
 		}
 	}
 

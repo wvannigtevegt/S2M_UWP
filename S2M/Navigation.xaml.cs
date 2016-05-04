@@ -202,11 +202,11 @@ namespace S2M
 
 					SetSearchAvailabilityStatus(true);
 					break;
-				case "CheckInKnowledge":
+				case "CheckInFinal":
 					CheckInsRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "CheckIns";
 
-					NavigationFrame.Navigate(typeof(Pages.CheckInKnowledge), SearchTerm);
+					NavigationFrame.Navigate(typeof(Pages.CheckInFinal));
 					break;
 				case "Events":
 					EventsRadioButton.IsChecked = true;
@@ -370,7 +370,7 @@ namespace S2M
 							var checkins = new ObservableCollection<CheckIn>();
 							searchList = checkins.Where(l => l.ProfileName.StartsWith(sender.Text)).Select(l => l.ProfileName).ToList();
 
-							await CheckIn.GetCheckInsAsync(token, checkins);
+							await CheckIn.GetCheckInsAsync(token, checkins, DateTime.Now);
 
 							break;
 						case "Events":

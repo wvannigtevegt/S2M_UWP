@@ -4,178 +4,278 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:S2M.Pages"
 	xmlns:control="using:S2M.Controls"
+	xmlns:converters="using:S2M.Converters"
 	xmlns:data="using:S2M.Models"
+	xmlns:viewModel="using:ViewModel"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	Loaded="Page_Loaded"
     mc:Ignorable="d">
 
+	<Page.Resources>
+		<converters:DateTimeFormatConverter x:Key="DateTimeConverter" />
+		<converters:BooleanToVisibilityConverter x:Key="VisibilityConverter" />
+		<converters:SelectedLegendItemToColorConverter x:Key="SelectedDateToColorConverter" />
+		<converters:StringConverter x:Key="DateFormatConverter" />
+		<converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+
+		<ItemsPanelTemplate x:Key="ItemsPanelTemplate">
+			<ItemsStackPanel />
+		</ItemsPanelTemplate>
+
+		<Style x:Key="DatesLegendItemContainerStyle" TargetType="GridViewItem">
+			<Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+			<Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="IsHoldingEnabled" Value="True" />
+			<Setter Property="HorizontalContentAlignment" Value="Center" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+			<Setter Property="Margin" Value="0,0,4,4" />
+			<Setter Property="MinWidth" Value="15" />
+			<Setter Property="MinHeight" Value="50" />
+			<Setter Property="IsTabStop" Value="False" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="GridViewItem">
+						<Grid>
+							<Ellipse Width="5" Height="5"
+                                     Fill="{Binding IsSelected, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource SelectedDateToColorConverter}}" />
+						</Grid>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Page.Resources>
+
 	<ScrollViewer VerticalScrollMode="Auto">
-		<RelativePanel>
-			<StackPanel x:Name="LocationDataStackPanel"
-						Margin="12,12,12,0" 
-						RelativePanel.AlignLeftWithPanel="True"
-						RelativePanel.AlignRightWithPanel="True"
-						Background="Orange">
-				
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+
+			<StackPanel x:Name="LocationNameStackPanel" 
+						Grid.Row="0"
+						Background="DarkGray"
+						Orientation="Vertical">
+
+				<Image x:Name="LocationImage" 
+					   Margin="0,48,0,12"
+					   Stretch="UniformToFill"
+					   HorizontalAlignment="Center" 
+					   VerticalAlignment="Center"
+					   Width="320"
+					   Height="240"/>
+
 				<TextBlock x:Name="LocationNameTextBlock"
-						   Margin="4,4,12,0"
-						   Style="{ThemeResource SubheaderTextBlockStyle}" 
-						   TextWrapping="WrapWholeWords" />
+						   Foreground="White"
+						   HorizontalAlignment="Center" 
+						   Style="{ThemeResource SubtitleTextBlockStyle}" />
 
-				<TextBlock x:Name="LocationAddressLineTextBlock" 
-						   Margin="4,4,12,0"
-						   TextWrapping="WrapWholeWords" 
-						   FontStyle="Italic" />
+				<StackPanel Margin="0,0,0,24" Orientation="Horizontal" HorizontalAlignment="Center" >
+					<TextBlock x:Name="LocationAddressTextBlock" Margin="4,0,4,0" Foreground="White" FontSize="9" />
+					<TextBlock x:Name="LocationPostalCodeTextBlock" Margin="4,0,4,0" Foreground="White" FontSize="9" />
+					<TextBlock x:Name="LocationCityTextBlock" Margin="4,0,4,0" Foreground="White" FontSize="9" />
+				</StackPanel>
+			</StackPanel>
 
-				<TextBlock x:Name="LocationDescriptionTextBlock" 
-						   Height="Auto" 
-						   TextWrapping="WrapWholeWords" />
+			<StackPanel x:Name="DateSelectionStackPanel"
+						Grid.Column="0" 
+						Grid.Row="1"
+						Background="DarkGray">
+				<FlipView SelectionChanged="DatesFlipView_SelectionChanged"
+						  x:Name="DatesFlipView"
+						  Background="DarkGray"
+						  Height="25"
+						  ItemsSource="{Binding Dates}"
+						  SelectedItem="{Binding SelectedDate, Mode=TwoWay}">
+					<FlipView.ItemTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+								<FontIcon FontFamily="Segoe MDL2 Assets"
+										  FontSize="14"
+										  Glyph="&#xE163;" 
+										  Margin="0,4,8,0" />
+								<TextBlock Foreground="White"
+										   Style="{ThemeResource SubtitleTextBlockStyle}"
+										   Text="{Binding Date, Converter={StaticResource DateFormatConverter}, ConverterParameter=\{0:dd MMM yyyy\}}" />
+							</StackPanel>
+						</DataTemplate>
+					</FlipView.ItemTemplate>
+				</FlipView>
+
+				<GridView HorizontalAlignment="Center"
+						  ItemsSource="{Binding Dates}"
+                          SelectedItem="{Binding SelectedDate, Mode=TwoWay}"
+                          ItemContainerStyle="{StaticResource DatesLegendItemContainerStyle}" />
 			</StackPanel>
 
 			<StackPanel x:Name="LocationAvailabilityStackPanel"
-						Background="#FF00BAFF"
-						Margin="12,12,12,0" 
-						RelativePanel.AlignLeftWithPanel="True"
-						RelativePanel.AlignRightWithPanel="True"
-						RelativePanel.Below="LocationDataStackPanel">
+						Grid.Column="0"
+						Grid.Row="2"
+						Height="80"
+						Background="#FF00BAFF">
+				<StackPanel VerticalAlignment="Center"
+							Visibility="{x:Bind ViewModel.IsBookable, Mode=TwoWay, Converter={StaticResource VisibilityConverter}}">
+					<HyperlinkButton x:Name="DateTimeHyperLinkButton" 
+									 Click="DateTimeHyperLinkButton_Click"
+									 Visibility="{Binding SelectedDate.ActiveCheckIn, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=true}"
+									 Foreground="White">
+						<StackPanel Orientation="Horizontal">
+							<FontIcon x:Name="LocationFontIcon" 
+									  FontFamily="Segoe MDL2 Assets"
+									  FontSize="12"
+									  Glyph="&#xE121;" 				
+									  Margin="4,0,0,0" />
+							<TextBlock x:Name="TimeTextBlock" Margin="4,0,0,0" />
+						</StackPanel>
+					</HyperlinkButton>
 
-				<TextBlock x:Name="SearchIdTextBlock" />
-
-				<HyperlinkButton x:Name="DateTimeHyperLinkButton" 
-								 Click="DateTimeHyperLinkButton_Click" 
-								 Foreground="White">
-					<StackPanel Orientation="Horizontal">
-						<FontIcon x:Name="LocationFontIcon" 
-						  FontFamily="Segoe MDL2 Assets"
-						  FontSize="12"
-						  Glyph="&#xE121;" 					  
-						  Margin="4,0,0,0" />
-						<TextBlock x:Name="DateTextBlock" Margin="4,0,0,0" />
-						<TextBlock x:Name="TimeTextBlock" Margin="4,0,0,0" />
+					<StackPanel Orientation="Horizontal" 
+								HorizontalAlignment="Center" 
+								Visibility="{Binding SelectedDate.ActiveCheckIn, Converter={StaticResource NullToVisibilityConverter}}">
+						<FontIcon x:Name="WarningFontIcon"
+								  FontFamily="Segoe MDL2 Assets"
+								  FontSize="12"
+								  Glyph="&#xE7BA;" 		
+								  Margin="0,-4,4,0" />
+						<TextBlock x:Name="AlreadyCheckedInTextBlock"
+								   FontSize="14"
+								   Text="You're already checked-in at: " />
+						<HyperlinkButton x:Name="LocationNameHyperLinkButton"
+										 Margin="4,-6,0,0"
+										 FontSize="14"
+										 Foreground="White"
+										 HorizontalAlignment="Center"
+										 Click="LocationNameHyoperLinkButton_Click">
+							<TextBlock Text="{Binding SelectedDate.ActiveCheckIn.LocationName}"
+									   TextWrapping="WrapWholeWords"/>
+						</HyperlinkButton>
 					</StackPanel>
-				</HyperlinkButton>
 
-				<Button x:Name="SearchAvailabilityButton"
-						Margin="4,12,12,12"
-						Content="Check-in"
-						Visibility="Collapsed"
-						Click="SearchAvailabilityButton_Click" />
+					<Button x:Name="CheckInButton"
+							Height="40"
+							Margin="4,12,12,12"
+							Visibility="{Binding SelectedDate.ActiveCheckIn, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=true}"
+							Click="SearchAvailabilityButton_Click">
+
+						<StackPanel>
+							<TextBlock Text="Check-in"
+									   HorizontalAlignment="Center"
+									   VerticalAlignment="Center"/>
+
+							<ProgressRing Name="CheckInProgressRing"
+										  Width="24"
+										  Height="24"
+										  HorizontalAlignment="Center"
+										  VerticalAlignment="Center"
+										  Margin="0,-20,0,0"
+										  Foreground="#FF00BAFF"
+										  Background="Transparent"
+										  IsActive="False"
+										  Visibility="Collapsed" />
+						</StackPanel>
+					</Button>
+				</StackPanel>
 
 				<TextBlock x:Name="CheckInMessageTextBlock" />
 
-				<ProgressRing Name="CheckInProgressRing"
-							  Width="24"
-							  Height="24"
-							  Foreground="Gray"
-							  HorizontalAlignment="Left"
-							  Margin="4,12,12,12" />
-
 				<ListView x:Name="AvailableUnitsListView"
-					  IsItemClickEnabled="True"
-					  ItemClick="AvailableUnitsListView_ItemClick">
+						  IsItemClickEnabled="True"
+						  ItemClick="AvailableUnitsListView_ItemClick">
 					<ListView.ItemTemplate>
 						<DataTemplate x:DataType="data:AvailableUnit">
 							<TextBlock Text="{x:Bind Name}" />
 						</DataTemplate>
 					</ListView.ItemTemplate>
 				</ListView>
-
-				<ListView x:Name="OptionsListView" IsItemClickEnabled="False" IsTapEnabled="False">
-					<ListView.ItemTemplate>
-						<DataTemplate x:DataType="data:Option">
-							<StackPanel>
-								<TextBlock Text="{x:Bind OptionName}" />
-								<ToggleSwitch x:Name="OptionToggleSwitch"
-										  Tag="{x:Bind OptionId}"
-										  IsOn="{x:Bind IsSelected}"
-										  IsEnabled="{x:Bind IsEnabled}"
-										  Toggled="OptionToggleSwitch_Toggled"/>
-							</StackPanel>
-						</DataTemplate>
-					</ListView.ItemTemplate>
-				</ListView>
-
-				<HyperlinkButton x:Name="HideOptionsHyperLinkButton" 
-								 Click="HideOptionsHyperLinkButton_Click" 
-								 Foreground="White"
-								 Visibility="Collapsed">
-					<StackPanel Orientation="Horizontal">
-						<FontIcon x:Name="SlideUpFontIcon" 
-						  FontFamily="Segoe MDL2 Assets"
-						  FontSize="12"
-						  Glyph="&#xE014;" 					  
-						  Margin="4,0,0,0" />
-					</StackPanel>
-				</HyperlinkButton>
-
-				<HyperlinkButton x:Name="ShowOptionsHyperLinkButton" 
-								 Click="ShowOptionsHyperLinkButton_Click" 
-								 Foreground="White"
-								 Visibility="Collapsed">
-					<StackPanel Orientation="Horizontal">
-						<FontIcon x:Name="SlideDownFontIcon" 
-						  FontFamily="Segoe MDL2 Assets"
-						  FontSize="12"
-						  Glyph="&#xE015;" 					  
-						  Margin="4,0,0,0" />
-					</StackPanel>
-				</HyperlinkButton>
 			</StackPanel>
 
-			<!--<StackPanel>
-				<FlipView x:Name="LocationImagesFlipView" Width="320" Height="240" ItemsSource="{x:Bind LocationImageList}" >
-					<FlipView.ItemTemplate>
-						<DataTemplate x:DataType="data:LocationImage">
-							--><!--<Image Source="{x:Bind Image_320}" Stretch="UniformToFill" />--><!--
-							<Rectangle x:Name="LocationImagaRectangle" 
-							   Margin="5,0,0,5"
-							   Width="320" 
-							   Height="240" 
-							   RelativePanel.Below="LocationNameTextBlock">
-										<Rectangle.Fill>
-											<ImageBrush x:Name="LocationImageBrush" 
-										ImageSource="{x:Bind Image_320}" 
-										Stretch="Fill" />
-										</Rectangle.Fill>
-									</Rectangle>
-						</DataTemplate>
-					</FlipView.ItemTemplate>
-				</FlipView>
-			</StackPanel>-->
-
-			<ListView x:Name="TagCheckInsListView"
-					  HorizontalAlignment="Stretch"
-					  HorizontalContentAlignment="Stretch"
-					  Width="400"
-					  ItemsSource="{x:Bind TagCheckInList}"
-					  IsItemClickEnabled="True"
-					  ItemClick="TagCheckInsListView_ItemClick"
-					  RelativePanel.Below="LocationAvailabilityStackPanel"
-					  ScrollViewer.VerticalScrollMode="Auto"
-					  ScrollViewer.VerticalScrollBarVisibility="Auto"
-					  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-				<ListView.ItemTemplate>
-					<DataTemplate x:DataType="data:CheckInKnowledgeTag">
-						<control:TagCheckinTemplate />
-					</DataTemplate>
-				</ListView.ItemTemplate>
-			</ListView>
-
 			<GridView x:Name="LocationCheckInsGridView"
-					  Margin="12,0,0,0"
-					  ItemsSource="{x:Bind CheckInList}" 
-					  IsItemClickEnabled="True" 
-					  ItemClick="LocationCheckInsGridView_ItemClick"
-					  RelativePanel.Below="TagCheckInsListView"
-					  HorizontalAlignment="Stretch"
-					  HorizontalContentAlignment="Stretch">
+					  Grid.Column="0"
+						Grid.Row="3"
+						  Background="LightGray"
+						  ItemsSource="{x:Bind CheckInList}" 
+						  IsItemClickEnabled="True" 
+						  ItemClick="LocationCheckInsGridView_ItemClick"
+						  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
+						  HorizontalContentAlignment="Stretch">
+				<GridView.ItemContainerTransitions>
+					<TransitionCollection>
+						<EntranceThemeTransition IsStaggeringEnabled="True" 
+													 FromVerticalOffset="0" 
+                                 FromHorizontalOffset="200"/>
+						<AddDeleteThemeTransition/>
+						<NavigationThemeTransition/>
+						<ContentThemeTransition/>
+					</TransitionCollection>
+				</GridView.ItemContainerTransitions>
 				<GridView.ItemTemplate>
 					<DataTemplate x:DataType="data:CheckIn">
 						<control:CheckInTemplate />
 					</DataTemplate>
 				</GridView.ItemTemplate>
+				<GridView.ItemContainerStyle>
+					<Style TargetType="GridViewItem">
+						<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+					</Style>
+				</GridView.ItemContainerStyle>
 			</GridView>
-		</RelativePanel>
+		</Grid>
+
+
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup x:Name="VisualStateGroup">
+				<VisualState x:Name="VisualStatePhone">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="0"/>
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="LocationImage.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="LocationImage.Width" Value="160" />
+						<Setter Target="LocationImage.Height" Value="120" />
+						<Setter Target="LocationNameStackPanel.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="DateSelectionStackPanel.(Grid.ColumnSpan)" Value="2" />
+
+						<Setter Target="LocationAvailabilityStackPanel.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="LocationAvailabilityStackPanel.(Grid.RowSpan)" Value="1" />
+
+						<Setter Target="LocationCheckInsGridView.(Grid.Column)" Value="0" />
+						<Setter Target="LocationCheckInsGridView.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="LocationCheckInsGridView.(Grid.Row)" Value="3" />
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="VisualStateDesktop">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="720" />
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="LocationImage.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="LocationNameStackPanel.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="DateSelectionStackPanel.(Grid.ColumnSpan)" Value="1" />
+
+						<Setter Target="LocationAvailabilityStackPanel.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="LocationAvailabilityStackPanel.(Grid.RowSpan)" Value="2" />
+
+						<Setter Target="LocationCheckInsGridView.(Grid.Column)" Value="1" />
+						<Setter Target="LocationCheckInsGridView.(Grid.Row)" Value="0" />
+						<Setter Target="LocationCheckInsGridView.(Grid.RowSpan)" Value="4" />
+
+						<Setter Target="LocationFontIcon.FontSize" Value="16" />
+						<Setter Target="AlreadyCheckedInTextBlock.FontSize" Value="18" />
+						<Setter Target="LocationNameHyperLinkButton.FontSize" Value="18" />
+						<Setter Target="LocationNameHyperLinkButton.Margin" Value="4,-6,0,0" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
 	</ScrollViewer>
 </Page>

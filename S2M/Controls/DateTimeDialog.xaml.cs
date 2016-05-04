@@ -30,12 +30,11 @@ namespace S2M.Controls
 	public sealed partial class DateTimeDialog : ContentDialog
 	{
 		public ChangeDateTimeResult Result { get; private set; }
-		public DateTime Date { get; set; }
 		public int LocationId { get; set; }
+		public TimeSpan MinStartTime { get; set; }
+		public TimeSpan MaxEndTimeSpan { get; set; }
 		public TimeSpan StartTime { get; set; }
 		public TimeSpan EndTime { get; set; }
-
-		private CancellationTokenSource _cts = null;
 
 		public DateTimeDialog()
 		{
@@ -47,13 +46,6 @@ namespace S2M.Controls
 
 		private void DateTimeDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
 		{
-			//StartDateDatePicker.Date = Date;
-			//StartDateDatePicker.MinYear = DateTimeOffset.Now;
-
-			StartDateCalendarView.SelectionMode = CalendarViewSelectionMode.Single;
-			StartDateCalendarView.MinDate = DateTime.Now;
-			StartDateCalendarView.SelectedDates.Add(Date);
-
 			StartTimeTimePicker.ClockIdentifier = Windows.Globalization.ClockIdentifiers.TwentyFourHour;
 			StartTimeTimePicker.Time = StartTime;
 
@@ -75,84 +67,29 @@ namespace S2M.Controls
 			this.Result = ChangeDateTimeResult.ChangeDateTimeCancel;
 		}
 
-		private async void StartDateDatePicker_DateChanged(object sender, DatePickerValueChangedEventArgs e)
+		private void StartTimeTimePicker_TimeChanged(object sender, TimePickerValueChangedEventArgs e)
 		{
-			Date = e.NewDate.DateTime;
-			if (Date.Date == DateTime.Now.Date)
+			if (e.NewTime >= MinStartTime)
 			{
-				StartTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
-				StartTime = TimeSpan.FromMinutes(15 * Math.Ceiling(StartTime.TotalMinutes / 15));
-				StartTimeTimePicker.Time = StartTime;
-				EndTime = new TimeSpan(17, 0, 0);
-				EndTimeTimePicker.Time = EndTime;
+				StartTime = e.NewTime;
 			}
 			else
 			{
-				StartTime = new TimeSpan(9, 0, 0);
-				StartTimeTimePicker.Time = StartTime;
-				EndTime = new TimeSpan(17, 0, 0);
-				EndTimeTimePicker.Time = EndTime;
+				StartTimeTimePicker.Time = MinStartTime;
 			}
-
-			await GetOpeningHours();
-		}
-
-		private void StartTimeTimePicker_TimeChanged(object sender, TimePickerValueChangedEventArgs e)
-		{
-			StartTime = e.NewTime;
 		}
 
 		private void EndTimeTimePicker_TimeChanged(object sender, TimePickerValueChangedEventArgs e)
 		{
-			EndTime = e.NewTime;
-		}
-
-		private async Task GetOpeningHours()
-		{
-			_cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
-
-			try
+			if (e.NewTime <= MaxEndTimeSpan)
 			{
-				var openingHour = await OpeningHour.GetLocationOpeningHourssAsync(token, LocationId, Date);
-				if (openingHour != null && openingHour.NrOfLocations > 0)
-				{
-					//StartTimeTimePicker.Mi
-				}
+				EndTime = e.NewTime;
 			}
-			catch (Exception) { }
-			finally
+			else
 			{
-				_cts = null;
+				EndTimeTimePicker.Time = MaxEndTimeSpan;
 			}
 		}
-
-		private async void StartDateCalendarView_SelectedDatesChanged(CalendarView sender, CalendarViewSelectedDatesChangedEventArgs args)
-		{
-			if (args.AddedDates.Any())
-			{
-				var dateTimeOffSet = args.AddedDates.First();
-				Date = new DateTime(dateTimeOffSet.Year, dateTimeOffSet.Month, dateTimeOffSet.Day);
-
-				if (Date.Date == DateTime.Now.Date)
-				{
-					StartTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
-					StartTime = TimeSpan.FromMinutes(15 * Math.Ceiling(StartTime.TotalMinutes / 15));
-					StartTimeTimePicker.Time = StartTime;
-					EndTime = new TimeSpan(17, 0, 0);
-					EndTimeTimePicker.Time = EndTime;
-				}
-				else
-				{
-					StartTime = new TimeSpan(9, 0, 0);
-					StartTimeTimePicker.Time = StartTime;
-					EndTime = new TimeSpan(17, 0, 0);
-					EndTimeTimePicker.Time = EndTime;
-				}
-
-				await GetOpeningHours();
-			}
 			
-		}
 	}
 }

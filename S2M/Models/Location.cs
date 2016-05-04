@@ -79,6 +79,23 @@ namespace S2M.Models {
 				return "Assets/StoreLogo.png";
 			}
 		}
+		public string Image_640
+		{
+			get
+			{
+				if (!string.IsNullOrEmpty(Image))
+				{
+					var azureCdn = "https://az691754.vo.msecnd.net";
+					var azureContainer = "website";
+
+					var filenameWithoutExtension = Image.Substring(0, Image.LastIndexOf("."));
+					var imagePath = azureCdn + "/" + azureContainer + "/" + Id.ToString() + "/640x480_" + filenameWithoutExtension + ".jpg";
+
+					return imagePath;
+				}
+				return "Assets/StoreLogo.png";
+			}
+		}
 
 		public static async Task<Location> GetLocationById(CancellationToken token, int locationId)
 		{

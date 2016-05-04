@@ -6,143 +6,102 @@
 	xmlns:converters="using:S2M.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
+    mc:Ignorable="d">
 
 	<UserControl.Resources>
+		<converters:CheckInToIsPresentConverter x:Key="IsPresentConverter" />
 		<converters:StringFormatConverter x:Key="StrFormatConverter" />
 	</UserControl.Resources>
 
-	<Grid Name="CheckInPane" HorizontalAlignment="Stretch">
-		<RelativePanel Height="Auto" Background="White">
+	<Grid Name="CheckInPane" Background="White" Margin="4,0,0,0">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+
+		<StackPanel Orientation="Horizontal"
+					Margin="12,4,4,4"
+					HorizontalAlignment="Left"
+					Height="Auto"
+					Grid.Row="0"
+					Grid.Column="1"
+					Grid.ColumnSpan="2">
+			<FontIcon x:Name="IsConfirmedFontIcon" 
+					FontFamily="Segoe MDL2 Assets"
+					  FontSize="14"
+					  Margin="0,0,4,2"
+					  Foreground="{x:Bind CheckIn, Converter={StaticResource IsPresentConverter}}"
+					  VerticalAlignment="Bottom"
+					  Glyph="&#xECCC;" />
+
 			<TextBlock x:Name="CheckInNameTextBlock" 
 					   Text="{x:Bind CheckIn.ProfileName}"
-					   Margin="12,5,5,5"
-					   HorizontalAlignment="Left"
-					   Height="Auto"
 					   TextWrapping="Wrap"
-					   Foreground="#FF001E2D"
-					   FontWeight="Bold"
-					   RelativePanel.AlignTopWithPanel="True"
-					   RelativePanel.AlignLeftWithPanel="True" />
+					   Foreground="#FF001E2D" />
+		</StackPanel>
 
+		<TextBlock x:Name="CheckInTagsTextBlock"
+				   Text="{x:Bind CheckIn.Tags}"
+				   Margin="12,4,4,4"
+				   HorizontalAlignment="Left"
+				   Height="Auto"
+				   TextWrapping="Wrap"
+				   Foreground="Gray"
+				   FontSize="11"
+				   Grid.Column="1"
+				   Grid.Row="1"/>
+
+		<StackPanel Grid.Row="0"
+					Grid.RowSpan="3"
+					Grid.Column="0">
 			<Ellipse x:Name="CheckInImageEllipse"
 					 RelativePanel.Below="CheckInNameTextBlock"
-					 Margin="12,0,0,5"
-					 Width="75" 
-					 Height="75">
+					 Margin="4,4,4,4"
+					 Width="48"
+					 Height="48">
 				<Ellipse.Fill>
 					<ImageBrush Stretch="Fill">
 						<ImageBrush.ImageSource>
 							<BitmapImage x:Name="CheckInImageBitmap" 
-										 DecodePixelHeight="75" 
-										 DecodePixelWidth="75" 
-										 UriSource="{x:Bind CheckIn.ProfileImage_150}" />
+											 DecodePixelHeight="48" 
+											 DecodePixelWidth="48" 
+											 UriSource="{x:Bind CheckIn.ProfileImage_150}" />
 						</ImageBrush.ImageSource>
 					</ImageBrush>
 				</Ellipse.Fill>
 			</Ellipse>
 
-			<StackPanel x:Name="CheckInLocationStackPanel" 
+			<StackPanel x:Name="LocationDistanceStackPanel" 
 						Orientation="Horizontal"
-						Margin="0,5,0,0"
-						RelativePanel.Below="CheckInNameTextBlock" 
-						RelativePanel.RightOf="CheckInImageEllipse">
-				<FontIcon x:Name="LocationFontIcon" 
-						  FontFamily="Segoe MDL2 Assets"
-						  FontSize="12"
-						  Foreground="#FF00BAFF"
-						  VerticalAlignment="Bottom"
-						  Glyph="&#xEC07;" 					  
-						  Margin="5,0,0,2" />
-
-				<TextBlock x:Name="CheckLocationTextBlock" 
-						   Text="{x:Bind CheckIn.LocationName}"
-						   Margin="12,0,0,0"
-						   FontSize="12"
-						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
-			</StackPanel>
-
-			<StackPanel x:Name="CheckInDistanceStackPanel" 
-						Orientation="Horizontal" 
-						Margin="0,5,0,0"
-						RelativePanel.Below="CheckInLocationStackPanel" 
-						RelativePanel.RightOf="CheckInImageEllipse">
+						HorizontalAlignment="Center"
+						Grid.Row="0"
+						Grid.Column="0">
 				<FontIcon x:Name="DistanceFontIcon" 
-						  FontFamily="Segoe MDL2 Assets"
-						  FontSize="12"
-						  Foreground="#FF00BAFF"
-						  VerticalAlignment="Bottom"
-						  Glyph="&#xEB49;" 					  
-						  Margin="5,0,0,2" />
+							  FontFamily="Segoe MDL2 Assets"
+							  FontSize="12"
+							  Foreground="#FF00BAFF"
+							  VerticalAlignment="Bottom"
+							  Glyph="&#xEB49;" 					  
+							  Margin="5,0,0,2" />
 
-				<TextBlock x:Name="CheckInDistanceTextBlock" 
-						   Text="{x:Bind CheckIn.Distance, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:0.00\}}"
-						   Margin="5,0,0,0"
-						   FontSize="12"
-						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
+				<TextBlock x:Name="LocationDistanceTextBlock" 
+							   Text="{x:Bind CheckIn.Distance, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:0.00\}}"
+							   Margin="5,0,0,0"
+							   FontSize="12"
+							   Foreground="DarkGray"
+							   VerticalAlignment="Bottom"/>
 				<TextBlock Text="km."
-						   Margin="3,0,0,0"
-						   FontSize="12"
-						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
+							   Margin="3,0,0,0"
+							   FontSize="12"
+							   Foreground="DarkGray"
+							   VerticalAlignment="Bottom"/>
 			</StackPanel>
-
-			<StackPanel x:Name="CheckInSerendipityIndexStackPanel" 
-						Orientation="Horizontal"
-						Margin="0,5,0,0"
-						RelativePanel.Below="CheckInDistanceStackPanel" 
-						RelativePanel.RightOf="CheckInImageEllipse">
-				<FontIcon x:Name="SerenditpityIndexFontIcon" 
-						  FontFamily="Segoe MDL2 Assets"
-						  FontSize="12"
-						  Foreground="#FF00BAFF"
-						  VerticalAlignment="Bottom"
-						  Glyph="&#xE945;" 					  
-						  Margin="5,0,0,2" />
-
-				<TextBlock x:Name="CheckInSerendipityIndexTextBlock" 
-						   Text="{x:Bind CheckIn.MatchPercentage, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:0.00\}}"
-						   Margin="5,0,0,0"
-						   FontSize="12"
-						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
-				<TextBlock Text="%"
-						   Margin="3,0,0,0"
-						   FontSize="12"
-						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
-			</StackPanel>
-		</RelativePanel>
-
-		<!--<VisualStateManager.VisualStateGroups>
-			<VisualStateGroup x:Name="VisualStateGroup">
-				<VisualState x:Name="VisualStatePhone">
-					<VisualState.StateTriggers>
-						<AdaptiveTrigger MinWindowWidth="0"/>
-					</VisualState.StateTriggers>
-					<VisualState.Setters>
-						<Setter Target="CheckInImageEllipse.Width" Value="35" />
-						<Setter Target="CheckInImageEllipse.Height" Value="35" />
-						<Setter Target="CheckInImageBitmap.DecodePixelHeight" Value="35" />
-						<Setter Target="CheckInImageBitmap.DecodePixelWidth" Value="35" />
-					</VisualState.Setters>
-				</VisualState>
-				<VisualState x:Name="VisualStateDesktop">
-					<VisualState.StateTriggers>
-						<AdaptiveTrigger MinWindowWidth="600" />
-					</VisualState.StateTriggers>
-					<VisualState.Setters>
-						<Setter Target="CheckInImageEllipse.Width" Value="75" />
-						<Setter Target="CheckInImageEllipse.Height" Value="75" />
-						<Setter Target="CheckInImageBitmap.DecodePixelHeight" Value="75" />
-						<Setter Target="CheckInImageBitmap.DecodePixelWidth" Value="75" />
-					</VisualState.Setters>
-				</VisualState>
-			</VisualStateGroup>
-		</VisualStateManager.VisualStateGroups>-->
+		</StackPanel>
 	</Grid>
 </UserControl>

@@ -15,42 +15,55 @@
 		<converters:StringFormatConverter x:Key="StrFormatConverter" />
 	</UserControl.Resources>
 
-	<Grid Name="LocationPane" HorizontalAlignment="Center">
-		<RelativePanel x:Name="LocationRelativePanel" Height="Auto" Background="White">
-			<TextBlock x:Name="LocationNameTextBlock" 
+	<Grid x:Name="LocationPane" Background="White" Margin="4,0,0,0">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+
+		<Image x:Name="LocationImage" 
+			   Source="{x:Bind Location.Image_160}"
+			   Stretch="UniformToFill"
+			   VerticalAlignment="Top"
+			   HorizontalAlignment="Left"
+			   Margin="4,4,4,4"
+			   Width="80"
+			   Height="60"
+			   Grid.Column="0"
+			   Grid.Row="0"
+			   Grid.RowSpan="2"/>
+
+		<TextBlock x:Name="LocationNameTextBlock" 
 					   Text="{x:Bind Location.Name}"
-					   Margin="5,5,5,5"
+					   Margin="4,0,0,0"
 					   HorizontalAlignment="Left"
 					   Height="Auto"
 					   TextWrapping="Wrap"
 					   Foreground="#FF001E2D"
-					   FontWeight="Bold"
-					   RelativePanel.AlignTopWithPanel="True"
-					   RelativePanel.AlignLeftWithPanel="True" />
+				   Grid.Row="0"
+				   Grid.Column="1"/>
 
-			<Rectangle x:Name="LocationImagaRectangle" 
-					   Margin="5,0,0,5"
-					   Width="160" 
-					   Height="120" 
-					   RelativePanel.Below="LocationNameTextBlock">
-				<Rectangle.Fill>
-					<ImageBrush x:Name="LocationImageBrush" 
-								ImageSource="{x:Bind Location.Image_320}" 
-								Stretch="Fill" />
-				</Rectangle.Fill>
-			</Rectangle>
-
+		<StackPanel Margin="4,8,0,0" 
+					Grid.Row="1"
+					Grid.Column="1"
+					Orientation="Horizontal"
+					VerticalAlignment="Top">
 			<StackPanel x:Name="LocationDistanceStackPanel" 
-						Orientation="Horizontal" 
-						RelativePanel.Below="LocationNameTextBlock" 
-						RelativePanel.RightOf="LocationImagaRectangle">
+					Orientation="Horizontal"
+					Visibility="{x:Bind ShowLocationDistance, Converter={StaticResource VisibilityConverter}}"
+					Margin="0,0,12,0">
 				<FontIcon x:Name="DistanceFontIcon" 
 						  FontFamily="Segoe MDL2 Assets"
 						  FontSize="12"
 						  Foreground="#FF00BAFF"
 						  VerticalAlignment="Bottom"
 						  Glyph="&#xEB49;" 					  
-						  Margin="5,0,0,2" />
+						  Margin="0,0,0,2" />
 
 				<TextBlock x:Name="LocationDistanceTextBlock" 
 						   Text="{x:Bind Location.Distance, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:0.00\}}"
@@ -67,16 +80,15 @@
 
 			<StackPanel x:Name="LocationSerendipityIndexStackPanel" 
 						Orientation="Horizontal"
-						Margin="0,5,0,0"
-						RelativePanel.Below="LocationDistanceStackPanel" 
-						RelativePanel.RightOf="LocationImagaRectangle">
+						Visibility="{x:Bind ShowSerendipityIndex, Converter={StaticResource VisibilityConverter}}"
+						Margin="0,0,12,0">
 				<FontIcon x:Name="SerenditpityIndexFontIcon" 
 						  FontFamily="Segoe MDL2 Assets"
 						  FontSize="12"
 						  Foreground="#FF00BAFF"
 						  VerticalAlignment="Bottom"
 						  Glyph="&#xE945;" 					  
-						  Margin="5,0,0,2" />
+						  Margin="0,0,0,2" />
 
 				<TextBlock x:Name="LocationSerendipityIndexTextBlock" 
 						   Text="{x:Bind Location.MatchPercentage, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:0.00\}}"
@@ -93,16 +105,14 @@
 
 			<StackPanel x:Name="LocationCheckInsStackPanel" 
 						Orientation="Horizontal"
-						Margin="0,5,0,0"
-						RelativePanel.Below="LocationSerendipityIndexStackPanel" 
-						RelativePanel.RightOf="LocationImagaRectangle">
+						Margin="0,0,0,0">
 				<FontIcon x:Name="CheckInsFontIcon" 
 						  FontFamily="Segoe MDL2 Assets"
 						  FontSize="12"
 						  Foreground="#FF00BAFF"
 						  VerticalAlignment="Bottom"
 						  Glyph="&#xE716;" 					  
-						  Margin="5,0,0,2" />
+						  Margin="0,0,0,2" />
 
 				<TextBlock x:Name="LocationCheckInsTextBlock" 
 						   Text="{x:Bind Location.NrOfCheckIns}"
@@ -111,7 +121,7 @@
 						   Foreground="DarkGray"
 						   VerticalAlignment="Bottom"/>
 			</StackPanel>
-		</RelativePanel>
+		</StackPanel>
 
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup x:Name="VisualStateGroup">
@@ -120,19 +130,16 @@
 						<AdaptiveTrigger MinWindowWidth="0"/>
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						<Setter Target="LocationRelativePanel.MinWidth" Value="300" />
-						<Setter Target="LocationImagaRectangle.Width" Value="80" />
-						<Setter Target="LocationImagaRectangle.Height" Value="60" />
+						
 					</VisualState.Setters>
 				</VisualState>
 				<VisualState x:Name="VisualStateDesktop">
 					<VisualState.StateTriggers>
-						<AdaptiveTrigger MinWindowWidth="600" />
+						<AdaptiveTrigger MinWindowWidth="720" />
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						<Setter Target="LocationRelativePanel.Width" Value="300" />
-						<Setter Target="LocationImagaRectangle.Width" Value="160" />
-						<Setter Target="LocationImagaRectangle.Height" Value="120" />
+						<Setter Target="LocationPane.Width" Value="320" />
+						<Setter Target="LocationPane.Height" Value="120" />
 					</VisualState.Setters>
 				</VisualState>
 			</VisualStateGroup>

@@ -1,0 +1,30 @@
+﻿<Page
+    x:Class="S2M.Pages.CheckInFinal"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:S2M.Pages"
+	xmlns:control="using:S2M.Controls"
+	xmlns:converters="using:S2M.Converters"
+	xmlns:data="using:S2M.Models"
+	xmlns:viewModel="using:ViewModel"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+		<ListView x:Name="OptionsListView" IsItemClickEnabled="False" IsTapEnabled="False">
+			<ListView.ItemTemplate>
+				<DataTemplate x:DataType="data:Option">
+					<StackPanel>
+						<TextBlock Text="{x:Bind OptionName}" />
+						<ToggleSwitch x:Name="OptionToggleSwitch"
+									  Tag="{x:Bind OptionId}"
+									  IsOn="{x:Bind IsSelected}"
+									  IsEnabled="{x:Bind IsEnabled}"
+									  Toggled="OptionToggleSwitch_Toggled"/>
+					</StackPanel>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+	</Grid>
+</Page>
