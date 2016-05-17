@@ -11,20 +11,132 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-		<ListView x:Name="OptionsListView" IsItemClickEnabled="False" IsTapEnabled="False">
-			<ListView.ItemTemplate>
-				<DataTemplate x:DataType="data:Option">
-					<StackPanel>
-						<TextBlock Text="{x:Bind OptionName}" />
-						<ToggleSwitch x:Name="OptionToggleSwitch"
+	<Page.Resources>
+		<converters:DateTimeFormatConverter x:Key="DateTimeConverter" />
+		<converters:BooleanToVisibilityConverter x:Key="VisibilityConverter" />
+		<converters:SelectedLegendItemToColorConverter x:Key="SelectedDateToColorConverter" />
+		<converters:StringConverter x:Key="DateFormatConverter" />
+		<converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+		<converters:AmountToVisibilityConverter x:Key="AmountToVisibilityConverter" />
+		<converters:StringLengthToVisibilityConverter x:Key="StringLengthToVisibilityConverter" />
+	</Page.Resources>
+
+	<ScrollViewer VerticalScrollMode="Auto">
+		<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+
+			<StackPanel x:Name="LocationNameStackPanel" 
+						Grid.Row="0"
+						Background="DarkGray"
+						Orientation="Vertical">
+
+				<Image x:Name="LocationImage"
+				  
+					   Margin="0,48,0,12"
+					   Stretch="UniformToFill"
+					   HorizontalAlignment="Center" 
+					   VerticalAlignment="Center"
+					   Width="320"
+					   Height="240">
+					<Image.Source>
+						<BitmapImage UriSource="{x:Bind ViewModel.CheckIn.LocationImage_320}" />
+					</Image.Source>
+				</Image>
+
+				<TextBlock x:Name="LocationNameTextBlock"
+						   Foreground="White"
+					   Text="{x:Bind ViewModel.CheckIn.LocationName}"
+						   HorizontalAlignment="Center" 
+						   Style="{ThemeResource SubtitleTextBlockStyle}" />
+
+				<StackPanel Margin="0,0,0,24" 
+							Orientation="Horizontal" 
+							HorizontalAlignment="Center" >
+					<TextBlock x:Name="CheckinStartTImeTextBlock" 
+						   Text="{x:Bind ViewModel.CheckIn.StartTimeStamp}"
+						   Margin="4,0,4,0" 
+						   Foreground="White" 
+						   FontSize="9" />
+					<TextBlock x:Name="CheckinEndTImeTextBlock" 
+						   Text="{x:Bind ViewModel.CheckIn.EndTimeStamp}"
+						   Margin="4,0,4,0" 
+						   Foreground="White" 
+						   FontSize="9" />
+				</StackPanel>
+
+				<HyperlinkButton x:Name="CheckoutHyperLinkButton"
+								 Margin="0,0,12,0"
+								 Visibility="{Binding CheckIn.HasLeft, Converter={StaticResource VisibilityConverter}, ConverterParameter=true}"
+								 HorizontalAlignment="Center"
+								 Click="CheckoutHyperLinkButton_Click">
+					<StackPanel x:Name="CheckoutStackPanel" 
+								Orientation="Horizontal"
+								HorizontalAlignment="Center">
+						<FontIcon x:Name="CheckoutFontIcon" 
+								  FontFamily="Segoe MDL2 Assets"
+								  FontSize="14"
+								  Foreground="White"
+								  VerticalAlignment="Bottom"
+								  Glyph="&#xE8F8;" />
+
+						<TextBlock Text="Check-out"
+								   Margin="8,0,0,0"
+								   FontSize="14"
+								   Foreground="White"
+								   VerticalAlignment="Bottom"/>
+					</StackPanel>
+				</HyperlinkButton>
+			</StackPanel>
+
+			<StackPanel x:Name="WorkingOnStackPanel"
+						Grid.Row="1">
+				<StackPanel Orientation="Horizontal"
+							Visibility="{Binding EditWorkingOn, Converter={StaticResource VisibilityConverter}, ConverterParameter=true}">
+					<TextBlock Text="{Binding CheckIn.WorkingOn, Mode=TwoWay}" />
+					<Button Name="SetWorkingOnButton" 
+							FontFamily="Segoe MDL2 Assets" 
+							Content="&#xE104;" 
+							FontSize="20"
+							Width="48"
+							Height="48"
+							Click="SetWorkingOnButton_Click" />
+				</StackPanel>
+
+				<StackPanel Orientation="Horizontal"
+							Visibility="{Binding EditWorkingOn, Converter={StaticResource VisibilityConverter}}">
+					<TextBox Text="{Binding CheckIn.WorkingOn, Mode=TwoWay}" />
+					<Button Name="SaveWorkingOnButton" 
+							FontFamily="Segoe MDL2 Assets" 
+							Content="&#xE792;" 
+							FontSize="20"
+							Width="48"
+							Height="48"
+							Click="SaveWorkingOnButton_Click" />
+				</StackPanel>
+			</StackPanel>
+
+			<ListView x:Name="OptionsListView"
+				  Grid.Row="2" 
+				  IsItemClickEnabled="False" 
+				  IsTapEnabled="False">
+				<ListView.ItemTemplate>
+					<DataTemplate x:DataType="data:Option">
+						<StackPanel>
+							<TextBlock Text="{x:Bind OptionName}" />
+							<ToggleSwitch x:Name="OptionToggleSwitch"
 									  Tag="{x:Bind OptionId}"
 									  IsOn="{x:Bind IsSelected}"
 									  IsEnabled="{x:Bind IsEnabled}"
 									  Toggled="OptionToggleSwitch_Toggled"/>
-					</StackPanel>
-				</DataTemplate>
-			</ListView.ItemTemplate>
-		</ListView>
-	</Grid>
+						</StackPanel>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+		</Grid>
+	</ScrollViewer>
 </Page>

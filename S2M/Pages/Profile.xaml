@@ -3,33 +3,34 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:S2M.Pages"
+	xmlns:control="using:S2M.Controls"
+	xmlns:converters="using:S2M.Converters"
+	xmlns:data="using:S2M.Models"
+	xmlns:viewModel="using:S2M.ViewModel"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	Loaded="Page_Loaded"
     mc:Ignorable="d">
 
 	<Page.Resources>
-		<DataTemplate x:Key="TagItemTemplate">
-			<Grid Background="Lime">
-				<TextBlock Text="{Binding}" 
-						   Margin="12,0,12,0" 
-						   Height="32"
-						   HorizontalAlignment="Center" 
-						   VerticalAlignment="Center" 
-						   Foreground="White"
-						   FontSize="16"/>
-			</Grid>
-		</DataTemplate>
+		<converters:AmountToVisibilityConverter x:Key="AmountToVisibilityConverter" />
+		<converters:TimestampToDateStringConverter x:Key="TimestampDateConverter" />
+
 	</Page.Resources>
 
 	<ScrollViewer>
 		<RelativePanel ScrollViewer.VerticalScrollMode="Auto">
 			<StackPanel x:Name="ProfileImageStackPanel" 
-					Background="#FF00BAFF" 
-					RelativePanel.AlignLeftWithPanel="True" 
-					RelativePanel.AlignRightWithPanel="True"
-					RelativePanel.AlignTopWithPanel="True">
-				<Ellipse x:Name="ProfileImageEllipse" Width="125" Height="125" HorizontalAlignment="Center"  VerticalAlignment="Top">
+						Background="DarkGray" 
+						RelativePanel.AlignLeftWithPanel="True" 
+						RelativePanel.AlignRightWithPanel="True"
+						RelativePanel.AlignTopWithPanel="True">
+				<Ellipse x:Name="ProfileImageEllipse"
+						 Margin="0,24,0,12" 
+						 Width="125" 
+						 Height="125" 
+						 HorizontalAlignment="Center" 
+						 VerticalAlignment="Top">
 					<Ellipse.Fill>
 						<ImageBrush Stretch="Fill">
 							<ImageBrush.ImageSource>
@@ -38,44 +39,146 @@
 						</ImageBrush>
 					</Ellipse.Fill>
 				</Ellipse>
+
+				<TextBlock Text="{Binding Profile.Email}"
+							Margin="4,0,0,12" 
+							Style="{ThemeResource SubtitleTextBlockStyle}"
+							Foreground="White"
+							HorizontalAlignment="Center"/>
 			</StackPanel>
 
-			<StackPanel x:Name="ProfileDataStackPanel" 
-						HorizontalAlignment="Stretch"
-						RelativePanel.AlignLeftWithPanel="True" 
-						RelativePanel.AlignRightWithPanel="True"
-						RelativePanel.Below="ProfileImageStackPanel">
-				<TextBox x:Name="textBoxProfileFirstName" Header="First name" Margin="12,0,12,0" />
-				<TextBox x:Name="textBoxProfileLastName" Header="Last name" Margin="12,12,12,0" />
-				<TextBox x:Name="textBoxProfileAddress" Header="Address" Margin="12,12,12,0" />
-				<TextBox x:Name="textBoxProfilePostalcode" Header="Postalcode" Margin="12,12,12,0" />
-				<TextBox x:Name="textBoxProfileCity" Header="City" Margin="12,12,12,0" />
-			</StackPanel>
+			<Pivot x:Name="ProfilePivot" 
+				   RelativePanel.Below="ProfileImageStackPanel"
+				   SelectionChanged="ProfilePivot_SelectionChanged">
+				<PivotItem Header="Details">
+					<Grid>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="*" />
+							<RowDefinition Height="Auto" />
+						</Grid.RowDefinitions>
 
-			<StackPanel x:Name="TagsStackPanel"
-						HorizontalAlignment="Stretch"
-						RelativePanel.AlignLeftWithPanel="True" 
-						RelativePanel.AlignRightWithPanel="True"
-						RelativePanel.Below="ProfileDataStackPanel">
-				<ListView x:Name="TagsListView"
-						  RelativePanel.Below="ProfileDataStackPanel"
+						<ItemsControl x:Name="TagsWrapPanel"
+									  Grid.Row="0"
+									  ItemsSource="{Binding Tags}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<control:WrapPanel/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<StackPanel Orientation="Horizontal"
+												VerticalAlignment="Center"
+												Background="Red" 
+												MinWidth="0" 
+												MinHeight="0" 
+												Margin="0,4,4,0">
+										<TextBlock Margin="4,0,0,0"
+												   VerticalAlignment="Center"
+												   Text="{Binding}" 
+												   FontSize="14" />
+
+										<Button x:Name="DeleteTagButton" 
+												Margin="4,0,0,0" 
+												Tag="{Binding}" 
+												Click="DeleteTagButton_Click">
+											<FontIcon FontFamily="Segoe MDL2 Assets"
+													  FontSize="12"
+													  Glyph="&#xE107;" 
+													  Margin="0,0,0,0" />
+										</Button>
+									</StackPanel>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+
+						<StackPanel Orientation="Horizontal" Grid.Row="1">
+							<TextBox x:Name="AddTagTextBox"
+										 Width="200"/>
+							<Button x:Name="AddTagButton" Content="+" 
+										Click="AddTagButton_Click" />
+						</StackPanel>
+					</Grid>
+				</PivotItem>
+				<PivotItem Header="Check-ins">
+					<StackPanel>
+
+						<ListView x:Name="CheckinsListView" 
+						  ItemsSource="{x:Bind ViewModel.Checkins}" 
 						  IsItemClickEnabled="True" 
-						  ItemClick="LstTags_ItemClick"
-						  ItemTemplate="{StaticResource TagItemTemplate}">
-				</ListView>
+						  ItemClick="CheckinsListView_ItemClick" >
+							<ListView.ItemTemplate>
+								<DataTemplate x:DataType="data:CheckIn">
+									<StackPanel Orientation="Horizontal">
+										<Button x:Name="CancelCheckInButton" 
+										FontFamily="Segoe MDL2 Assets"
+										Background="Red"
+										Content="&#xE10A;" 
+										FontSize="10"
+										Width="24"
+										Height="24"
+										Click="CancelCheckInButton_Click"
+										Tag="{x:Bind Id}" />
 
-				<StackPanel Orientation="Horizontal">
-					<TextBox x:Name="AddTagTextBox"
-							 Width="200"
-							 HorizontalAlignment="Stretch"
-							 RelativePanel.Below="TagsListView" />
-					<Button x:Name="AddTagButton" Content="+" 
-							Click="AddTagButton_Click" 
-							RelativePanel.Below="TagsListView" 
-							RelativePanel.AlignRightWithPanel="True"
-							RelativePanel.RightOf="AddTagTextBox" />
-				</StackPanel>
-			</StackPanel>
+										<TextBlock Text="{x:Bind LocationName}"
+												Visibility="{x:Bind EventId, Mode=TwoWay, Converter={StaticResource AmountToVisibilityConverter}, ConverterParameter=true}"
+												Margin="12,0,0,0"/>
+
+										<TextBlock Text="{x:Bind EventName}"
+												Visibility="{x:Bind EventId, Mode=TwoWay, Converter={StaticResource AmountToVisibilityConverter}}"
+												Margin="12,0,0,0"/>
+
+										<TextBlock Text="{x:Bind StartTimeStamp, Converter={StaticResource TimestampDateConverter}}" />
+									</StackPanel>
+								</DataTemplate>
+							</ListView.ItemTemplate>
+						</ListView>
+
+						<StackPanel x:Name="NoCheckinsStackPanel"
+								Margin="0,24,0,12"
+								Visibility="{x:Bind ViewModel.NrOfCheckins, Mode=TwoWay, Converter={StaticResource AmountToVisibilityConverter}, ConverterParameter=true}">
+							<FontIcon x:Name="NoCheckinsFontIcon"
+								  HorizontalAlignment="Center"
+								  FontFamily="Segoe MDL2 Assets"
+								  Foreground="DarkGray"
+								  FontSize="40"
+								  Glyph="&#xE1E2;" 		
+								  Margin="0,0,8,0" />
+
+							<TextBlock Foreground="DarkGray"
+								   HorizontalAlignment="Center"
+								   Text="No one has checked in yet, be the first!" />
+						</StackPanel>
+					</StackPanel>
+				</PivotItem>
+				<PivotItem Header="Chats">
+					<ListView x:Name="ChatsListView" ItemsSource="{x:Bind ViewModel.Chats}" 
+							  IsItemClickEnabled="True" 
+							  ItemClick="ChatsListView_ItemClick" >
+						<ListView.ItemContainerTransitions>
+							<TransitionCollection>
+								<EntranceThemeTransition IsStaggeringEnabled="True" 
+                                 FromVerticalOffset="0" 
+                                 FromHorizontalOffset="200"/>
+								<AddDeleteThemeTransition/>
+								<NavigationThemeTransition/>
+								<ContentThemeTransition/>
+							</TransitionCollection>
+
+						</ListView.ItemContainerTransitions>
+
+						<ListView.ItemTemplate>
+							<DataTemplate x:DataType="data:Chat">
+								<control:ChatTemplate />
+							</DataTemplate>
+						</ListView.ItemTemplate>
+					</ListView>
+				</PivotItem>
+				<PivotItem Header="Contacts">
+				</PivotItem>
+			</Pivot>
+
+
 		</RelativePanel>
 
 		<VisualStateManager.VisualStateGroups>
@@ -85,7 +188,7 @@
 						<AdaptiveTrigger MinWindowWidth="0"/>
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						
+
 					</VisualState.Setters>
 				</VisualState>
 				<VisualState x:Name="VisualStateDesktop">
@@ -105,9 +208,4 @@
 		</VisualStateManager.VisualStateGroups>
 	</ScrollViewer>
 
-	<Page.BottomAppBar>
-		<CommandBar IsOpen="True" IsSticky="True">
-			<AppBarButton Name="SaveAppBarButton" Icon="Save" Label="Save" HorizontalAlignment="Right" Click="SaveAppBarButton_Click"></AppBarButton>
-		</CommandBar>
-	</Page.BottomAppBar>
 </Page>

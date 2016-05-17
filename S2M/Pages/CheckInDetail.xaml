@@ -130,154 +130,157 @@
 		</DataTemplate>
 	</Page.Resources>
 
-	<ScrollViewer VerticalScrollMode="Auto">
-		<Grid>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="*" />
-			</Grid.ColumnDefinitions>
 
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="*" />
-			</Grid.RowDefinitions>
+	<Grid>
+		<SplitView x:Name="CheckInDetailSplitView"
+					   PanePlacement="Right">
+			<SplitView.Content>
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="*" />
+					</Grid.RowDefinitions>
 
-			<StackPanel x:Name="CheckInNameStackPanel" 
-						Grid.Row="0"
-						Padding="0,0,0,24"
-						Background="DarkGray"
-						Orientation="Vertical">
-				<Ellipse Margin="0,48,0,12" 
-						 Width="125" 
-						 Height="125" 
-						 HorizontalAlignment="Center">
-					<Ellipse.Fill>
-						<ImageBrush Stretch="Fill">
-							<ImageBrush.ImageSource>
-								<BitmapImage x:Name="CheckInImageBrush" DecodePixelHeight="125" DecodePixelWidth="125" />
-							</ImageBrush.ImageSource>
-						</ImageBrush>
-					</Ellipse.Fill>
-				</Ellipse>
+					<StackPanel x:Name="CheckInNameStackPanel" 
+								Grid.Row="0"
+								Padding="0,0,0,24"
+								Background="DarkGray"
+								Orientation="Vertical">
+						<Ellipse Margin="0,48,0,12" 
+								 Width="125" 
+								 Height="125" 
+								 HorizontalAlignment="Center">
+							<Ellipse.Fill>
+								<ImageBrush Stretch="Fill">
+									<ImageBrush.ImageSource>
+										<BitmapImage x:Name="CheckInImageBrush" DecodePixelHeight="125" DecodePixelWidth="125" />
+									</ImageBrush.ImageSource>
+								</ImageBrush>
+							</Ellipse.Fill>
+						</Ellipse>
 
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-					<FontIcon x:Name="IsConfirmedFontIcon" 
-							  FontFamily="Segoe MDL2 Assets"
-							  FontSize="14"
-							  Margin="0,0,4,4"
-							  Foreground="DarkRed"
-							  VerticalAlignment="Bottom"
-							  Glyph="&#xECCC;" />
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+							<FontIcon x:Name="IsConfirmedFontIcon" 
+									  FontFamily="Segoe MDL2 Assets"
+									  FontSize="14"
+									  Margin="0,0,4,4"
+									  Foreground="DarkRed"
+									  VerticalAlignment="Bottom"
+									  Glyph="&#xECCC;" />
 
-					<TextBlock x:Name="CheckInNameTextBlock"
-							   Margin="4,0,0,0" 
-							   Style="{ThemeResource SubtitleTextBlockStyle}"
-							   Foreground="White"
-							   HorizontalAlignment="Center"/>
-				</StackPanel>
-
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-					<TextBlock x:Name="CheckInLocationTextBlock" 
-							   Margin="0,0,4,0"
-							   TextWrapping="WrapWholeWords" 
-							   Foreground="White" 
-							   FontSize="9" />
-
-					<TextBlock Margin="4,0,0,0" 
-							   x:Name="CheckInTimeTextBlock" 
-							   TextWrapping="WrapWholeWords" 
-							   Foreground="White" 
-							   FontSize="9" />
-				</StackPanel>
-
-				<StackPanel x:Name="CheckInContactStackPanel" Margin="0,12,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
-					<HyperlinkButton  Margin="0,0,12,0" Click="StartChatButton_Click">
-						<StackPanel x:Name="StartChatStackPanel" 
-							Orientation="Horizontal"
-							HorizontalAlignment="Center">
-							<FontIcon x:Name="ChatFontIcon" 
-								  FontFamily="Segoe MDL2 Assets"
-								  FontSize="14"
-								  Foreground="White"
-								  VerticalAlignment="Bottom"
-								  Glyph="&#xE15F;" />
-
-							<TextBlock Text="Chat"
-								   Margin="8,0,0,0"
-								   FontSize="14"
-								   Foreground="White"
-								   VerticalAlignment="Bottom"/>
+							<TextBlock x:Name="CheckInNameTextBlock"
+									   Margin="4,0,0,0" 
+									   Style="{ThemeResource SubtitleTextBlockStyle}"
+									   Foreground="White"
+									   HorizontalAlignment="Center"/>
 						</StackPanel>
-					</HyperlinkButton>
 
-					<HyperlinkButton Margin="12,0,0,0" Click="MeetRequestButton_Click">
-						<StackPanel x:Name="MeetRequestStackPanel" 
-							Orientation="Horizontal"
-							HorizontalAlignment="Center">
-							<FontIcon x:Name="MeetRequestFontIcon" 
-								  FontFamily="Segoe MDL2 Assets"
-								  FontSize="14"
-								  Foreground="White"
-								  VerticalAlignment="Bottom"
-								  Glyph="&#xE125;" />
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+							<TextBlock x:Name="CheckInLocationTextBlock" 
+									   Margin="0,0,4,0"
+									   TextWrapping="WrapWholeWords" 
+									   Foreground="White" 
+									   FontSize="9" />
 
-							<TextBlock Text="Meet request"
-								   Margin="8,0,0,0"
-								   FontSize="14"
-								   Foreground="White"
-								   VerticalAlignment="Bottom"/>
+							<TextBlock Margin="4,0,0,0" 
+									   x:Name="CheckInTimeTextBlock" 
+									   TextWrapping="WrapWholeWords" 
+									   Foreground="White" 
+									   FontSize="9" />
 						</StackPanel>
-					</HyperlinkButton>
-				</StackPanel>
-			</StackPanel>
 
-			<StackPanel Background="White" Grid.Row="1">
-				<TextBlock Text="Working on:"
-						   Foreground="gray"
-						   FontSize="12"/>
-				<TextBlock Text="{x:Bind CheckInObject.WorkingOn}"
-						   Style="{ThemeResource SubtitleTextBlockStyle}"
-						   Foreground="gray"/>
-			</StackPanel>
+						<StackPanel x:Name="CheckInContactStackPanel" Margin="0,12,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
+							<HyperlinkButton x:Name="OpenChatHyperLinkButton"
+												 Margin="0,0,12,0" 
+												 Click="StartChatButton_Click">
+								<StackPanel x:Name="StartChatStackPanel" 
+													Orientation="Horizontal"
+													HorizontalAlignment="Center">
+									<FontIcon x:Name="ChatFontIcon" 
+													  FontFamily="Segoe MDL2 Assets"
+													  FontSize="14"
+													  Foreground="White"
+													  VerticalAlignment="Bottom"
+													  Glyph="&#xE15F;" />
 
-			<Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="3">
-				<Grid.RowDefinitions>
-					<RowDefinition Height="*" />
-					<RowDefinition Height="48" />
-				</Grid.RowDefinitions>
+									<TextBlock Text="Chat"
+													   Margin="8,0,0,0"
+													   FontSize="14"
+													   Foreground="White"
+													   VerticalAlignment="Bottom"/>
+								</StackPanel>
+							</HyperlinkButton>
 
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*" />
-				</Grid.ColumnDefinitions>
+							<!--<HyperlinkButton Margin="12,0,0,0" Click="MeetRequestButton_Click">
+									<StackPanel x:Name="MeetRequestStackPanel" 
+													Orientation="Horizontal"
+													HorizontalAlignment="Center">
+										<FontIcon x:Name="MeetRequestFontIcon" 
+													  FontFamily="Segoe MDL2 Assets"
+													  FontSize="14"
+													  Foreground="White"
+													  VerticalAlignment="Bottom"
+													  Glyph="&#xE125;" />
 
-				<ListView Grid.Row="0"
-						  x:Name="ChatMessagesListView" 
-						  ItemsSource="{x:Bind ChatMessageList}"
-						  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
-						  ItemTemplate="{StaticResource SelectingChatTemplate}"
-						  ScrollViewer.HorizontalScrollBarVisibility="Auto"
-						  ScrollViewer.IsHorizontalRailEnabled="True">
+										<TextBlock Text="Meet request"
+													   Margin="8,0,0,0"
+													   FontSize="14"
+													   Foreground="White"
+													   VerticalAlignment="Bottom"/>
+									</StackPanel>
+								</HyperlinkButton>-->
+						</StackPanel>
+					</StackPanel>
 
-					<ListView.ItemContainerStyle>
-						<Style TargetType="ListViewItem">
-							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-						</Style>
-					</ListView.ItemContainerStyle>
-				</ListView>
+					<StackPanel Background="White" Grid.Row="1">
+						<TextBlock Text="Working on:"
+										   Foreground="gray"
+										   FontSize="12"/>
+						<TextBlock Text="{x:Bind CheckInObject.WorkingOn}"
+										   Style="{ThemeResource SubtitleTextBlockStyle}"
+										   Foreground="gray"/>
+					</StackPanel>
+				</Grid>
+			</SplitView.Content>
+			<SplitView.Pane>
+				<ScrollViewer>
+					<Grid Background="#FF2B2B2B">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="*" />
+							<RowDefinition Height="48" />
+						</Grid.RowDefinitions>
 
-				<Grid Grid.Row="1">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="*" />
-						<ColumnDefinition Width="Auto" />
-					</Grid.ColumnDefinitions>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
 
-					<TextBox x:Name="ChatMessageTextBox"
+						<ListView Grid.Row="0"
+							  x:Name="ChatMessagesListView" 
+							  ItemsSource="{x:Bind ChatMessageList}"
+							  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
+							  ItemTemplate="{StaticResource SelectingChatTemplate}"
+							  IsHitTestVisible="False"
+							  IsItemClickEnabled="False">
+							<ListView.ItemContainerStyle>
+								<Style TargetType="ListViewItem">
+									<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+								</Style>
+							</ListView.ItemContainerStyle>
+						</ListView>
+
+						<Grid Grid.Row="1">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="Auto" />
+							</Grid.ColumnDefinitions>
+
+							<TextBox x:Name="ChatMessageTextBox"
 							 Grid.Column="0"
 							 HorizontalContentAlignment="Stretch"
 							 KeyUp="ChatMessageTextBox_KeyDown"/>
 
-					<Button x:Name="PostMessageButton" 
+							<Button x:Name="PostMessageButton" 
 							Grid.Column="1"
 							FontFamily="Segoe MDL2 Assets" 
 							Content="&#xE122;" 
@@ -286,9 +289,11 @@
 							Height="48"
 							RelativePanel.AlignRightWithPanel="True"
 							Click="PostMessageButton_Click" />
-				</Grid>
-			</Grid>
-		</Grid>
+						</Grid>
+					</Grid>
+				</ScrollViewer>
+			</SplitView.Pane>
+		</SplitView>
 
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup x:Name="VisualStateGroup">
@@ -297,12 +302,11 @@
 						<AdaptiveTrigger MinWindowWidth="0"/>
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						<Setter Target="CheckInNameStackPanel.(Grid.ColumnSpan)" Value="2" />
-						<Setter Target="CheckInDetailsStackPanel.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="CheckInDetailSplitView.DisplayMode " Value="Overlay" />
+						<Setter Target="CheckInDetailSplitView.IsPaneOpen " Value="False" />
+						<Setter Target="CheckInDetailSplitView.OpenPaneLength " Value="320" />
 
-						<Setter Target="CheckInTagsListView.(Grid.Row)" Value="2" />
-						<Setter Target="CheckInTagsListView.(Grid.Column)" Value="0" />
-						<Setter Target="CheckInTagsListView.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="OpenChatHyperLinkButton.Visibility" Value="Visible" />
 					</VisualState.Setters>
 				</VisualState>
 				<VisualState x:Name="VisualStateDesktop">
@@ -310,17 +314,14 @@
 						<AdaptiveTrigger MinWindowWidth="720" />
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						<Setter Target="CheckInNameStackPanel.(Grid.ColumnSpan)" Value="1" />
-						<Setter Target="CheckInDetailsStackPanel.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="CheckInDetailSplitView.DisplayMode " Value="Inline" />
+						<Setter Target="CheckInDetailSplitView.IsPaneOpen " Value="True" />
+						<Setter Target="CheckInDetailSplitView.OpenPaneLength " Value="480" />
 
-
-						<Setter Target="CheckInTagsListView.(Grid.Row)" Value="0" />
-						<Setter Target="CheckInTagsListView.(Grid.Column)" Value="1" />
-						<Setter Target="CheckInTagsListView.(Grid.ColumnSpan)" Value="1" />
-						<Setter Target="CheckInTagsListView.(Grid.RowSpan)" Value="3" />
+						<Setter Target="OpenChatHyperLinkButton.Visibility" Value="Collapsed" />
 					</VisualState.Setters>
 				</VisualState>
 			</VisualStateGroup>
 		</VisualStateManager.VisualStateGroups>
-	</ScrollViewer>
+	</Grid>
 </Page>

@@ -1,20 +1,11 @@
 ﻿using S2M.Models;
 using S2M.ViewModel;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -105,6 +96,50 @@ namespace S2M.Pages
 						}
 					}
 				}
+			}
+		}
+
+		private void SetWorkingOnButton_Click(object sender, RoutedEventArgs e)
+		{
+			ViewModel.EditWorkingOn = true;
+		}
+
+		private async void SaveWorkingOnButton_Click(object sender, RoutedEventArgs e)
+		{
+			ViewModel.EditWorkingOn = false;
+
+			var _cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				await CheckIn.UpdateCheckIn(token, ViewModel.CheckIn);
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+			}
+		}
+
+		private async void CheckoutHyperLinkButton_Click(object sender, RoutedEventArgs e)
+		{
+			var _cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				await CheckIn.Checkout(token, ViewModel.CheckIn);
+				if (Frame.CanGoBack)
+				{
+					Frame.GoBack();
+				}
+
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
 			}
 		}
 	}

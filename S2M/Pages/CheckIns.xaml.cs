@@ -1,5 +1,6 @@
 ﻿using S2M.Common;
 using S2M.Models;
+using S2M.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -26,7 +27,7 @@ namespace S2M.Pages {
 	/// An empty page that can be used on its own or navigated to within a Frame.
 	/// </summary>
 	public sealed partial class CheckIns : Page {
-		public ObservableCollection<CheckIn> CheckInList { get; set; }
+		public CheckInsViewModel ViewModel { get; set; }
 		public double Latitude { get; set; }
 		public double Longitude { get; set; }
 
@@ -37,7 +38,9 @@ namespace S2M.Pages {
 		public CheckIns() {
 			this.InitializeComponent();
 
-			CheckInList = new ObservableCollection<CheckIn>();
+			ViewModel = new CheckInsViewModel();
+			DataContext = ViewModel;
+
 			SearchTerm = "";
 		}
 
@@ -47,10 +50,10 @@ namespace S2M.Pages {
 			{
 				if (criteria.CheckInKnowledgeTag.CheckIns.Any())
 				{
-					CheckInList.Clear();
+					ViewModel.Checkins.Clear();
 					foreach (var checkIn in criteria.CheckInKnowledgeTag.CheckIns)
 					{
-						CheckInList.Add(checkIn);
+						ViewModel.Checkins.Add(checkIn);
 					}
 				}
 
@@ -73,41 +76,76 @@ namespace S2M.Pages {
 		}
 
 		private async void Page_Loaded(object sender, RoutedEventArgs e) {
-			if (!CheckInList.Any())
+			var curentDate = DateTime.Now;
+			var dates = new ObservableCollection<LocationDay>();
+
+			int i = 0;
+			while (i < 6)
 			{
-				CheckInsProgressRing.IsActive = true;
-				CheckInsProgressRing.Visibility = Visibility.Visible;
+				dates.Add(new LocationDay()
+				{
+					ActiveCheckIn = null,
+					Date = curentDate.AddDays(i)
+				});
 
-				await LoadCheckInsAsync(SearchTerm);
-
-				CheckInsProgressRing.IsActive = false;
-				CheckInsProgressRing.Visibility = Visibility.Collapsed;
+				i++;
 			}
+			ViewModel.Dates = dates;
+			ViewModel.SelectedDate = dates[0];
+
+			//if (!ViewModel.Checkins.Any())
+			//{
+			//	CheckInsProgressRing.IsActive = true;
+			//	CheckInsProgressRing.Visibility = Visibility.Visible;
+
+			//	await LoadCheckInsAsync(SearchTerm);
+
+			//	CheckInsProgressRing.IsActive = false;
+			//	CheckInsProgressRing.Visibility = Visibility.Collapsed;
+			//}
+		}
+
+		private async void DatesFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			await ViewModel.LoadCheckInsAsync();
 		}
 
 		private async Task LoadCheckInsAsync(string searchTerm = "") {
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
+			ViewModel.Checkins.Clear();
+
 			try {
-				var accessStatus = await Geolocator.RequestAccessAsync();
-				switch (accessStatus) {
-					case GeolocationAccessStatus.Allowed:
+				if (Latitude == 0 || Longitude == 0)
+				{
+					var accessStatus = await Geolocator.RequestAccessAsync();
+					switch (accessStatus)
+					{
+						case GeolocationAccessStatus.Allowed:
 
-						try {
-							var geoposition = await GeoService.GetSinglePositionAsync(token);
-							Latitude = geoposition.Point.Position.Latitude;
-							Longitude = geoposition.Point.Position.Longitude;
-						}
-						catch (Exception) { }
+							try
+							{
+								var geoposition = await GeoService.GetSinglePositionAsync(token);
+								Latitude = geoposition.Point.Position.Latitude;
+								Longitude = geoposition.Point.Position.Longitude;
+							}
+							catch (Exception) { }
 
-						break;
-					case GeolocationAccessStatus.Denied:
-						//ShowLocationDistance = false;
-						break;
+							break;
+						case GeolocationAccessStatus.Denied:
+							//ShowLocationDistance = false;
+							break;
+					}
 				}
 
-				await CheckIn.GetCheckInsAsync(token, CheckInList, DateTime.Now, 0, 0, searchTerm, Latitude, Longitude, 0, "", 0, 0, true);
+				CheckInsProgressRing.IsActive = true;
+				CheckInsProgressRing.Visibility = Visibility.Visible;
+
+				await CheckIn.GetCheckInsAsync(token, ViewModel.Checkins, ViewModel.SelectedDate.Date, 0, 0, searchTerm, Latitude, Longitude, 0, "", 0, 0, true);
+
+				CheckInsProgressRing.IsActive = false;
+				CheckInsProgressRing.Visibility = Visibility.Collapsed;
 			}
 			catch (Exception) { }
 			finally {
@@ -115,10 +153,18 @@ namespace S2M.Pages {
 			}
 		}
 
-		private void CheckInsGridView_ItemClick(object sender, ItemClickEventArgs e) {
+		private async void CheckInsGridView_ItemClick(object sender, ItemClickEventArgs e) {
 			var checkIn = (CheckIn)e.ClickedItem;
+			var authenticatedProfile = await Common.StorageService.RetrieveObjectAsync<Models.Profile>("Profile");
 
-			Frame.Navigate(typeof(CheckInDetail), checkIn);
+			if (checkIn.ProfileId == authenticatedProfile.Id)
+			{
+				Frame.Navigate(typeof(CheckInFinal), checkIn);
+			}
+			else
+			{
+				Frame.Navigate(typeof(CheckInDetail), checkIn);
+			}
 		}
 
 

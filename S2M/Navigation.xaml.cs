@@ -215,15 +215,8 @@ namespace S2M
 
 					SetSearchAvailabilityStatus(true);
 					break;
-				case "Archive":
-					ArchiveRadioButton.IsChecked = true;
-					NavigationHeaderTextBlock.Text = "Archive";
-					NavigationFrame.Navigate(typeof(Pages.Archive));
-
-					SetSearchAvailabilityStatus(false);
-					break;
 				case "ChatDetail":
-					ArchiveRadioButton.IsChecked = true;
+					ProfileRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Archive";
 
 					var chatDetailPageCriteria = new Pages.ChatDetailPageCriteria
@@ -236,7 +229,7 @@ namespace S2M
 					SetSearchAvailabilityStatus(false);
 					break;
 				case "Settings":
-					ArchiveRadioButton.IsChecked = true;
+					ProfileRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Settings";
 					NavigationFrame.Navigate(typeof(Pages.Settings));
 
@@ -299,26 +292,21 @@ namespace S2M
 				SharedAutoSuggestBox.Text = "";
 				SearchTerm = "";
 				SearchButton.Visibility = Visibility.Collapsed;
-				HideSearchButton.Visibility = Visibility.Collapsed;
 			}
 		}
 
 		private void SearchButton_Click(object sender, RoutedEventArgs e)
 		{
-			SharedAutoSuggestBox.Visibility = Visibility.Visible;
-			SearchButton.Visibility = Visibility.Collapsed;
-			HideSearchButton.Visibility = Visibility.Visible;
-			NavigationHeaderTextBlock.Visibility = Visibility.Collapsed;
-		}
+			var control = (Control)sender;
 
-		private void HideSearchButton_Click(object sender, RoutedEventArgs e)
-		{
-			SharedAutoSuggestBox.Visibility = Visibility.Collapsed;
-			SharedAutoSuggestBox.Text = "";
-			SearchTerm = "";
-			SearchButton.Visibility = Visibility.Visible;
-			HideSearchButton.Visibility = Visibility.Collapsed;
-			NavigationHeaderTextBlock.Visibility = Visibility.Visible;
+			SearchButton.IsTabStop = true;
+			SearchButton.Visibility = Visibility.Collapsed;
+			NavigationHeaderTextBlock.Visibility = Visibility.Collapsed;
+
+			SharedAutoSuggestBox.Visibility = Visibility.Visible;
+			SharedAutoSuggestBox.Focus(FocusState.Programmatic);
+			//SharedAutoSuggestBox.IsTabStop = control.IsTabStop;
+			
 		}
 
 		private void SharedAutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
@@ -390,6 +378,22 @@ namespace S2M
 		private void SharedAutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
 		{
 			sender.Text = args.SelectedItem.ToString();
+		}
+
+		private void SearchButton_LostFocus(object sender, RoutedEventArgs e)
+		{
+			SharedAutoSuggestBox.Visibility = Visibility.Collapsed;
+			SharedAutoSuggestBox.Text = "";
+			SearchTerm = "";
+			SearchButton.Visibility = Visibility.Visible;
+			NavigationHeaderTextBlock.Visibility = Visibility.Visible;
+		}
+
+		private void SharedAutoSuggestBox_GotFocus(object sender, RoutedEventArgs e)
+		{
+			var test = "";
+			var control = (Control)sender;
+			control.IsTabStop = true;
 		}
 	}
 

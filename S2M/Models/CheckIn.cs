@@ -13,7 +13,7 @@ namespace S2M.Models
 		public int Id { get; set; }
 		public int ChannelId { get; set; }
 		public int ReservationId { get; set; }
-		public int EvenId { get; set; }
+		public int EventId { get; set; }
 		public string EventName { get; set; }
 		public int ProfileId { get; set; }
 		public string ProfileKey { get; set; }
@@ -63,6 +63,40 @@ namespace S2M.Models
 					return imagePath;
 				}
 				return "ms-appx:///Assets/defaultProfileImage_84x84.png";
+			}
+		}
+		public string LocationImage_160
+		{
+			get
+			{
+				if (!string.IsNullOrEmpty(LocationImage))
+				{
+					var azureCdn = "https://az691754.vo.msecnd.net";
+					var azureContainer = "website";
+
+					var filenameWithoutExtension = LocationImage.Substring(0, LocationImage.LastIndexOf("."));
+					var imagePath = azureCdn + "/" + azureContainer + "/" + Id.ToString() + "/160x120_" + filenameWithoutExtension + ".jpg";
+
+					return imagePath;
+				}
+				return "Assets/StoreLogo.png";
+			}
+		}
+		public string LocationImage_320
+		{
+			get
+			{
+				if (!string.IsNullOrEmpty(LocationImage))
+				{
+					var azureCdn = "https://az691754.vo.msecnd.net";
+					var azureContainer = "website";
+
+					var filenameWithoutExtension = LocationImage.Substring(0, LocationImage.LastIndexOf("."));
+					var imagePath = azureCdn + "/" + azureContainer + "/" + Id.ToString() + "/320x240_" + filenameWithoutExtension + ".jpg";
+
+					return imagePath;
+				}
+				return "Assets/StoreLogo.png";
 			}
 		}
 
@@ -489,6 +523,7 @@ namespace S2M.Models
 					var criteria = new CheckInListCriteria
 					{
 						DateTimeStamp = Common.DateService.ToJavaScriptMilliseconds(date),
+						Date = new DateTime(date.Year, date.Month, date.Day),
 						ItemsPerPage = itemsPerPage,
 						Latitude = latitude,
 						Longitude = longitude,
@@ -533,6 +568,7 @@ namespace S2M.Models
 	public class CheckInListCriteria
 	{
 		public long DateTimeStamp { get; set; } = 0;
+		public DateTime Date { get; set; } = DateTime.Now;
 		public int ItemsPerPage { get; set; } = 0;
 		public double Latitude { get; set; } = 0;
 		public double Longitude { get; set; } = 0;

@@ -65,8 +65,6 @@ namespace S2M.Pages {
 			CheckInTimeTextBlock.Text = DateService.ConvertFromUnixTimestamp(CheckInObject.StartTimeStamp).ToLocalTime().ToString("HH:mm") + " - " +
 											DateService.ConvertFromUnixTimestamp(CheckInObject.EndTimeStamp).ToLocalTime().ToString("HH:mm");
 
-			//CheckInTagsListView.ItemsSource = CheckInObject.Tags;
-
 			GetCheckInChat();
 		}
 
@@ -92,16 +90,13 @@ namespace S2M.Pages {
 		}
 
 		private async void StartChatButton_Click(object sender, RoutedEventArgs e) {
-			var chat = await Chat.CreateChat(CheckInObject.ProfileId);
-			if (chat != null)
+			if (ChatObject == null)
 			{
-				var criteria = new ChatDetailPageCriteria
-				{
-					Chat = chat,
-					ChatId = 0
-				};
-
-				Frame.Navigate(typeof(ChatDetail), criteria);
+				ChatObject = await Chat.CreateChat(CheckInObject.ProfileId);
+			}
+			if (ChatObject != null)
+			{
+				CheckInDetailSplitView.IsPaneOpen = !CheckInDetailSplitView.IsPaneOpen;
 			}
 		}
 

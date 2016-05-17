@@ -1,5 +1,6 @@
 ﻿using S2M.Common;
 using S2M.Models;
+using S2M.ViewModel;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -23,13 +24,8 @@ namespace S2M.Pages
 	/// </summary>
 	public sealed partial class Locations : Page
 	{
-		public ObservableCollection<Location> LocationList { get; set; }
-		public bool DeviceIsOffline { get; set; }
-		public double Latitude { get; set; }
-		public double Longitude { get; set; }
-		public bool ShowLocationDistance { get; set; }
-
 		protected string SearchTerm { get; set; }
+		public LocationsViewModel ViewModel { get; set; }
 
 		private CancellationTokenSource _cts = null;
 
@@ -37,9 +33,10 @@ namespace S2M.Pages
 		{
 			this.InitializeComponent();
 
-			LocationList = new ObservableCollection<Location>();
+			ViewModel = new LocationsViewModel();
+			DataContext = ViewModel;
+
 			SearchTerm = "";
-			ShowLocationDistance = true;
 		}
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e)
@@ -69,10 +66,10 @@ namespace S2M.Pages
 
 			if (ConnectionHelper.CheckForInternetAccess())
 			{
-				DeviceIsOffline = false;
+				ViewModel.DeviceIsOffline = false;
 			}
 			else {
-				DeviceIsOffline = true;
+				ViewModel.DeviceIsOffline = true;
 			}
 
 			await LoadLocationsAsync(SearchTerm);
@@ -86,6 +83,8 @@ namespace S2M.Pages
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
+			ViewModel.ShowLocationDistance = false;
+
 			try
 			{
 				var accessStatus = await Geolocator.RequestAccessAsync();
@@ -96,23 +95,55 @@ namespace S2M.Pages
 						try
 						{
 							var geoposition = await GeoService.GetSinglePositionAsync(token);
-							Latitude = geoposition.Point.Position.Latitude;
-							Longitude = geoposition.Point.Position.Longitude;
+							ViewModel.Latitude = geoposition.Point.Position.Latitude;
+							ViewModel.Longitude = geoposition.Point.Position.Longitude;
+
+							ViewModel.ShowLocationDistance = true;
 						}
 						catch (Exception) { }
 
 						break;
 					case GeolocationAccessStatus.Denied:
-						ShowLocationDistance = false;
+						ViewModel.ShowLocationDistance = false;
 						break;
 				}
 
-				await Location.GetWorkspaceLocationsAsync(token, LocationList, searchTerm, Latitude, Longitude);
+				await Location.GetWorkspaceLocationsAsync(token, ViewModel.LocationList, searchTerm, ViewModel.Latitude, ViewModel.Longitude);
+				await FillLocationsMap();
 			}
 			catch (Exception) { }
 			finally
 			{
 				_cts = null;
+			}
+		}
+
+		private async Task FillLocationsMap()
+		{
+			foreach (var location in ViewModel.LocationList)
+			{
+				var pin = new MapIcon()
+				{
+					Location = new Geopoint(new BasicGeoposition() { Latitude = location.Latitude, Longitude = location.Longitude }),
+					Title = location.Name,
+					Image = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/s2mpin.png")),
+					NormalizedAnchorPoint = new Point(0.5, 1.0)
+				};
+
+				Image pinImage = new Image();
+				pinImage.Source = new BitmapImage(new Uri("ms-appx:///Assets/s2mpin.png"));
+				pinImage.Width = 20;
+				pinImage.Height = 20;
+				MapControl.SetLocation(pinImage, new Geopoint(new BasicGeoposition() { Latitude = location.Latitude, Longitude = location.Longitude }));
+				MapControl.SetNormalizedAnchorPoint(pinImage, new Point(0.5, 0.5));
+				mapsControlLocations.Children.Add(pinImage);
+			}
+
+			if (ViewModel.ShowLocationDistance)
+			{
+				var currentLocation = new Geopoint(new BasicGeoposition() { Latitude = ViewModel.Latitude, Longitude = ViewModel.Longitude });
+
+				await mapsControlLocations.TrySetViewAsync(currentLocation, 15, 0, 0, MapAnimationKind.None);
 			}
 		}
 
@@ -138,13 +169,8 @@ namespace S2M.Pages
 
 		private async void SearchLocations(string searchTerm)
 		{
-			LocationList.Clear();
+			ViewModel.LocationList.Clear();
 			await LoadLocationsAsync(searchTerm);
-		}
-
-		private void MapHyperlInkButton_Click(object sender, RoutedEventArgs e)
-		{
-			Frame.Navigate(typeof(LocationsMap), LocationList);
 		}
 	}
 }

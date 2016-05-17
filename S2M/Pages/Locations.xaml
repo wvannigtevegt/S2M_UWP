@@ -5,6 +5,7 @@
     xmlns:local="using:S2M.Pages"
 	xmlns:control="using:S2M.Controls"
 	xmlns:data="using:S2M.Models"
+	xmlns:Maps="using:Windows.UI.Xaml.Controls.Maps"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	Loaded="Page_Loaded"
@@ -16,9 +17,9 @@
 		</ItemsPanelTemplate>
 	</Page.Resources>
 
+
 	<Grid>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="48" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
@@ -26,45 +27,42 @@
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
 
-		<RelativePanel Grid.Row="0">
-			<TextBlock x:Name="ListTextBlock"
-					   Text="List" 
-					   Margin="12,0,0,0"
-					   FontWeight="Bold"
-					   RelativePanel.AlignLeftWithPanel="True" 
-					   RelativePanel.AlignVerticalCenterWithPanel="True" />
-			<HyperlinkButton x:Name="MapHyperlInkButton"
-							 Margin="20,0,0,0"
-							 RelativePanel.RightOf="ListTextBlock"
-							 RelativePanel.AlignVerticalCenterWithPanel="True"
-							 Click="MapHyperlInkButton_Click">Map</HyperlinkButton>
-		</RelativePanel>
-
-		<GridView x:Name="LocationsGridView"
-				  Grid.Row="1"
-				  ItemsSource="{x:Bind LocationList}" 
-				  IsItemClickEnabled="True" 
-				  ItemClick="LocationsGridView_ItemClick"
-				  HorizontalContentAlignment="Stretch">
-			<GridView.ItemTemplate>
-				<DataTemplate x:DataType="data:Location">
-					<control:LocationTemplate />
-				</DataTemplate>
-			</GridView.ItemTemplate>
-			<GridView.ItemContainerStyle>
-				<Style TargetType="GridViewItem">
-					<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-				</Style>
-			</GridView.ItemContainerStyle>
-		</GridView>
-
-		<ProgressRing Name="LocationsProgressRing"
-					  Grid.Row="1" 
-                      Width="100"
-                      Height="100"
-                      Foreground="Gray"
-                      VerticalAlignment="Center"
-                      HorizontalAlignment="Center" />
+		<Pivot x:Name="RecommendationsPivot">
+			<PivotItem Header="List">
+				<ScrollViewer>
+					<StackPanel>
+						<ProgressRing Name="LocationsProgressRing"
+								  Width="100"
+								  Height="100"
+								  Foreground="Gray"
+								  VerticalAlignment="Center"
+								  HorizontalAlignment="Center" />
+						<GridView x:Name="LocationsGridView"
+								  ItemsSource="{x:Bind ViewModel.LocationList}" 
+								  IsItemClickEnabled="True"
+								  ItemClick="LocationsGridView_ItemClick">
+							<GridView.ItemTemplate>
+								<DataTemplate>
+									<control:LocationTemplate />
+								</DataTemplate>
+							</GridView.ItemTemplate>
+							<GridView.ItemContainerStyle>
+								<Style TargetType="GridViewItem">
+									<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+								</Style>
+							</GridView.ItemContainerStyle>
+						</GridView>
+					</StackPanel>
+				</ScrollViewer>
+			</PivotItem>
+			<PivotItem Header="Map">
+				<Maps:MapControl x:Name="mapsControlLocations"
+								 HorizontalAlignment="Stretch"
+								 HorizontalContentAlignment="Stretch"
+								 MapServiceToken="5ESJUlVWvxrnQCoK5VLM~umZVORROFJvw6IE3-oLcyg~ArlQe-EQzCkUb7yy6qLiKjKTHUHWFClQvoPnGi4-JQCYDfg6rEyi5wTYWcGd1nNf">
+				</Maps:MapControl>
+			</PivotItem>
+		</Pivot>
 
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup x:Name="VisualStateGroup">

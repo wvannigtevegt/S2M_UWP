@@ -89,8 +89,6 @@ namespace S2M.Pages
 		private async void DeclineRequestButton_Click(object sender, RoutedEventArgs e)
 		{
 			await MeetRequest.DeclineMeetRequest(MeetRequestObject.Id);
-
-			Frame.Navigate(typeof(Archive));
 		}
 	}
 

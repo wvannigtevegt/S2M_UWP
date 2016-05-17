@@ -55,9 +55,11 @@
 							QueryIcon="Find"
 							QuerySubmitted="SharedAutoSuggestBox_QuerySubmitted"
 							SuggestionChosen="SharedAutoSuggestBox_SuggestionChosen"
-							RelativePanel.LeftOf="HideSearchButton"
+							RelativePanel.LeftOf="SearchButton"
 							RelativePanel.AlignVerticalCenterWithPanel="True"
 							Visibility="Collapsed"
+							GotFocus="SharedAutoSuggestBox_GotFocus"
+							LostFocus="SearchButton_LostFocus"
 							TextChanged="SharedAutoSuggestBox_TextChanged" />
 
 			<Button Name="SearchButton" 
@@ -70,23 +72,11 @@
 					RelativePanel.AlignVerticalCenterWithPanel="True"
 					Click="SearchButton_Click" />
 
-			<Button Name="HideSearchButton" 
-					FontFamily="Segoe MDL2 Assets" 
-					Content="&#xE10A;" 
-					FontSize="12"
-					Width="32"
-					Height="32"
-					Margin="0,0,12,0"
-					RelativePanel.AlignRightWithPanel="True"
-					RelativePanel.AlignVerticalCenterWithPanel="True"
-					Visibility="Collapsed"
-					Click="HideSearchButton_Click" />
 		</RelativePanel>
 
 		<SplitView Name="NavigationSplitView" 
                    Grid.Row="1" 
 				   Background="LightGray"
-                   CompactPaneLength="48"
 				   OpenPaneLength="240">
 			<SplitView.Pane>
 				<Grid Background="#FF2B2B2B">
@@ -140,16 +130,6 @@
 							</StackPanel>
 						</RadioButton>
 
-						<RadioButton x:Name="ArchiveRadioButton" 
-									 Margin="-32,0,0,0" 
-									 Tag="Archive" 
-									 GroupName="Nav" 
-									 Click="RadioButtonPaneItem_Click">
-							<StackPanel Orientation="Horizontal">
-								<TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="White" Text="&#xEC50;" />
-								<TextBlock Text="Archive" FontSize="14" Foreground="White" Margin="20,0,0,0" />
-							</StackPanel>
-						</RadioButton>
 					</StackPanel>
 
 					<StackPanel Grid.Row="1" VerticalAlignment="Bottom">
@@ -201,7 +181,6 @@
 					<VisualState.Setters>
 						<Setter Target="NavigationSplitView.DisplayMode " Value="Overlay" />
 						<Setter Target="SharedAutoSuggestBox.(RelativePanel.AlignLeftWithPanel)" Value="True" />
-						<Setter Target="SharedAutoSuggestBox.(RelativePanel.LeftOf)" Value="HideSearchButton" />
 						<Setter Target="SharedAutoSuggestBox.(RelativePanel.AlignRightWithPanel)" Value="True" />
 						<!--<Setter Target="SharedAutoSuggestBox.Visibility" Value="Collapsed" />
 						<Setter Target="SearchButton.Visibility" Value="Visible" />-->
@@ -224,7 +203,6 @@
 						<Setter Target="NavigationSplitView.DisplayMode " Value="CompactOverlay" />
 						<Setter Target="SharedAutoSuggestBox.Visibility" Value="Visible" />
 						<Setter Target="SearchButton.Visibility" Value="Collapsed" />
-						<Setter Target="HideSearchButton.Visibility" Value="Collapsed" />
 					</VisualState.Setters>
 				</VisualState>
 			</VisualStateGroup>

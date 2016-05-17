@@ -1,0 +1,5 @@
+MainPackage=C:\Phone projects\S2M\S2M\bin\ARM\Release\Upload\S2M_0.9.1.0_ARM.appx
+ResourcePack=C:\Phone projects\S2M\S2M\_scale-100.appx
+ResourcePack=C:\Phone projects\S2M\S2M\_scale-125.appx
+ResourcePack=C:\Phone projects\S2M\S2M\_scale-150.appx
+ResourcePack=C:\Phone projects\S2M\S2M\_scale-400.appx
