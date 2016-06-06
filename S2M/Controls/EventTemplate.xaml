@@ -11,97 +11,74 @@
     d:DesignWidth="400">
 
 	<UserControl.Resources>
+		<converters:BooleanToVisibilityConverter x:Key="VisibilityConverter" />
 		<converters:StringFormatConverter x:Key="StrFormatConverter" />
+		<converters:StringConverter x:Key="DateFormatConverter" />
 	</UserControl.Resources>
 
-	<Grid Name="EventPane" HorizontalAlignment="Center">
-		<RelativePanel Width="300" Height="Auto" Background="White">
-			<TextBlock x:Name="EventNameTextBlock" 
-					   Text="{x:Bind EventCalendar.Name}"
-					   Margin="5,5,5,5"
+	<Grid x:Name="EventPane" Background="White" Margin="4,0,0,0">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+
+		<Image x:Name="LocationImage" 
+			   Source="{x:Bind EventCalendar.LocationImage_160}"
+			   Stretch="UniformToFill"
+			   VerticalAlignment="Top"
+			   HorizontalAlignment="Left"
+			   Margin="4,4,4,4"
+			   Width="80"
+			   Height="60"
+			   Grid.Column="0"
+			   Grid.Row="0"
+			   Grid.RowSpan="2"/>
+
+		<TextBlock x:Name="EventNameTextBlock" 
+				   Text="{x:Bind EventCalendar.Name}"
+				   Margin="4,0,0,0"
+				   HorizontalAlignment="Left"
+				   Height="Auto"
+				   TextWrapping="Wrap"
+				   Foreground="#FF001E2D"
+				   Grid.Row="0"
+				   Grid.Column="1"/>
+
+		<StackPanel Margin="4,8,0,0" 
+					Grid.Row="1"
+					Grid.Column="1"
+					Orientation="Vertical"
+					VerticalAlignment="Top">
+
+			<TextBlock x:Name="EventLocationNameTextBlock" 
+					   Text="{x:Bind EventCalendar.LocationName}"
+					   Margin="4,0,0,0"
 					   HorizontalAlignment="Left"
-					   Height="Auto"
-					   TextWrapping="Wrap"
-					   Foreground="#FF001E2D"
-					   FontWeight="Bold"
-					   RelativePanel.AlignTopWithPanel="True"
-					   RelativePanel.AlignLeftWithPanel="True" />
+					   FontSize="12"
+					   Foreground="DarkGray"/>
 
-			<Rectangle x:Name="EventImageRectangle" 
-					   Margin="5,0,0,5"
-					   Width="160" 
-					   Height="120" 
-					   RelativePanel.Below="EventNameTextBlock">
-				<Rectangle.Fill>
-					<ImageBrush x:Name="EventImageBrush" 
-								ImageSource="{x:Bind EventCalendar.LocationImage_320}" 
-								Stretch="Fill" />
-				</Rectangle.Fill>
-			</Rectangle>
-
-			<StackPanel x:Name="EventDateStackPanel" 
-						Orientation="Horizontal" 
-						RelativePanel.Below="EventNameTextBlock" 
-						RelativePanel.RightOf="EventImageRectangle">
-				<FontIcon x:Name="DateFontIcon" 
-						  FontFamily="Segoe MDL2 Assets"
-						  FontSize="12"
-						  Foreground="#FF00BAFF"
-						  VerticalAlignment="Bottom"
-						  Glyph="&#xE163;" 					  
-						  Margin="5,0,0,2" />
-
-				<TextBlock x:Name="EventDateTextBlock" 
-						   Text="{x:Bind EventCalendar.Date, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{yyyy-MM-dd\}}"
-						   Margin="5,0,0,0"
-						   FontSize="12"
-						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
-				<TextBlock Text="km."
-						   Margin="3,0,0,0"
-						   FontSize="12"
-						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
-			</StackPanel>
-
-			<StackPanel x:Name="EventLocationStackPanel" 
-						Orientation="Horizontal"
-						Margin="0,5,0,0"
-						RelativePanel.Below="EventDateStackPanel" 
-						RelativePanel.RightOf="EventImageRectangle">
-				<FontIcon x:Name="LocationFontIcon" 
-						  FontFamily="Segoe MDL2 Assets"
-						  FontSize="12"
-						  Foreground="#FF00BAFF"
-						  VerticalAlignment="Bottom"
-						  Glyph="&#xEC07;" 					  
-						  Margin="5,0,0,2" />
-
-				<TextBlock x:Name="EventLocationTextBlock" 
-						   Text="{x:Bind EventCalendar.LocationName}"
-						   Margin="5,0,0,0"
-						   FontSize="12"
-						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
-				<TextBlock Text="%"
-						   Margin="3,0,0,0"
-						   FontSize="12"
-						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
-			</StackPanel>
+			<TextBlock x:Name="EventDateTextBlock" 
+					   Text="{x:Bind EventCalendar.Date, Converter={StaticResource DateFormatConverter}, ConverterParameter=\{0:ddd dd MMM yyyy\}}"
+					   Margin="4,0,0,0"
+					   HorizontalAlignment="Left"
+					   FontSize="12"
+					   Foreground="DarkGray"/>
 
 			<StackPanel x:Name="EventCheckInsStackPanel" 
 						Orientation="Horizontal"
-						Margin="0,5,0,0"
-						RelativePanel.Below="EventLocationStackPanel" 
-						RelativePanel.RightOf="EventImageRectangle">
+						Margin="0,0,0,0">
 				<FontIcon x:Name="CheckInsFontIcon" 
 						  FontFamily="Segoe MDL2 Assets"
 						  FontSize="12"
 						  Foreground="#FF00BAFF"
 						  VerticalAlignment="Bottom"
 						  Glyph="&#xE716;" 					  
-						  Margin="5,0,0,2" />
+						  Margin="0,0,0,2" />
 
 				<TextBlock x:Name="EventCheckInsTextBlock" 
 						   Text="{x:Bind EventCalendar.NrOfCheckIns}"
@@ -110,7 +87,7 @@
 						   Foreground="DarkGray"
 						   VerticalAlignment="Bottom"/>
 			</StackPanel>
-		</RelativePanel>
+		</StackPanel>
 
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup x:Name="VisualStateGroup">
@@ -119,17 +96,16 @@
 						<AdaptiveTrigger MinWindowWidth="0"/>
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						<Setter Target="EventImagaRectangle.Width" Value="80" />
-						<Setter Target="EventImagaRectangle.Height" Value="60" />
+
 					</VisualState.Setters>
 				</VisualState>
 				<VisualState x:Name="VisualStateDesktop">
 					<VisualState.StateTriggers>
-						<AdaptiveTrigger MinWindowWidth="600" />
+						<AdaptiveTrigger MinWindowWidth="720" />
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						<Setter Target="EventImagaRectangle.Width" Value="160" />
-						<Setter Target="EventImagaRectangle.Height" Value="120" />
+						<Setter Target="LocationPane.Width" Value="320" />
+						<Setter Target="LocationPane.Height" Value="120" />
 					</VisualState.Setters>
 				</VisualState>
 			</VisualStateGroup>

@@ -12,21 +12,32 @@ namespace S2M.ViewModel
 	public class LocationDetailViewModel : NotificationBase
 	{
 		private bool _alreadyCheckedin;
+		private string _availavilityMessage;
+		private ObservableCollection<AvailableUnit> _availableUnits = new ObservableCollection<AvailableUnit>();
 		private ObservableCollection<CheckIn> _checkins = new ObservableCollection<CheckIn>();
-		private string _checkinMessage;
+		private Location _location = new Location();
 		private ObservableCollection<LocationDay> _dates = new ObservableCollection<LocationDay>();
 		private bool _enableButton;
 		private TimeSpan _endTime;
 		private bool _isBookable;
+		private bool _isBookmarked;
 		private bool _isOpen;
 		private int _nrOfCheckins;
 		private ObservableCollection<CheckIn> _profileCheckIns = new ObservableCollection<CheckIn>();
 		private string _searchKey { get; set; }
 		private LocationDay _selectedDate = new LocationDay();
+		private bool _showDateTimeCheckin;
 		private bool _showSpinner;
+		private bool _showWorkspaceSelection;
 		private TimeSpan _startTime;
 
 		private CancellationTokenSource _locationCheckinCts = new CancellationTokenSource();
+
+		public ObservableCollection<AvailableUnit> AvailableUnits
+		{
+			get { return _availableUnits; }
+			set { SetProperty(ref _availableUnits, value); }
+		}
 
 		public ObservableCollection<CheckIn> Checkins
 		{
@@ -34,10 +45,10 @@ namespace S2M.ViewModel
 			set { SetProperty(ref _checkins, value); }
 		}
 
-		public string CheckinMessage
+		public string AvailabilityMessage
 		{
-			get { return _checkinMessage; }
-			set { SetProperty(_checkinMessage, value, () => _checkinMessage = value); }
+			get { return _availavilityMessage; }
+			set { SetProperty(_availavilityMessage, value, () => _availavilityMessage = value); }
 		}
 
 		public ObservableCollection<LocationDay> Dates
@@ -70,6 +81,12 @@ namespace S2M.ViewModel
 			set { SetProperty(_isBookable, value, () => _isBookable = value); }
 		}
 
+		public bool IsBookmarked
+		{
+			get { return _isBookmarked; }
+			set { SetProperty(_isBookmarked, value, () => _isBookmarked = value); }
+		}
+
 		public bool IsOpen
 		{
 			get { return _isOpen; }
@@ -96,10 +113,25 @@ namespace S2M.ViewModel
 			set { SetProperty(_searchKey, value, () => _searchKey = value); }
 		}
 
+		public Location Location
+		{
+			get { return _location; }
+			set { SetProperty(_location, value, () => _location = value); }
+		}
+
 		public LocationDay SelectedDate
 		{
 			get { return _selectedDate; }
 			set { SetProperty(_selectedDate, value, () => _selectedDate = value); }
+		}
+
+		public bool ShowDateTimeCheckin
+		{
+			get
+			{
+				return _showDateTimeCheckin;
+			}
+			set { SetProperty(_showDateTimeCheckin, value, () => _showDateTimeCheckin = value); }
 		}
 
 		public bool ShowSpinner
@@ -109,6 +141,15 @@ namespace S2M.ViewModel
 				return _showSpinner;
 			}
 			set { SetProperty(_showSpinner, value, () => _showSpinner = value); }
+		}
+
+		public bool ShowWorkspaceSelection
+		{
+			get
+			{
+				return _showWorkspaceSelection;
+			}
+			set { SetProperty(_showWorkspaceSelection, value, () => _showWorkspaceSelection = value); }
 		}
 
 		public TimeSpan StartTime

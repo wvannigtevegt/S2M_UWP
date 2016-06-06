@@ -75,7 +75,7 @@ namespace S2M.Models
 					var azureContainer = "website";
 
 					var filenameWithoutExtension = LocationImage.Substring(0, LocationImage.LastIndexOf("."));
-					var imagePath = azureCdn + "/" + azureContainer + "/" + Id.ToString() + "/160x120_" + filenameWithoutExtension + ".jpg";
+					var imagePath = azureCdn + "/" + azureContainer + "/" + LocationId.ToString() + "/160x120_" + filenameWithoutExtension + ".jpg";
 
 					return imagePath;
 				}
@@ -92,7 +92,7 @@ namespace S2M.Models
 					var azureContainer = "website";
 
 					var filenameWithoutExtension = LocationImage.Substring(0, LocationImage.LastIndexOf("."));
-					var imagePath = azureCdn + "/" + azureContainer + "/" + Id.ToString() + "/320x240_" + filenameWithoutExtension + ".jpg";
+					var imagePath = azureCdn + "/" + azureContainer + "/" + LocationId.ToString() + "/320x240_" + filenameWithoutExtension + ".jpg";
 
 					return imagePath;
 				}
@@ -141,7 +141,6 @@ namespace S2M.Models
 		public static async Task<CheckIn> GetCurrentCheckIn(CancellationToken token)
 		{
 			var checkInResult = new CheckInResult();
-			var checkIn = new CheckIn();
 
 			var authenticatedProfile = await Common.StorageService.RetrieveObjectAsync<Profile>("Profile");
 
@@ -172,15 +171,15 @@ namespace S2M.Models
 																			&& !c.HasLeft).ToList();
 						if (checkinsNow.Any())
 						{
-							checkIn = checkinsNow.FirstOrDefault();
+							return checkinsNow.FirstOrDefault();
 						}
-						
+
 					}
 				}
 				catch (Exception) { }
 			}
 
-			return checkIn;
+			return null;
 		}
 
 		public static async Task<CheckIn> GetCheckInByReservation(CancellationToken token, int reservationId)
@@ -293,7 +292,55 @@ namespace S2M.Models
 						json = json.Replace("<br>", Environment.NewLine);
 						checkInResult = JsonConvert.DeserializeObject<CheckInResult>(json);
 
-						foreach(var checkin in checkInResult.Results)
+						foreach (var checkin in checkInResult.Results)
+						{
+							checkinList.Add(checkin);
+						}
+					}
+				}
+				catch (Exception) { }
+			}
+		}
+
+		public static async Task GetCheckinRecommendationsAsync(CancellationToken token, ObservableCollection<CheckIn> checkinList, int locationId, DateTime date, string workingOn = "", int page = 1, int itemsPerPage = 10)
+		{
+			var checkInResult = new CheckInResult();
+
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var criteria = new CheckInRecommendationCriteria
+					{
+						Date = date,
+						IgnoreProfileIds = new int[] { },
+						ItemsPerPage = itemsPerPage,
+						Latitude = 0,
+						LocationId = locationId,
+						Longitude = 0,
+						Page = page,
+						WorkingOn = workingOn
+					};
+
+					var url = apiUrl + "/api/checkin/recommendation";
+					url = url + "?" + JsonConvert.SerializeObject(criteria);
+
+					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token))
+					{
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						checkInResult = JsonConvert.DeserializeObject<CheckInResult>(json);
+
+						foreach (var checkin in checkInResult.Results)
 						{
 							checkinList.Add(checkin);
 						}
@@ -377,7 +424,7 @@ namespace S2M.Models
 			return tileContent;
 		}
 
-		public static async Task UpdateCheckIn(CancellationToken token, CheckIn checkin)
+		public static async Task<CheckIn> UpdateCheckIn(CancellationToken token, CheckIn checkin)
 		{
 			using (var httpClient = new HttpClient())
 			{
@@ -399,11 +446,17 @@ namespace S2M.Models
 					{
 						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
 						json = json.Replace("<br>", Environment.NewLine);
-						//result = JsonConvert.DeserializeObject<int>(json);
+						var result = JsonConvert.DeserializeObject<CheckIn>(json);
+						if (result != null)
+						{
+							return result;
+						}
 					}
 				}
 				catch (Exception) { }
 			}
+
+			return null;
 		}
 
 		public static async Task<CheckIn> ConfirmCheckIn(CancellationToken token, CheckIn checkin)
@@ -502,7 +555,7 @@ namespace S2M.Models
 			return result;
 		}
 
-		private static async Task<CheckInResult> GetCheckInsDataAsync(CancellationToken token, DateTime date, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false)
+		private static async Task<CheckInResult> GetCheckInsDataAsync(CancellationToken token, DateTime date, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false, bool filterProfile = true)
 		{
 			var checkInResult = new CheckInResult();
 			var checkins = new ObservableCollection<CheckIn>();
@@ -531,7 +584,7 @@ namespace S2M.Models
 						Radius = radius,
 						SearchTerm = searchTerm,
 						WorkingOn = workingOn,
-						FilterProfileId = authenticatedProfile.Id
+						FilterProfileId = filterProfile ? authenticatedProfile.Id : 0
 					};
 
 					var url = apiUrl + "/api/checkin";
@@ -577,6 +630,18 @@ namespace S2M.Models
 		public string SearchTerm { get; set; } = "";
 		public string WorkingOn { get; set; } = "";
 		public int FilterProfileId { get; set; } = 0;
+	}
+
+	public class CheckInRecommendationCriteria
+	{
+		public DateTime Date { get; set; } = DateTime.Now;
+		public int[] IgnoreProfileIds { get; set; }
+		public int ItemsPerPage { get; set; } = 0;
+		public double Latitude { get; set; } = 0;
+		public int LocationId { get; set; } = 0;
+		public double Longitude { get; set; } = 0;
+		public int Page { get; set; } = 0;
+		public string WorkingOn { get; set; } = "";
 	}
 
 	public class SaveEventCheckInCriteria

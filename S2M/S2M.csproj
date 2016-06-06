@@ -142,6 +142,9 @@
     <Compile Include="Controls\TagCheckinTemplate.xaml.cs">
       <DependentUpon>TagCheckinTemplate.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\WorkingOnContentDialog.xaml.cs">
+      <DependentUpon>WorkingOnContentDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\AmountToVisibilityConverter.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\CheckInToIsPresentConverter.cs" />
@@ -251,6 +254,7 @@
     <Compile Include="ViewModel\CheckInDetailViewModel.cs" />
     <Compile Include="ViewModel\CheckInFinalViewModel.cs" />
     <Compile Include="ViewModel\CheckInsViewModel.cs" />
+    <Compile Include="ViewModel\HomeViewModel.cs" />
     <Compile Include="ViewModel\LocationDetailViewModel.cs" />
     <Compile Include="ViewModel\LocationsViewModel.cs" />
     <Compile Include="ViewModel\ProfileViewModel.cs" />
@@ -346,6 +350,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TagCheckinTemplate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\WorkingOnContentDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

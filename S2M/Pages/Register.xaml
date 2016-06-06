@@ -35,8 +35,8 @@
 
 			<TextBox x:Name="textBoxProfileFirstName" Grid.Row="1" Header="First name" Margin="12,0,12,0" />
 			<TextBox x:Name="textBoxProfileLastName" Grid.Row="2" Header="Last name" Margin="12,12,12,0" />
-			<TextBox x:Name="textBoxProfileEmail" Grid.Row="3" Header="Last name" Margin="12,12,12,0" />
-			<PasswordBox x:Name="passwordBoxProfilePassword" Grid.Row="4" Header="Last name" Margin="12,12,12,0" />
+			<TextBox x:Name="textBoxProfileEmail" Grid.Row="3" Header="Email" Margin="12,12,12,0" />
+			<PasswordBox x:Name="passwordBoxProfilePassword" Grid.Row="4" Header="Password" Margin="12,12,12,0" />
 			<Button x:Name="buttonCreateProfile" Grid.Row="5" Background="Lime" Content="Create profile" HorizontalAlignment="Center" />
 		</Grid>
 	</Grid>

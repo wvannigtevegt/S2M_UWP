@@ -19,124 +19,265 @@
 		<converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
 		<converters:AmountToVisibilityConverter x:Key="AmountToVisibilityConverter" />
 		<converters:StringLengthToVisibilityConverter x:Key="StringLengthToVisibilityConverter" />
+		<converters:TimestampToDateStringConverter x:Key="TimestampToDateStringConverter" />
+
+		<ItemsPanelTemplate x:Key="ItemsPanelTemplate">
+			<ItemsStackPanel />
+		</ItemsPanelTemplate>
+
+		<Storyboard x:Name="StackPanelFadeIn">
+			<FadeInThemeAnimation Storyboard.TargetName="WorkingOnQuoteStackPanel" />
+		</Storyboard>
+
+		<Storyboard x:Name="StackPanelFadeOut">
+			<FadeOutThemeAnimation Storyboard.TargetName="WorkingOnReminderStackPanel" />
+		</Storyboard>
+
 	</Page.Resources>
 
-	<ScrollViewer VerticalScrollMode="Auto">
-		<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="*" />
-			</Grid.RowDefinitions>
 
-			<StackPanel x:Name="LocationNameStackPanel" 
+	<SplitView x:Name="CheckInFinalSplitView"
+					   PanePlacement="Right">
+		<SplitView.Content>
+			<ScrollViewer VerticalScrollMode="Auto">
+				<Grid Background="White">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="*" />
+					</Grid.RowDefinitions>
+
+					<StackPanel x:Name="LocationNameStackPanel" 
 						Grid.Row="0"
 						Background="DarkGray"
 						Orientation="Vertical">
 
-				<Image x:Name="LocationImage"
-				  
-					   Margin="0,48,0,12"
-					   Stretch="UniformToFill"
-					   HorizontalAlignment="Center" 
-					   VerticalAlignment="Center"
-					   Width="320"
-					   Height="240">
-					<Image.Source>
-						<BitmapImage UriSource="{x:Bind ViewModel.CheckIn.LocationImage_320}" />
-					</Image.Source>
-				</Image>
+						<RelativePanel Visibility="{Binding IsNewCheckin, Mode=TwoWay, Converter={StaticResource VisibilityConverter}}"
+							   Height="40"
+							   VerticalAlignment="Center"
+							   Background="Orange">
+							
+							<TextBlock Margin="12,4,4,0" RelativePanel.LeftOf="CloseMessageHyperLinkButton">
+								<Run Text="You're checked-in at" />
+								<Run Text="{Binding CurrentCheckin.LocationName}" />
+							</TextBlock>
+							
+							<HyperlinkButton x:Name="CloseMessageHyperLinkButton"
+									 RelativePanel.AlignRightWithPanel="True"
+									 Click="CloseMessageHyperLinkButton_Click">
+								<FontIcon x:Name="CloseMessageFontIcon" 
+										  FontFamily="Segoe MDL2 Assets"
+										  FontSize="20"
+										  Foreground="White"
+										  VerticalAlignment="Bottom"
+										  Glyph="&#xE10A;" />
+							</HyperlinkButton>
+						</RelativePanel>
 
-				<TextBlock x:Name="LocationNameTextBlock"
-						   Foreground="White"
-					   Text="{x:Bind ViewModel.CheckIn.LocationName}"
-						   HorizontalAlignment="Center" 
-						   Style="{ThemeResource SubtitleTextBlockStyle}" />
+						<Image x:Name="LocationImage" 
+							   Margin="0,36,0,12"
+							   Stretch="UniformToFill"
+							   HorizontalAlignment="Center" 
+							   VerticalAlignment="Center"
+							   Source="{Binding CurrentCheckin.LocationImage_320}"
+							   Width="160"
+							   Height="120"/>
 
-				<StackPanel Margin="0,0,0,24" 
-							Orientation="Horizontal" 
-							HorizontalAlignment="Center" >
-					<TextBlock x:Name="CheckinStartTImeTextBlock" 
-						   Text="{x:Bind ViewModel.CheckIn.StartTimeStamp}"
-						   Margin="4,0,4,0" 
-						   Foreground="White" 
-						   FontSize="9" />
-					<TextBlock x:Name="CheckinEndTImeTextBlock" 
-						   Text="{x:Bind ViewModel.CheckIn.EndTimeStamp}"
-						   Margin="4,0,4,0" 
-						   Foreground="White" 
-						   FontSize="9" />
-				</StackPanel>
+						<TextBlock x:Name="LocationNameTextBlock"
+								   Foreground="White"
+								   Text="{Binding CurrentCheckin.LocationName}"
+								   HorizontalAlignment="Center" 
+								   Style="{ThemeResource SubtitleTextBlockStyle}" />
 
-				<HyperlinkButton x:Name="CheckoutHyperLinkButton"
-								 Margin="0,0,12,0"
-								 Visibility="{Binding CheckIn.HasLeft, Converter={StaticResource VisibilityConverter}, ConverterParameter=true}"
+						<TextBlock Margin="0,0,0,12" HorizontalAlignment="Center" Foreground="White" FontSize="12">
+							<Run Text="{Binding CurrentCheckin.StartTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}" />
+							<Run Text="-" />
+							<Run Text="{Binding CurrentCheckin.EndTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}" />
+						</TextBlock>
+
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+							<HyperlinkButton x:Name="CheckoutHyperLinkButton"
+								 Margin="12,0,0,12"
+								 Visibility="{Binding ShowCheckoutLink, Converter={StaticResource VisibilityConverter}}"
 								 HorizontalAlignment="Center"
 								 Click="CheckoutHyperLinkButton_Click">
-					<StackPanel x:Name="CheckoutStackPanel" 
-								Orientation="Horizontal"
-								HorizontalAlignment="Center">
-						<FontIcon x:Name="CheckoutFontIcon" 
-								  FontFamily="Segoe MDL2 Assets"
-								  FontSize="14"
-								  Foreground="White"
-								  VerticalAlignment="Bottom"
-								  Glyph="&#xE8F8;" />
+								<StackPanel x:Name="CheckoutStackPanel" 
+											Orientation="Horizontal"
+											HorizontalAlignment="Center">
+									<FontIcon x:Name="CheckoutFontIcon" 
+											  FontFamily="Segoe MDL2 Assets"
+											  FontSize="14"
+											  Foreground="White"
+											  VerticalAlignment="Bottom"
+											  Glyph="&#xE25B;" />
 
-						<TextBlock Text="Check-out"
-								   Margin="8,0,0,0"
-								   FontSize="14"
-								   Foreground="White"
-								   VerticalAlignment="Bottom"/>
-					</StackPanel>
-				</HyperlinkButton>
-			</StackPanel>
+									<TextBlock Text="Check-out"
+											   Margin="8,0,0,0"
+											   FontSize="14"
+											   Foreground="White"
+											   VerticalAlignment="Bottom"/>
+								</StackPanel>
+							</HyperlinkButton>
 
-			<StackPanel x:Name="WorkingOnStackPanel"
-						Grid.Row="1">
-				<StackPanel Orientation="Horizontal"
-							Visibility="{Binding EditWorkingOn, Converter={StaticResource VisibilityConverter}, ConverterParameter=true}">
-					<TextBlock Text="{Binding CheckIn.WorkingOn, Mode=TwoWay}" />
-					<Button Name="SetWorkingOnButton" 
-							FontFamily="Segoe MDL2 Assets" 
-							Content="&#xE104;" 
-							FontSize="20"
-							Width="48"
-							Height="48"
-							Click="SetWorkingOnButton_Click" />
-				</StackPanel>
+							<HyperlinkButton x:Name="CancelHyperLinkButton"
+											 Margin="0,0,0,12"
+											 Visibility="{Binding ShowCancelLink, Converter={StaticResource VisibilityConverter}}"
+											 HorizontalAlignment="Center"
+											 Click="CheckoutHyperLinkButton_Click">
+								<StackPanel x:Name="CancelStackPanel" 
+											Orientation="Horizontal"
+											HorizontalAlignment="Center">
+									<FontIcon x:Name="CancelFontIcon" 
+											  FontFamily="Segoe MDL2 Assets"
+											  FontSize="14"
+											  Foreground="White"
+											  VerticalAlignment="Bottom"
+											  Glyph="&#xE8F8;" />
 
-				<StackPanel Orientation="Horizontal"
-							Visibility="{Binding EditWorkingOn, Converter={StaticResource VisibilityConverter}}">
-					<TextBox Text="{Binding CheckIn.WorkingOn, Mode=TwoWay}" />
-					<Button Name="SaveWorkingOnButton" 
-							FontFamily="Segoe MDL2 Assets" 
-							Content="&#xE792;" 
-							FontSize="20"
-							Width="48"
-							Height="48"
-							Click="SaveWorkingOnButton_Click" />
-				</StackPanel>
-			</StackPanel>
+									<TextBlock Text="Cancel"
+											   Margin="8,0,0,0"
+											   FontSize="14"
+											   Foreground="White"
+											   VerticalAlignment="Bottom"/>
+								</StackPanel>
+							</HyperlinkButton>
 
-			<ListView x:Name="OptionsListView"
-				  Grid.Row="2" 
-				  IsItemClickEnabled="False" 
-				  IsTapEnabled="False">
-				<ListView.ItemTemplate>
-					<DataTemplate x:DataType="data:Option">
-						<StackPanel>
-							<TextBlock Text="{x:Bind OptionName}" />
-							<ToggleSwitch x:Name="OptionToggleSwitch"
-									  Tag="{x:Bind OptionId}"
-									  IsOn="{x:Bind IsSelected}"
-									  IsEnabled="{x:Bind IsEnabled}"
-									  Toggled="OptionToggleSwitch_Toggled"/>
+							<HyperlinkButton x:Name="OpenExtrasHyperLinkButton"
+											 Visibility="{Binding NrOfOptions,Converter={StaticResource AmountToVisibilityConverter}}"
+											 Margin="12,0,0,12" 
+											 Click="OpenExtrasButton_Click">
+								<StackPanel x:Name="StartChatStackPanel" 
+											Orientation="Horizontal"
+											HorizontalAlignment="Center">
+									<FontIcon x:Name="ExtrasFontIcon" 
+											  FontFamily="Segoe MDL2 Assets"
+											  FontSize="14"
+											  Foreground="White"
+											  VerticalAlignment="Bottom"
+											  Glyph="&#xE109;" />
+
+									<TextBlock Text="Add extras"
+											   Margin="8,0,0,0"
+											   FontSize="14"
+											   Foreground="White"
+											   VerticalAlignment="Bottom"/>
+								</StackPanel>
+							</HyperlinkButton>
 						</StackPanel>
-					</DataTemplate>
-				</ListView.ItemTemplate>
-			</ListView>
-		</Grid>
-	</ScrollViewer>
+					</StackPanel>
+
+					<StackPanel x:Name="WorkingOnStackPanel"
+								Background="Gray"
+								Grid.Row="1">
+
+						<TextBlock x:Name="WorkingOnQuoteStackPanel"
+								   FontFamily="Times New Roman" 
+								   HorizontalAlignment="Center" 
+								   FontSize="20" FontStyle="Italic" 
+								   TextWrapping="WrapWholeWords"
+								   Visibility="{Binding CurrentCheckin.WorkingOn, Converter={StaticResource StringLengthToVisibilityConverter}}">
+							<Run Text="&#8220;" />
+							<Run Text="{Binding CurrentCheckin.WorkingOn, Mode=OneWay}" />
+							<Run Text="&#8221;" />
+						</TextBlock>
+
+						<TextBlock x:Name="WorkingOnReminderStackPanel"
+								   Text="What are you working on?"
+								   Visibility="{Binding CurrentCheckin.WorkingOn, Converter={StaticResource StringLengthToVisibilityConverter}, ConverterParameter=True}"/>
+
+						<HyperlinkButton x:Name="EditWorkingOnHyperLinkButton"
+										 HorizontalAlignment="Center"
+										 Click="EditWorkingOnHyperLinkButton_Click">
+							<StackPanel Orientation="Horizontal">
+								<TextBlock Text="Edit" Foreground="White" />
+								<FontIcon x:Name="EditWorkingOnFontIcon"
+										  Margin="4,-4,0,0"
+										  FontFamily="Segoe MDL2 Assets"
+										  FontSize="14"
+										  Foreground="White"
+										  VerticalAlignment="Bottom"
+										  Glyph="&#xE104;" />
+							</StackPanel>
+						</HyperlinkButton>
+					</StackPanel>
+
+
+					<ListView x:Name="CheckinsListView"
+							  Grid.Row="3"
+							  ItemsSource="{Binding RecommendedCheckins}"
+							  Background="Gray"
+							  IsItemClickEnabled="True"
+							  ItemClick="CheckinsListView_ItemClick"
+							  IsTapEnabled="False"
+							  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}">
+						<ListView.ItemTemplate>
+							<DataTemplate>
+								<control:CheckInTemplate />
+							</DataTemplate>
+						</ListView.ItemTemplate>
+					</ListView>
+				</Grid>
+			</ScrollViewer>
+		</SplitView.Content>
+		<SplitView.Pane>
+			<Grid Background="#FF2B2B2B">
+				<ListView x:Name="OptionsListView"
+						  Visibility="{Binding NrOfOptions,Converter={StaticResource AmountToVisibilityConverter}}"
+						  Background="Gray"
+						  ItemsSource="{Binding OptionList}"
+						  IsItemClickEnabled="False" 
+						  IsTapEnabled="False">
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<StackPanel>
+								<TextBlock Text="{Binding OptionName}" />
+								<ToggleSwitch x:Name="OptionToggleSwitch"
+										  Tag="{Binding OptionId}"
+										  IsOn="{Binding IsSelected}"
+										  IsEnabled="{Binding IsEnabled}"
+										  Toggled="OptionToggleSwitch_Toggled"/>
+							</StackPanel>
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+			</Grid>
+		</SplitView.Pane>
+
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup x:Name="VisualStateGroup">
+				<VisualState x:Name="VisualStatePhone">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="0"/>
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="LocationImage.Width" Value="160" />
+						<Setter Target="LocationImage.Height" Value="120" />
+
+						<Setter Target="CheckInFinalSplitView.DisplayMode " Value="Overlay" />
+						<Setter Target="CheckInFinalSplitView.IsPaneOpen " Value="False" />
+						<Setter Target="CheckInFinalSplitView.OpenPaneLength " Value="320" />
+
+						<Setter Target="OpenExtrasHyperLinkButton.Visibility" Value="Visible" />
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="VisualStateDesktop">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="720" />
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="LocationImage.Width" Value="320" />
+						<Setter Target="LocationImage.Height" Value="240" />
+
+						<Setter Target="CheckInFinalSplitView.DisplayMode " Value="Inline" />
+						<Setter Target="CheckInFinalSplitView.IsPaneOpen " Value="True" />
+						<Setter Target="CheckInFinalSplitView.OpenPaneLength " Value="480" />
+
+						<Setter Target="OpenExtrasHyperLinkButton.Visibility" Value="Collapsed" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
+	</SplitView>
+
 </Page>

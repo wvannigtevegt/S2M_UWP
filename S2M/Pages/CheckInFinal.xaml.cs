@@ -1,4 +1,5 @@
-﻿using S2M.Models;
+﻿using S2M.Controls;
+using S2M.Models;
 using S2M.ViewModel;
 using System;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace S2M.Pages
 	public sealed partial class CheckInFinal : Page
 	{
 		private CancellationTokenSource _cts = null;
+		private bool _initialLoad { get; set; }
 
 		public CheckInFinalViewModel ViewModel { get; set; }
 
@@ -31,94 +33,130 @@ namespace S2M.Pages
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e)
 		{
-			var checkin = (Models.CheckIn)e.Parameter;
+			_initialLoad = true;
+
+			var checkinCriteria = (CheckinFinalPageCriteria)e.Parameter;
+			var checkin = checkinCriteria.CheckIn;
 			if (checkin != null)
 			{
-				ViewModel.CheckIn = checkin;
+				ViewModel.CurrentCheckin = checkin;
+				ViewModel.IsNewCheckin = checkinCriteria.IsNewCheckIn;
 
 				if (checkin.ReservationId > 0)
 				{
-					ViewModel.ReservationId = checkin.ReservationId;
-					await GetLocationOptions(checkin.ReservationId);
+					await ViewModel.GetLocationOptions();
 				}
-			}
-		}
 
-		private async Task GetLocationOptions(int reservationId)
-		{
-			_cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
-
-			try
-			{
-				await Option.GetLocationOptionsAsync(token, reservationId, ViewModel.OptionList);
-				if (ViewModel.OptionList.Any())
+				if(string.IsNullOrEmpty(checkin.WorkingOn))
 				{
-					OptionsListView.ItemsSource = ViewModel.OptionList;
+
 				}
+
+				if(string.IsNullOrEmpty(ViewModel.CurrentCheckin.WorkingOn))
+				{
+					ViewModel.EditWorkingOn = true;
+				}
+
+				if (Common.DateService.ConvertFromUnixTimestamp(ViewModel.CurrentCheckin.StartTimeStamp).Date > DateTime.Now.Date)
+				{
+					ViewModel.ShowCancelLink = true;
+					ViewModel.ShowCheckoutLink = false;
+				}
+
+				if (Common.DateService.ConvertFromUnixTimestamp(ViewModel.CurrentCheckin.StartTimeStamp).Date == DateTime.Now.Date 
+						&& !ViewModel.CurrentCheckin.HasLeft)
+				{
+					if (DateTime.Now < Common.DateService.ConvertFromUnixTimestamp(ViewModel.CurrentCheckin.StartTimeStamp)) {
+						ViewModel.ShowCancelLink = true;
+						ViewModel.ShowCheckoutLink = false;
+					}
+					else {
+						ViewModel.ShowCancelLink = false;
+						ViewModel.ShowCheckoutLink = true;
+					}
+				}
+				if (Common.DateService.ConvertFromUnixTimestamp(checkin.StartTimeStamp).Date == DateTime.Now.Date && string.IsNullOrEmpty(checkin.WorkingOn))
+				{
+					await ShowWorkingOnDialog();
+				} 
 			}
-			catch (Exception) { }
-			finally
-			{
-				_cts = null;
-			}
+
+			await ViewModel.GetCheckinRecommendations();
+
+			_initialLoad = false;
 		}
+
+		
 
 		private async void OptionToggleSwitch_Toggled(object sender, RoutedEventArgs e)
 		{
-			var toggleSwitch = sender as ToggleSwitch;
-			if (toggleSwitch != null)
+			if (!_initialLoad)
 			{
-				var optionId = int.Parse(toggleSwitch.Tag.ToString());
-				var option = ViewModel.OptionList.Where(ol => ol.OptionId == optionId).First();
-				if (option != null)
+				var toggleSwitch = sender as ToggleSwitch;
+				if (toggleSwitch != null)
 				{
-					if (option.IsEnabled)
+					var optionId = int.Parse(toggleSwitch.Tag.ToString());
+					var option = ViewModel.OptionList.Where(ol => ol.OptionId == optionId).First();
+					if (option != null)
 					{
-						_cts = new CancellationTokenSource();
-						CancellationToken token = _cts.Token;
+						if (option.IsEnabled)
+						{
+							_cts = new CancellationTokenSource();
+							CancellationToken token = _cts.Token;
 
-						try
-						{
-							if (toggleSwitch.IsOn)
+							try
 							{
-								await Option.SaveOptionToReservation(token, ViewModel.ReservationId, option);
+								if (toggleSwitch.IsOn)
+								{
+									await Option.SaveOptionToReservation(token, ViewModel.CurrentCheckin.ReservationId, option);
+								}
+								else
+								{
+									await Option.DeleteOptionFromReservation(token, ViewModel.CurrentCheckin.ReservationId, option.OptionId);
+								}
 							}
-							else
+							catch (Exception) { }
+							finally
 							{
-								await Option.DeleteOptionFromReservation(token, ViewModel.ReservationId, option.OptionId);
+								_cts = null;
 							}
-						}
-						catch (Exception) { }
-						finally
-						{
-							_cts = null;
 						}
 					}
 				}
 			}
 		}
 
-		private void SetWorkingOnButton_Click(object sender, RoutedEventArgs e)
+		private async void EditWorkingOnHyperLinkButton_Click(object sender, RoutedEventArgs e)
 		{
-			ViewModel.EditWorkingOn = true;
+			await ShowWorkingOnDialog();
 		}
 
-		private async void SaveWorkingOnButton_Click(object sender, RoutedEventArgs e)
+		private async Task ShowWorkingOnDialog()
 		{
-			ViewModel.EditWorkingOn = false;
+			WorkingOnContentDialog dialog = new WorkingOnContentDialog();
+			dialog.WorkingOn = ViewModel.CurrentCheckin.WorkingOn;
+			//dialog.MinWidth = this.ActualWidth;
+			//dialog.MaxWidth = this.ActualWidth;
 
-			var _cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
+			await dialog.ShowAsync();
 
-			try
+			if (dialog.Result == ChangeWorkingOnResult.ChangeWorkingOnOK)
 			{
-				await CheckIn.UpdateCheckIn(token, ViewModel.CheckIn);
-			}
-			catch (Exception) { }
-			finally
-			{
-				_cts = null;
+				ViewModel.CurrentCheckin.WorkingOn = dialog.WorkingOn;
+
+				var _cts = new CancellationTokenSource();
+				CancellationToken token = _cts.Token;
+
+				try
+				{
+					ViewModel.CurrentCheckin = await CheckIn.UpdateCheckIn(token, ViewModel.CurrentCheckin);
+					await ViewModel.GetCheckinRecommendations();
+				}
+				catch (Exception) { }
+				finally
+				{
+					_cts = null;
+				}
 			}
 		}
 
@@ -129,7 +167,7 @@ namespace S2M.Pages
 
 			try
 			{
-				await CheckIn.Checkout(token, ViewModel.CheckIn);
+				await CheckIn.Checkout(token, ViewModel.CurrentCheckin);
 				if (Frame.CanGoBack)
 				{
 					Frame.GoBack();
@@ -142,5 +180,31 @@ namespace S2M.Pages
 				_cts = null;
 			}
 		}
+
+		private void CloseMessageHyperLinkButton_Click(object sender, RoutedEventArgs e)
+		{
+			ViewModel.IsNewCheckin = false;
+		}
+
+		private void OpenExtrasButton_Click(object sender, RoutedEventArgs e)
+		{
+			CheckInFinalSplitView.IsPaneOpen = !CheckInFinalSplitView.IsPaneOpen;
+		}
+
+		private void CheckinsListView_ItemClick(object sender, ItemClickEventArgs e)
+		{
+			var checkin = (CheckIn)e.ClickedItem;
+			if (checkin != null)
+			{
+				Frame.Navigate(typeof(CheckInDetail), checkin);
+			}
+		}
+	}
+
+	public class CheckinFinalPageCriteria
+	{
+		public CheckIn CheckIn { get; set; } = null;
+		public bool IsNewCheckIn { get; set; } = false;
+		public bool ShowMatches { get; set; } = false;
 	}
 }

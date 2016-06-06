@@ -39,12 +39,12 @@
 			   Grid.RowSpan="2"/>
 
 		<TextBlock x:Name="LocationNameTextBlock" 
-					   Text="{x:Bind Location.Name}"
-					   Margin="4,0,0,0"
-					   HorizontalAlignment="Left"
-					   Height="Auto"
-					   TextWrapping="Wrap"
-					   Foreground="#FF001E2D"
+				   Text="{x:Bind Location.Name}"
+				   Margin="4,0,0,0"
+				   HorizontalAlignment="Left"
+				   Height="Auto"
+				   TextWrapping="Wrap"
+				   Foreground="#FF001E2D"
 				   Grid.Row="0"
 				   Grid.Column="1"/>
 
@@ -65,17 +65,15 @@
 						  Glyph="&#xEB49;" 					  
 						  Margin="0,0,0,2" />
 
+
 				<TextBlock x:Name="LocationDistanceTextBlock" 
-						   Text="{x:Bind Location.Distance, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:0.00\}}"
 						   Margin="5,0,0,0"
 						   FontSize="12"
 						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
-				<TextBlock Text="km."
-						   Margin="3,0,0,0"
-						   FontSize="12"
-						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
+						   VerticalAlignment="Bottom">
+					<Run Text="{x:Bind Location.Distance, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:0.00\}}" />
+					<Run Text="km." />
+				</TextBlock>
 			</StackPanel>
 
 			<StackPanel x:Name="LocationSerendipityIndexStackPanel" 
@@ -89,18 +87,6 @@
 						  VerticalAlignment="Bottom"
 						  Glyph="&#xE945;" 					  
 						  Margin="0,0,0,2" />
-
-				<TextBlock x:Name="LocationSerendipityIndexTextBlock" 
-						   Text="{x:Bind Location.MatchPercentage, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:0.00\}}"
-						   Margin="5,0,0,0"
-						   FontSize="12"
-						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
-				<TextBlock Text="%"
-						   Margin="3,0,0,0"
-						   FontSize="12"
-						   Foreground="DarkGray"
-						   VerticalAlignment="Bottom"/>
 			</StackPanel>
 
 			<StackPanel x:Name="LocationCheckInsStackPanel" 

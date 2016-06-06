@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Navigation;
 
 namespace S2M.Pages {
 	public sealed partial class Profile : Page {
@@ -21,7 +22,14 @@ namespace S2M.Pages {
 			DataContext = ViewModel;
 		}
 
+		protected override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			
+		}
+
 		private async void Page_Loaded(object sender, RoutedEventArgs e) {
+			this.NavigationCacheMode = NavigationCacheMode.Required;
+
 			Models.Profile _profile = await Common.StorageService.RetrieveObjectAsync<Models.Profile>("Profile"); 
 			if (_profile == null) {
 				_profile = await Models.Profile.GetProfile();
@@ -38,7 +46,6 @@ namespace S2M.Pages {
 				}
 			}
 		}
-
 
 		private async void AddTagButton_Click(object sender, RoutedEventArgs e) {
 			var newTag = AddTagTextBox.Text.ToLower().Trim();
@@ -136,8 +143,16 @@ namespace S2M.Pages {
 		private void CheckinsListView_ItemClick(object sender, ItemClickEventArgs e)
 		{
 			var checkIn = (CheckIn)e.ClickedItem;
+			if (checkIn != null)
+			{
+				var checkinCriteria = new CheckinFinalPageCriteria
+				{
+					IsNewCheckIn = false,
+					CheckIn = checkIn
+				};
 
-			Frame.Navigate(typeof(CheckInFinal), checkIn);
+				Frame.Navigate(typeof(CheckInFinal), checkinCriteria);
+			}
 		}
 
 		private void ChatsListView_ItemClick(object sender, ItemClickEventArgs e)

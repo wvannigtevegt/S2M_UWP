@@ -18,7 +18,7 @@ namespace S2M.Converters
 				outputFormat = dateFormat;
 			}
 
-			return Common.DateService.ConvertFromUnixTimestamp(timestamp).ToString(outputFormat);
+			return Common.DateService.ConvertFromUnixTimestamp(timestamp).ToLocalTime().ToString(outputFormat);
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, string language)

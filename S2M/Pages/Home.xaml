@@ -6,13 +6,21 @@
 	xmlns:control="using:S2M.Controls"
 	xmlns:converters="using:S2M.Converters"
 	xmlns:data="using:S2M.Models"
+	xmlns:viewModel="using:S2M.ViewModel"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	Loaded="Page_Loaded"
     mc:Ignorable="d">
 
 	<Page.Resources>
-		<converters:StringFormatConverter x:Key="StrFormatConverter" />
+		<converters:DateTimeFormatConverter x:Key="DateTimeConverter" />
+		<converters:BooleanToVisibilityConverter x:Key="VisibilityConverter" />
+		<converters:SelectedLegendItemToColorConverter x:Key="SelectedDateToColorConverter" />
+		<converters:StringConverter x:Key="DateFormatConverter" />
+		<converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+		<converters:AmountToVisibilityConverter x:Key="AmountToVisibilityConverter" />
+		<converters:StringLengthToVisibilityConverter x:Key="StringLengthToVisibilityConverter" />
+		<converters:TimestampToDateStringConverter x:Key="TimestampToDateStringConverter" />
 
 		<ItemsPanelTemplate x:Key="ItemsPanelTemplate">
 			<ItemsStackPanel />
@@ -21,184 +29,115 @@
 
 	<Grid>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="48" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
 
-		<RelativePanel Grid.Row="0" Background="#FF00BAFF">
-			<TextBlock x:Name="WorkingOnTextBlock"
-					   Width="720" 
-					   Height="48"
-					   FontSize="24"
-					   Foreground="White"
-					   RelativePanel.AlignHorizontalCenterWithPanel="True"
-					   RelativePanel.AlignVerticalCenterWithPanel="True"/>
+		<StackPanel Visibility="{Binding CurrentCheckin, Converter={StaticResource NullToVisibilityConverter}}">
+			<TextBlock Text="Today you are at:" 
+					   Style="{StaticResource SubtitleTextBlockStyle}"
+					   Foreground="White" />
+		</StackPanel>
+		
+		<StackPanel x:Name="CurrentLocationNameStackPanel" 
+					Background="DarkGray"
+					Grid.Row="1"
+					Tapped="CurrentCheckinGrid_Tapped"
+					Visibility="{Binding CurrentCheckin, Converter={StaticResource NullToVisibilityConverter}}"
+					Orientation="Vertical">
 
-			<Button Name="SetWorkingOnButton" 
-					FontFamily="Segoe MDL2 Assets" 
-					Content="&#xE104;" 
-					FontSize="20"
-					Width="48"
-					Height="48"
-					RelativePanel.AlignRightWithPanel="True"
-					Click="SetWorkingOnButton_Click" />
+			<Image x:Name="CurrentCheckinLocationImage" 
+					Margin="0,36,0,12"
+					Stretch="UniformToFill"
+					HorizontalAlignment="Center" 
+					VerticalAlignment="Center"
+					Source="{Binding CurrentCheckin.LocationImage_320}"/>
 
-		</RelativePanel>
+			<TextBlock x:Name="CurrentLocationNameTextBlock"
+						Foreground="White"
+						Text="{Binding CurrentCheckin.LocationName}"
+						HorizontalAlignment="Center" 
+						Style="{ThemeResource SubtitleTextBlockStyle}" />
 
+			<TextBlock Margin="0,0,0,12" HorizontalAlignment="Center" Foreground="White" FontSize="12">
+				<Run Text="{Binding CurrentCheckin.StartTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}" />
+				<Run Text="-" />
+				<Run Text="{Binding CurrentCheckin.EndTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}" />
+			</TextBlock>
+		</StackPanel>
 
-		<Pivot x:Name="RecommendationsPivot" Grid.Row="1" SelectionChanged="RecommendationsPivot_SelectionChanged">
-			<PivotItem Header="Locations">
-				<GridView Grid.Row="1" 
-				  x:Name="LocationRecommendationsGridView"
-				  Margin="12,0,0,0"
-				  ItemsSource="{x:Bind LocationRecommendations}" 
-				  IsItemClickEnabled="True"
-						  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
-				  ItemClick="LocationRecommendationsGridView_ItemClick"
-				  HorizontalAlignment="Stretch"
-				  HorizontalContentAlignment="Stretch">
-					<GridView.ItemTemplate>
-						<DataTemplate x:DataType="data:Location">
-							<control:LocationTemplate />
-						</DataTemplate>
-					</GridView.ItemTemplate>
-					<GridView.ItemContainerStyle>
-						<Style TargetType="GridViewItem">
-							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-						</Style>
-					</GridView.ItemContainerStyle>
-				</GridView>
-			</PivotItem>
-			<PivotItem Header="Checkins">
-				<GridView Grid.Row="1" 
-				  x:Name="CheckInRecommendationsGridView"
-				  Margin="12,0,0,0"
-				  ItemsSource="{x:Bind CheckInRecommendations}" 
-				  IsItemClickEnabled="True" 
-						  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
-				  ItemClick="CheckInRecommendationsGridView_ItemClick"
-				  HorizontalAlignment="Stretch"
-				  HorizontalContentAlignment="Stretch">
-					<GridView.ItemTemplate>
-						<DataTemplate x:DataType="data:CheckIn">
-							<RelativePanel Width="300" Height="Auto" Background="White">
-								<TextBlock x:Name="CheckInNameTextBlock" 
-										   Text="{x:Bind ProfileName}"
-										   Margin="5,5,5,5"
-										   HorizontalAlignment="Left"
-										   Height="Auto"
-										   TextWrapping="Wrap"
-										   Foreground="#FF001E2D"
-										   FontWeight="Bold"
-										   RelativePanel.AlignTopWithPanel="True"
-										   RelativePanel.AlignLeftWithPanel="True" />
+		<StackPanel x:Name="NearbyLocationsStackPanel" 
+					Grid.Row="2"
+					Visibility="{Binding NrOfNearbyLocations, Converter={StaticResource AmountToVisibilityConverter}}">
+			<TextBlock Text="Locations nearby"
+					   Style="{StaticResource SubtitleTextBlockStyle}"/>
+			<FlipView x:Name="NearbyLocationsFlipView"
+					  Height="80"
+					  IsTapEnabled="True"
+					  Tapped="NearbyLocationsFlipView_Tapped"
+					  ItemsSource="{Binding NearbyLocations}">
+				<FlipView.ItemTemplate>
+					<DataTemplate>
+						<control:LocationTemplate />
+					</DataTemplate>
+				</FlipView.ItemTemplate>
+			</FlipView>
+		</StackPanel>
 
-								<Ellipse x:Name="CheckInImageEllipse"
-										 RelativePanel.Below="CheckInNameTextBlock"
-										 Margin="5,0,0,5"
-										 Width="75" 
-										 Height="75">
-									<Ellipse.Fill>
-										<ImageBrush Stretch="Fill">
-											<ImageBrush.ImageSource>
-												<BitmapImage x:Name="CheckInImageBitmap" 
-															 DecodePixelHeight="75" 
-															 DecodePixelWidth="75" 
-															 UriSource="{x:Bind ProfileImage_150}" />
-											</ImageBrush.ImageSource>
-										</ImageBrush>
-									</Ellipse.Fill>
-								</Ellipse>
+		<StackPanel x:Name="FavoriteLocationsStackPanel" 
+					Grid.Row="3"
+					Visibility="{Binding NrOfFavoriteLocations, Converter={StaticResource AmountToVisibilityConverter}}">
+			<TextBlock Text="Favorite locations"
+					   Style="{StaticResource SubtitleTextBlockStyle}"/>
+			<FlipView x:Name="FavoriteLocationsFlipView"
+					  Height="80"
+					  IsTapEnabled="True"
+					  Tapped="FavoriteLocationsFlipView_Tapped"
+					  ItemsSource="{Binding FavoriteLocations}">
+				<FlipView.ItemTemplate>
+					<DataTemplate>
+						<control:LocationTemplate />
+					</DataTemplate>
+				</FlipView.ItemTemplate>
+			</FlipView>
+		</StackPanel>
 
-								<StackPanel x:Name="CheckInLocationStackPanel" 
-											Orientation="Horizontal"
-											Margin="0,5,0,0"
-											RelativePanel.Below="CheckInNameTextBlock" 
-											RelativePanel.RightOf="CheckInImageEllipse">
-									<FontIcon x:Name="LocationFontIcon" 
-											  FontFamily="Segoe MDL2 Assets"
-											  FontSize="12"
-											  Foreground="#FF00BAFF"
-											  VerticalAlignment="Bottom"
-											  Glyph="&#xEC07;" 					  
-											  Margin="5,0,0,2" />
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup x:Name="VisualStateGroup">
+				<VisualState x:Name="VisualStatePhone">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="0"/>
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="CurrentLocationNameStackPanel.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="NearbyLocationsStackPanel.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="FavoriteLocationsStackPanel.(Grid.ColumnSpan)" Value="2" />
 
-									<TextBlock x:Name="CheckLocationTextBlock" 
-											   Text="{x:Bind LocationName}"
-											   Margin="5,0,0,0"
-											   FontSize="12"
-											   Foreground="DarkGray"
-											   VerticalAlignment="Bottom"/>
-								</StackPanel>
+						<Setter Target="CurrentCheckinLocationImage.Width" Value="160" />
+						<Setter Target="CurrentCheckinLocationImage.Height" Value="120" />
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="VisualStateDesktop">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="720" />
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="CurrentLocationNameStackPanel.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="NearbyLocationsStackPanel.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="FavoriteLocationsStackPanel.(Grid.ColumnSpan)" Value="1" />
 
-								<StackPanel x:Name="CheckInDistanceStackPanel" 
-											Orientation="Horizontal" 
-											Margin="0,5,0,0"
-											RelativePanel.Below="CheckInLocationStackPanel" 
-											RelativePanel.RightOf="CheckInImageEllipse">
-									<FontIcon x:Name="DistanceFontIcon" 
-											  FontFamily="Segoe MDL2 Assets"
-											  FontSize="12"
-											  Foreground="#FF00BAFF"
-											  VerticalAlignment="Bottom"
-											  Glyph="&#xEB49;" 					  
-											  Margin="5,0,0,2" />
-
-									<TextBlock x:Name="CheckInDistanceTextBlock" 
-											   Text="{x:Bind Distance, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:0.00\}}"
-											   Margin="5,0,0,0"
-											   FontSize="12"
-											   Foreground="DarkGray"
-											   VerticalAlignment="Bottom"/>
-									<TextBlock Text="km."
-											   Margin="3,0,0,0"
-											   FontSize="12"
-											   Foreground="DarkGray"
-											   VerticalAlignment="Bottom"/>
-								</StackPanel>
-
-								<StackPanel x:Name="CheckInSerendipityIndexStackPanel" 
-											Orientation="Horizontal"
-											Margin="0,5,0,0"
-											RelativePanel.Below="CheckInDistanceStackPanel" 
-											RelativePanel.RightOf="CheckInImageEllipse">
-									<FontIcon x:Name="SerenditpityIndexFontIcon" 
-											  FontFamily="Segoe MDL2 Assets"
-											  FontSize="12"
-											  Foreground="#FF00BAFF"
-											  VerticalAlignment="Bottom"
-											  Glyph="&#xE945;" 					  
-											  Margin="5,0,0,2" />
-
-									<TextBlock x:Name="CheckInSerendipityIndexTextBlock" 
-											   Text="{x:Bind MatchPercentage, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:0.00\}}"
-											   Margin="5,0,0,0"
-											   FontSize="12"
-											   Foreground="DarkGray"
-											   VerticalAlignment="Bottom"/>
-														<TextBlock Text="%"
-											   Margin="3,0,0,0"
-											   FontSize="12"
-											   Foreground="DarkGray"
-											   VerticalAlignment="Bottom"/>
-								</StackPanel>
-							</RelativePanel>
-						</DataTemplate>
-					</GridView.ItemTemplate>
-					<GridView.ItemContainerStyle>
-						<Style TargetType="GridViewItem">
-							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-						</Style>
-					</GridView.ItemContainerStyle>
-				</GridView>
-			</PivotItem>
-			<PivotItem Header="Events">
-
-			</PivotItem>
-		</Pivot>
+						<Setter Target="CurrentCheckinLocationImage.Width" Value="320" />
+						<Setter Target="CurrentCheckinLocationImage.Height" Value="240" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
 	</Grid>
 </Page>

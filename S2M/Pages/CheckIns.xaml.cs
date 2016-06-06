@@ -159,7 +159,13 @@ namespace S2M.Pages {
 
 			if (checkIn.ProfileId == authenticatedProfile.Id)
 			{
-				Frame.Navigate(typeof(CheckInFinal), checkIn);
+				var checkinCriteria = new CheckinFinalPageCriteria
+				{
+					IsNewCheckIn = false,
+					CheckIn = checkIn
+				};
+
+				Frame.Navigate(typeof(CheckInFinal), checkinCriteria);
 			}
 			else
 			{

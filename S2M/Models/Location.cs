@@ -27,6 +27,7 @@ namespace S2M.Models {
 		public decimal ReviewScore { get; set; }
 		public decimal ReviewCount { get; set; }
 		public decimal MatchPercentage { get; set; }
+		public bool IsBookmarked { get; set; }
 		public int NrOfCheckIns { get; set; }
 		public string StarImage {
 			get {
@@ -171,7 +172,7 @@ namespace S2M.Models {
 			var locations = new List<Location>();
 
 			if (ConnectionHelper.CheckForInternetAccess()) {
-				var locationResultA = await GetLocationsDataAsync(token, searchTerm, latitude, longitude);
+				var locationResultA = await GetLocationsDataAsync(token, searchTerm, latitude, longitude, radius, workingOn, page, itemsPerPage);
 				locations = locationResultA.Results.ToList();
 			}
 			else {
@@ -201,6 +202,95 @@ namespace S2M.Models {
 			return null;
 		}
 
+		public static async Task GetProfileFavoriteLocations(CancellationToken token, ObservableCollection<Location> locationList)
+		{
+			using (var httpClient = new Windows.Web.Http.HttpClient())
+			{
+				var apiKey = StorageService.LoadSetting("ApiKey");
+				var apiUrl = StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var url = apiUrl + "/api/locations/favorite";
+
+					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token))
+					{
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						var locations = JsonConvert.DeserializeObject<ObservableCollection<Location>>(json);
+
+						foreach (var location in locations)
+						{
+							locationList.Add(location);
+						}
+					}
+				}
+				catch (Exception) { }
+			}
+		}
+
+		public static async Task LocationBookmarked(CancellationToken token, int locationId)
+		{
+			using (var httpClient = new Windows.Web.Http.HttpClient())
+			{
+				var apiKey = StorageService.LoadSetting("ApiKey");
+				var apiUrl = StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var url = apiUrl + "/api/locations/favorite/" + locationId;
+
+					using (var httpResponse = await httpClient.PostAsync(new Uri(url),null).AsTask(token))
+					{
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						//var locations = JsonConvert.DeserializeObject<ObservableCollection<Location>>(json);
+					}
+				}
+				catch (Exception) { }
+			}
+		}
+
+		public static async Task LocationNotBookmarked(CancellationToken token, int locationId)
+		{
+			using (var httpClient = new Windows.Web.Http.HttpClient())
+			{
+				var apiKey = StorageService.LoadSetting("ApiKey");
+				var apiUrl = StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var url = apiUrl + "/api/locations/favorite/" + locationId;
+
+					using (var httpResponse = await httpClient.DeleteAsync(new Uri(url)).AsTask(token))
+					{
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						//var locations = JsonConvert.DeserializeObject<ObservableCollection<Location>>(json);
+					}
+				}
+				catch (Exception) { }
+			}
+		}
+
 		private static async Task<LocationResult> GetLocationsDataAsync(CancellationToken token, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0) {
 			var locationResult = new LocationResult();
 
@@ -209,10 +299,12 @@ namespace S2M.Models {
 				var apiUrl = StorageService.LoadSetting("ApiUrl");
 				var channelId = int.Parse(StorageService.LoadSetting("ChannelId"));
 				var countryId = int.Parse(StorageService.LoadSetting("CountryId"));
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
 
 				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
 				httpClient.DefaultRequestHeaders.Add("token", apiKey);
 				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
 
 				try {
 					var criteria = new LocationListCriteria {

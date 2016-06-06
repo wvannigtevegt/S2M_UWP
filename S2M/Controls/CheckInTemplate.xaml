@@ -11,6 +11,7 @@
 	<UserControl.Resources>
 		<converters:CheckInToIsPresentConverter x:Key="IsPresentConverter" />
 		<converters:StringFormatConverter x:Key="StrFormatConverter" />
+		<converters:TimestampToDateStringConverter x:Key="TimestampToDateStringConverter" />
 	</UserControl.Resources>
 
 	<Grid Name="CheckInPane" Background="White" Margin="4,0,0,0">
@@ -40,17 +41,41 @@
 					  VerticalAlignment="Bottom"
 					  Glyph="&#xECCC;" />
 
-			<TextBlock x:Name="CheckInNameTextBlock" 
+			<!--<TextBlock x:Name="CheckInNameTextBlock" 
 					   Text="{x:Bind CheckIn.ProfileName}"
 					   TextWrapping="Wrap"
-					   Foreground="#FF001E2D" />
+					   Foreground="#FF001E2D" />-->
+
+			<TextBlock x:Name="CheckInNameTextBlock"
+					   TextWrapping="Wrap"
+					   Foreground="#FF001E2D">
+				<Run Text="{x:Bind CheckIn.ProfileName}" />
+				<Run Text="{x:Bind CheckIn.MatchPercentage}" />
+			</TextBlock>
+
+			<StackPanel Orientation="Horizontal"
+						HorizontalAlignment="Right"
+						VerticalAlignment="Center">
+				<TextBlock Text="{x:Bind CheckIn.StartTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}"
+						Margin="4,0,4,0" 
+						Foreground="DarkGray" 
+						FontSize="12" />
+				<TextBlock Text="-"
+						Foreground="DarkGray" 
+						FontSize="12" />
+				<TextBlock Text="{x:Bind CheckIn.EndTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}"
+						Margin="4,0,4,0" 
+						Foreground="DarkGray" 
+						FontSize="12" />
+			</StackPanel>
 		</StackPanel>
+		
 
 		<StackPanel Orientation="Horizontal"
 					Margin="12,4,4,4"
 					HorizontalAlignment="Left"
 					Grid.Column="1"
-					Grid.Row="1">
+					Grid.Row="2">
 			<FontIcon FontFamily="Segoe MDL2 Assets"
 					  FontSize="9"
 					  Foreground="gray"
@@ -60,10 +85,13 @@
 			<TextBlock x:Name="CheckInTagsTextBlock"
 					   Text="{x:Bind CheckIn.Tags}"
 					   Height="Auto"
-					   TextWrapping="Wrap"
+					   Margin="0,0,12,0"
+					   TextWrapping="WrapWholeWords"
 					   Foreground="Gray"
 					   FontSize="11"/>
 		</StackPanel>
+		
+		
 
 		<StackPanel Grid.Row="0"
 					Grid.RowSpan="3"

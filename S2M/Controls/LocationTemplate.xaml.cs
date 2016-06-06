@@ -21,6 +21,7 @@ namespace S2M.Controls {
 			this.InitializeComponent();
 			//layoutRoot.DataContext = this;
 
+			ShowLocationDistance = true;
 			ShowSerendipityIndex = false;
 
 			this.DataContextChanged += (s, e) => Bindings.Update();

@@ -79,18 +79,9 @@ namespace S2M
 			}			
 			LocationNameTextBlock.Text = ProfileObject.FullName;
 
-			await Common.StorageService.DeleteObjectAsync("WorkingOn"); //TODO: Remove
-			var workingOn = await Common.StorageService.RetrieveObjectAsync<Models.WorkingOn>("WorkingOn");
-
 			if (!_ignorePageStartUp)
 			{
-				if (workingOn == null || string.IsNullOrEmpty(workingOn.Text) || workingOn.EnteredOn.Date != DateTime.Now.Date)
-				{
-					GoToPage("WorkingOn");
-				}
-				else {
-					GoToPage("Home");
-				}
+				GoToPage("Home");
 			}
 			
 		}

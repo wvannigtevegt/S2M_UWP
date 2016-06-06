@@ -10,7 +10,13 @@
 	Loaded="Page_Loaded"
     mc:Ignorable="d">
 
-    <Grid>
+	<Page.Resources>
+		<ItemsPanelTemplate x:Key="ItemsPanelTemplate">
+			<ItemsStackPanel />
+		</ItemsPanelTemplate>
+	</Page.Resources>
+
+	<Grid>
 		<GridView x:Name="EventsGridView" ItemsSource="{x:Bind EventList}" IsItemClickEnabled="True" ItemClick="EventsGridView_ItemClick">
 			<GridView.ItemContainerTransitions>
 				<TransitionCollection>
@@ -29,6 +35,11 @@
 					<control:EventTemplate />
 				</DataTemplate>
 			</GridView.ItemTemplate>
+			<GridView.ItemContainerStyle>
+				<Style TargetType="GridViewItem">
+					<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+				</Style>
+			</GridView.ItemContainerStyle>
 		</GridView>
 
 		<ProgressRing Name="EventsProgressRing"
@@ -37,5 +48,26 @@
                       Foreground="Gray"
                       VerticalAlignment="Center"
                       HorizontalAlignment="Center" />
+
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup x:Name="VisualStateGroup">
+				<VisualState x:Name="VisualStatePhone">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="0"/>
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="EventsGridView.ItemsPanel" Value="{StaticResource ResourceKey=ItemsPanelTemplate}" />
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="VisualStateDesktop">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="720" />
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="EventsGridView.ItemsPanel" Value="" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
 	</Grid>
 </Page>

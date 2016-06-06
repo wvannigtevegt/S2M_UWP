@@ -1,11 +1,8 @@
-﻿using S2M.Common;
-using S2M.Models;
-using System;
-using System.Collections.ObjectModel;
+﻿using S2M.Models;
+using S2M.ViewModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Devices.Geolocation;
-using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -19,12 +16,7 @@ namespace S2M.Pages
 	/// </summary>
 	public sealed partial class Home : Page
 	{
-		protected ObservableCollection<CheckIn> CheckInRecommendations { get; set; }
-		protected ObservableCollection<Location> LocationRecommendations { get; set; }
-		protected double Latitude { get; set; }
-		protected double Longitude { get; set; }
-		protected string SearchTerm { get; set; }
-		protected string WorkingOn { get; set; }
+		public HomeViewModel ViewModel { get; set; }
 
 		private CancellationTokenSource _cts = null;
 		private int _selectedPivotIndex = 0;
@@ -33,30 +25,14 @@ namespace S2M.Pages
 		{
 			this.InitializeComponent();
 
-			CheckInRecommendations = new ObservableCollection<CheckIn>();
-			LocationRecommendations = new ObservableCollection<Location>();
-			SearchTerm = "";
-			WorkingOn = "";
+			ViewModel = new HomeViewModel();
+
+			DataContext = ViewModel;
 		}
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e)
 		{
-			var workingOn = await Common.StorageService.RetrieveObjectAsync<Models.WorkingOn>("WorkingOn");
-			if (workingOn != null)
-			{
-				WorkingOn = workingOn.Text.ToLower().Trim();
-				WorkingOnTextBlock.Text = WorkingOn;
-			}
-
-			var localSettings = ApplicationData.Current.LocalSettings;
-			if (localSettings.Values["HomePivotSelectedIndex"] != null)
-			{
-				var selectedPivot = localSettings.Values["HomePivotSelectedIndex"];
-				if (selectedPivot != null)
-				{
-					int.TryParse(selectedPivot.ToString(), out _selectedPivotIndex);
-				}
-			}
+			
 		}
 
 		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
@@ -66,104 +42,65 @@ namespace S2M.Pages
 				_cts.Cancel();
 				_cts = null;
 			}
-
-			var localSettings = ApplicationData.Current.LocalSettings;
-			localSettings.Values["HomePivotSelectedIndex"] = RecommendationsPivot.SelectedIndex.ToString();
-
-			//base.OnNavigatingFrom(e);
 		}
 
 		private async void Page_Loaded(object sender, RoutedEventArgs e)
 		{
-			_cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
+			await GetCurrentCheckin();
 
-			try
-			{
-				var accessStatus = await Geolocator.RequestAccessAsync();
-				switch (accessStatus)
-				{
-					case GeolocationAccessStatus.Allowed:
-
-						try
-						{
-							var geoposition = await GeoService.GetSinglePositionAsync(token);
-							Latitude = geoposition.Point.Position.Latitude;
-							Longitude = geoposition.Point.Position.Longitude;
-						}
-						catch (Exception) { }
-
-						break;
-					case GeolocationAccessStatus.Denied:
-
-						break;
-				}
-
-
-
-				RecommendationsPivot.SelectedIndex = _selectedPivotIndex;
-			}
-			catch (Exception) { }
-			finally
-			{
-				_cts = null;
-			}
+			await GetNearbyLocations();
+		}
+		
+		private async Task GetCurrentCheckin()
+		{
+			ViewModel.CurrentCheckin = await ViewModel.GetCurrentCheckin();
 		}
 
-		private async void RecommendationsPivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		private async Task GetNearbyLocations()
 		{
-			await LoadRecommendationsData();
+			await ViewModel.GetNearbyLocations();
+			await ViewModel.GetFavoriteLocations();
 		}
 
-		private async Task LoadRecommendationsData()
+		private void CurrentCheckinGrid_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
 		{
-			_cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
-
-			try
+			var checkinCriteria = new CheckinFinalPageCriteria
 			{
-				switch (RecommendationsPivot.SelectedIndex)
+				CheckIn = ViewModel.CurrentCheckin,
+				IsNewCheckIn = false,
+				ShowMatches = true
+			};
+
+			Frame.Navigate(typeof(CheckInFinal), checkinCriteria);
+		}
+
+		private void NearbyLocationsFlipView_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+		{
+			var index = (sender as FlipView).SelectedIndex;
+			if (ViewModel.NearbyLocations.Any()) {
+				var selectedLocation = ViewModel.NearbyLocations[index];
+				if (selectedLocation != null)
 				{
-					case 0:
-						await GetLocationRecommendations(token);
-						break;
-					case 1:
-						await GetCheckinRecommendations(token);
-						break;
-					case 2:
-						break;
+					GoToLocationDetail(selectedLocation);
 				}
 			}
-			catch (Exception) { }
-			finally
+		}
+
+		private void FavoriteLocationsFlipView_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+		{
+			var index = (sender as FlipView).SelectedIndex;
+			if (ViewModel.FavoriteLocations.Any())
 			{
-				_cts = null;
+				var selectedLocation = ViewModel.FavoriteLocations[index];
+				if (selectedLocation != null)
+				{
+					GoToLocationDetail(selectedLocation);
+				}
 			}
 		}
 
-		private async Task GetCheckinRecommendations(CancellationToken token)
+		private void GoToLocationDetail(Location location)
 		{
-			CheckInRecommendations.Clear();
-			await CheckIn.GetCheckInsAsync(token, CheckInRecommendations, DateTime.Now, 0, 0, SearchTerm, 0, 0, 0, WorkingOn, 1, 10, false);
-		}
-		private async Task GetLocationRecommendations(CancellationToken token)
-		{
-			LocationRecommendations.Clear();
-			await Location.GetLocationRecommendationsAsync(token, LocationRecommendations, Latitude, Longitude, 0, WorkingOn, 1, 10);
-
-			LocationRecommendationsGridView.ItemsSource = LocationRecommendations;
-		}
-
-		private void CheckInRecommendationsGridView_ItemClick(object sender, ItemClickEventArgs e)
-		{
-			var checkIn = (CheckIn)e.ClickedItem;
-
-			Frame.Navigate(typeof(CheckInDetail), checkIn);
-		}
-
-		private void LocationRecommendationsGridView_ItemClick(object sender, ItemClickEventArgs e)
-		{
-			var location = (Location)e.ClickedItem;
 			var criteria = new LocationDetailPageCriteria
 			{
 				LocationId = 0,
@@ -171,11 +108,6 @@ namespace S2M.Pages
 			};
 
 			Frame.Navigate(typeof(LocationDetail), criteria);
-		}
-
-		private void SetWorkingOnButton_Click(object sender, RoutedEventArgs e)
-		{
-			Frame.Navigate(typeof(WorkingOn));
 		}
 	}
 }

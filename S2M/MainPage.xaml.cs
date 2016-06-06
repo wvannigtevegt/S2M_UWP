@@ -54,7 +54,8 @@ namespace S2M
 				GetCredentialsFromVault();
 				//ScheduleNotificationButton(); TODO: Make correct service for tile information
 			}
-			else {
+			else
+			{
 				Frame.Navigate(typeof(Pages.Locations));
 			}
 		}
@@ -99,6 +100,28 @@ namespace S2M
 			try
 			{
 				var login = await Models.Login.LoginUser(username, password);
+
+				if (login == null)
+				{
+					var vault = new PasswordVault();
+					const string vaultResource = "S2M";
+					var credentialList = vault.FindAllByResource(vaultResource);
+					if (credentialList.Any())
+					{
+						var credentials = credentialList.Where(c => c.UserName == username);
+						if (credentials.Any())
+						{
+							vault.Remove(new PasswordCredential(vaultResource, username, password));
+						}
+					}
+
+
+					LoginProgressRing.IsActive = false;
+					LoginProgressRing.Visibility = Visibility.Collapsed;
+
+					LoginInputStackPanel.Visibility = Visibility.Visible;
+				}
+
 				if (login != null)
 				{
 					if (!string.IsNullOrEmpty(login.ProfileToken))
@@ -107,11 +130,7 @@ namespace S2M
 
 						InitNotificationsAsync(login.ProfileKey);
 					}
-				}
 
-
-				if (login != null)
-				{
 					SaveCredentialsInVault(username, password);
 
 					var authenticatedProfile = await Models.Profile.GetProfile();
@@ -124,7 +143,8 @@ namespace S2M
 
 						Frame.Navigate(typeof(Navigation), NavigationPageCriteria);
 					}
-					else {
+					else
+					{
 						var vault = new PasswordVault();
 						vault.Remove(new PasswordCredential("S2M", username, password));
 
@@ -135,7 +155,13 @@ namespace S2M
 					LoginProgressRing.Visibility = Visibility.Collapsed;
 				}
 			}
-			catch (Exception) { }
+			catch (Exception ex)
+			{
+				LoginProgressRing.IsActive = false;
+				LoginProgressRing.Visibility = Visibility.Collapsed;
+
+				LoginInputStackPanel.Visibility = Visibility.Visible;
+			}
 			finally
 			{
 				_cts = null;
@@ -151,23 +177,21 @@ namespace S2M
 		private async void InitNotificationsAsync(string profileKey)
 		{
 			var _recieveNotifications = StorageService.LoadSetting("RecieveNotifications");
-			if (string.IsNullOrEmpty(_recieveNotifications))
+			var channel = await PushNotificationChannelManager.CreatePushNotificationChannelForApplicationAsync();
+
+			var hub = new NotificationHub("notifications", "Endpoint=sb://seats2meet.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=bJT+rNOH5GzBi04UQG2hnnF/mhKHh5FM424nQhBD3M8=");
+			var tags = new List<string>();
+			tags.Add(profileKey);
+
+			var result = await hub.RegisterNativeAsync(channel.Uri, tags);
+
+			// Displays the registration ID so you know it was successful
+			if (result.RegistrationId != null)
 			{
-				var channel = await PushNotificationChannelManager.CreatePushNotificationChannelForApplicationAsync();
-
-				var hub = new NotificationHub("notifications", "Endpoint=sb://seats2meet.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=bJT+rNOH5GzBi04UQG2hnnF/mhKHh5FM424nQhBD3M8=");
-				var tags = new List<string>();
-				tags.Add(profileKey);
-				var result = await hub.RegisterNativeAsync(channel.Uri, tags);
-
-				// Displays the registration ID so you know it was successful
-				if (result.RegistrationId != null)
-				{
-					StorageService.SaveSetting("RecieveNotifications", "1");
-					//var dialog = new MessageDialog("Registration successful: " + result.RegistrationId);
-					//dialog.Commands.Add(new UICommand("OK"));
-					//await dialog.ShowAsync();
-				}
+				StorageService.SaveSetting("RecieveNotifications", "1");
+				//var dialog = new MessageDialog("Registration successful: " + result.RegistrationId);
+				//dialog.Commands.Add(new UICommand("OK"));
+				//await dialog.ShowAsync();
 			}
 
 			_cts = new CancellationTokenSource();

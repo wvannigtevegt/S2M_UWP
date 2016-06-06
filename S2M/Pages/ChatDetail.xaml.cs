@@ -153,10 +153,12 @@ namespace S2M.Pages
 
 		public override DataTemplate SelectTemplate(object item, DependencyObject container)
 		{
+			var _profile = Models.Profile.GetProfile().Result;
+
 			var chatMessage = item as ChatMessage;
 			if (chatMessage != null)
 			{
-				return chatMessage.ProfileId != 96 ? ImageLeft : ImageRight;
+				return chatMessage.ProfileId != _profile.Id? ImageLeft : ImageRight;
 			}
 			return null;
 		}
