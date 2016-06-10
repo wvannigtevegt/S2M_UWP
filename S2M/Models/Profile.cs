@@ -48,6 +48,38 @@ namespace S2M.Models {
 		public DateTime CreatedOn { get; set; }
 		public string LastToken { get; set; }
 
+		public static async Task<Profile> RegisterNewProfile(string email, string password, string firstName, string lastName, string tags)
+		{
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+
+				var criteria = new RegisterProfileCriteria
+				{
+					Email = email,
+					Password = password,
+					FirstName = firstName,
+					LastName = lastName,
+					Tags = tags
+				};
+
+				var uri = new Uri(apiUrl + "/api/profiles/register");
+				var queryString = new HttpStringContent(JsonConvert.SerializeObject(criteria), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
+
+				HttpResponseMessage response = await httpClient.PostAsync(uri, queryString);
+				string json = await response.Content.ReadAsStringAsync();
+				json = json.Replace("<br>", Environment.NewLine);
+				var profile = JsonConvert.DeserializeObject<Profile>(json);
+
+				return profile;
+			}
+		}
+
 		public static async Task<Profile> GetProfile() {
 			var profile = new Profile();
 
@@ -107,6 +139,15 @@ namespace S2M.Models {
 
 			return profile;
 		}
+	}
+
+	public class RegisterProfileCriteria
+	{
+		public string Email { get; set; }
+		public string Password { get; set; }
+		public string FirstName { get; set; }
+		public string LastName { get; set; }
+		public string Tags { get; set; }
 	}
 
 	public class UpdateProfileCriteria {

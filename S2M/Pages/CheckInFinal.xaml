@@ -213,7 +213,7 @@
 							  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}">
 						<ListView.ItemTemplate>
 							<DataTemplate>
-								<control:CheckInTemplate />
+								<control:CheckInTemplate ShowMatchPercentage="True" />
 							</DataTemplate>
 						</ListView.ItemTemplate>
 					</ListView>

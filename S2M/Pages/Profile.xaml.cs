@@ -2,16 +2,15 @@
 using S2M.ViewModel;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
-namespace S2M.Pages {
+namespace S2M.Pages
+{
 	public sealed partial class Profile : Page {
 		public ProfileViewModel ViewModel { get; set; }
 

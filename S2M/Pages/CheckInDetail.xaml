@@ -60,6 +60,7 @@
 				<StackPanel Grid.Column="1"
 						   Grid.Row="0">
 					<TextBlock Text="{x:Bind ProfileName}"
+							   FontFamily="Segoe UI, Segoe UI Emoji"
 							   Margin="12,4,0,0"
 							   Foreground="Gray"
 							   FontSize="11"/>
@@ -112,6 +113,7 @@
 				</Ellipse>
 
 				<TextBlock Text="{x:Bind Message}"
+						   FontFamily="Segoe UI, Segoe UI Emoji"
 						   TextWrapping="WrapWholeWords"
 						   Margin="12,4,12,0"
 						   Foreground="#FF001E2D"

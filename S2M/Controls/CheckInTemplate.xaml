@@ -10,6 +10,7 @@
 
 	<UserControl.Resources>
 		<converters:CheckInToIsPresentConverter x:Key="IsPresentConverter" />
+		<converters:BooleanToVisibilityConverter x:Key="VisibilityConverter" />
 		<converters:StringFormatConverter x:Key="StrFormatConverter" />
 		<converters:TimestampToDateStringConverter x:Key="TimestampToDateStringConverter" />
 	</UserControl.Resources>
@@ -46,12 +47,16 @@
 					   TextWrapping="Wrap"
 					   Foreground="#FF001E2D" />-->
 
-			<TextBlock x:Name="CheckInNameTextBlock"
-					   TextWrapping="Wrap"
-					   Foreground="#FF001E2D">
-				<Run Text="{x:Bind CheckIn.ProfileName}" />
-				<Run Text="{x:Bind CheckIn.MatchPercentage}" />
-			</TextBlock>
+			<StackPanel Orientation="Horizontal">
+				<TextBlock x:Name="CheckInNameTextBlock"
+						   TextWrapping="Wrap"
+						   Foreground="#FF001E2D">
+					<Run Text="{x:Bind CheckIn.ProfileName}" />
+				</TextBlock>
+
+				<TextBlock Text="{x:Bind CheckIn.MatchPercentage}"
+					 Visibility="{x:Bind ShowMatchPercentage, Converter={StaticResource VisibilityConverter}}"/>
+			</StackPanel>
 
 			<StackPanel Orientation="Horizontal"
 						HorizontalAlignment="Right"
