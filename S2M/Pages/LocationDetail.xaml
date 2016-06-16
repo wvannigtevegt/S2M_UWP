@@ -65,6 +65,20 @@
 				<RowDefinition Height="*" />
 			</Grid.RowDefinitions>
 
+			<Popup x:Name="LocationDescriptionPopup" Grid.ColumnSpan="2" Grid.RowSpan="3" VerticalOffset="10" HorizontalOffset="10" >
+				<StackPanel Background="DarkGray">
+					<TextBlock Text="{Binding LocationDescription.Description}"
+								   Foreground="Black"
+								   HorizontalAlignment="Center"
+								   TextWrapping="WrapWholeWords"/>
+					<Button x:Name="CloseLocationDescriptionButton" 
+								Content="Close" 
+								Click="CloseLocationDescriptionButton_Click" 
+								HorizontalAlignment="Center" 
+								Background="Lime" />
+				</StackPanel>
+			</Popup>
+
 			<StackPanel x:Name="LocationNameStackPanel" 
 						Grid.Row="0"
 						Background="DarkGray"
@@ -79,11 +93,21 @@
 					   Width="320"
 					   Height="240"/>
 
-				<TextBlock x:Name="LocationNameTextBlock"
-						   Foreground="White"
-						   Text="{Binding Location.Name}"
-						   HorizontalAlignment="Center" 
-						   Style="{ThemeResource SubtitleTextBlockStyle}" />
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
+					<TextBlock x:Name="LocationNameTextBlock"
+							   Foreground="White"
+							   Text="{Binding Location.Name}"
+							   Style="{ThemeResource SubtitleTextBlockStyle}" />
+
+					<HyperlinkButton x:Name="LocationDescriptionHyperLinkButton" Margin="12,0,0,0" Click="LocationDescriptionHyperLinkButton_Click">
+						<FontIcon x:Name="InfoFontIcon" 
+								  FontFamily="Segoe MDL2 Assets"
+								  FontSize="14"
+								  Foreground="White"
+								  VerticalAlignment="Bottom"
+								  Glyph="&#xEA1F;" />
+					</HyperlinkButton>
+				</StackPanel>
 
 				<TextBlock Margin="0,0,0,12" HorizontalAlignment="Center" FontSize="10">
 					<Run Text="{Binding Location.Address}" />
@@ -323,7 +347,7 @@
 					<VisualState.Setters>
 						<Setter Target="LocationNameStackPanel.(Grid.ColumnSpan)" Value="1" />
 						<Setter Target="AvailabilityGrid.(Grid.ColumnSpan)" Value="1" />
-						
+
 						<Setter Target="LocationCheckInsGridView.(Grid.Column)" Value="1" />
 						<Setter Target="LocationCheckInsGridView.(Grid.ColumnSpan)" Value="1" />
 						<Setter Target="LocationCheckInsGridView.(Grid.Row)" Value="0" />

@@ -15,13 +15,14 @@ namespace S2M.ViewModel
 		private string _availavilityMessage;
 		private ObservableCollection<AvailableUnit> _availableUnits = new ObservableCollection<AvailableUnit>();
 		private ObservableCollection<CheckIn> _checkins = new ObservableCollection<CheckIn>();
-		private Location _location = new Location();
 		private ObservableCollection<LocationDay> _dates = new ObservableCollection<LocationDay>();
 		private bool _enableButton;
 		private TimeSpan _endTime;
 		private bool _isBookable;
 		private bool _isBookmarked;
 		private bool _isOpen;
+		private Location _location = new Location();
+		private LocationText _locationDescription;
 		private int _nrOfCheckins;
 		private ObservableCollection<CheckIn> _profileCheckIns = new ObservableCollection<CheckIn>();
 		private string _searchKey { get; set; }
@@ -101,6 +102,18 @@ namespace S2M.ViewModel
 			set { SetProperty(_nrOfCheckins, value, () => _nrOfCheckins = value); }
 		}
 
+		public Location Location
+		{
+			get { return _location; }
+			set { SetProperty(_location, value, () => _location = value); }
+		}
+
+		public LocationText LocationDescription
+		{
+			get { return _locationDescription; }
+			set { SetProperty(_locationDescription, value, () => _locationDescription = value); }
+		}
+
 		public ObservableCollection<CheckIn> ProfileCheckIns
 		{
 			get { return _profileCheckIns; }
@@ -113,11 +126,6 @@ namespace S2M.ViewModel
 			set { SetProperty(_searchKey, value, () => _searchKey = value); }
 		}
 
-		public Location Location
-		{
-			get { return _location; }
-			set { SetProperty(_location, value, () => _location = value); }
-		}
 
 		public LocationDay SelectedDate
 		{
@@ -174,7 +182,7 @@ namespace S2M.ViewModel
 			}
 		}
 
-		public async Task GetLocationCheckIns(int locationId)
+		public async Task GetLocationCheckIns()
 		{
 			//_locationCheckinCts.Cancel();
 			_locationCheckinCts = new CancellationTokenSource();
@@ -188,7 +196,7 @@ namespace S2M.ViewModel
 
 				if (SelectedDate != null)
 				{
-					await CheckIn.GetCheckInsAsync(token, newCheckIns, SelectedDate.Date, locationId);
+					await CheckIn.GetCheckInsAsync(token, newCheckIns, SelectedDate.Date, Location.Id);
 
 					foreach (var newCheckIn in newCheckIns)
 					{
@@ -204,6 +212,26 @@ namespace S2M.ViewModel
 			finally
 			{
 				_locationCheckinCts = null;
+			}
+		}
+
+		public async Task GetLocationDescription()
+		{
+			var _locationDescriptionCts = new CancellationTokenSource();
+			CancellationToken token = _locationDescriptionCts.Token;
+
+			try
+			{
+				var description = await LocationText.GetLocationDescriptionAsync(token, Location.Id);
+				if (description != null)
+				{
+					LocationDescription = description;
+				}
+			}
+			catch (Exception ex) { }
+			finally
+			{
+				_locationDescriptionCts = null;
 			}
 		}
 

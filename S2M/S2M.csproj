@@ -193,6 +193,7 @@
     <Compile Include="Models\Option.cs" />
     <Compile Include="Models\Profile.cs" />
     <Compile Include="Models\ProfileDevice.cs" />
+    <Compile Include="Models\PublicProfile.cs" />
     <Compile Include="Models\Reservation.cs" />
     <Compile Include="Models\ReservationResult.cs" />
     <Compile Include="Models\Search.cs" />
@@ -250,7 +251,6 @@
       <DependentUpon>WorkingOn.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="ViewModel\CheckInDetailViewModel.cs" />
     <Compile Include="ViewModel\CheckInFinalViewModel.cs" />
     <Compile Include="ViewModel\CheckInsViewModel.cs" />

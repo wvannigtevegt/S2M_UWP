@@ -12,8 +12,12 @@
     mc:Ignorable="d">
 
 	<Page.Resources>
+		<converters:AmountToVisibilityConverter x:Key="AmountToVisibilityConverter" />
 		<converters:BooleanToVisibilityConverter x:Key="VisibilityConverter" />
+		<converters:CheckInToIsPresentConverter x:Key="IsPresentConverter" />
 		<converters:RelativeTimeConverter x:Key="RelativeTimeConverter" />
+		<converters:StringLengthToVisibilityConverter x:Key="StringLengthToVisibilityConverter" />
+		<converters:TimestampToDateStringConverter x:Key="TimestampToDateStringConverter" />
 
 		<ItemsPanelTemplate x:Key="ItemsPanelTemplate">
 			<ItemsStackPanel />
@@ -156,7 +160,10 @@
 							<Ellipse.Fill>
 								<ImageBrush Stretch="Fill">
 									<ImageBrush.ImageSource>
-										<BitmapImage x:Name="CheckInImageBrush" DecodePixelHeight="125" DecodePixelWidth="125" />
+										<BitmapImage x:Name="CheckInImageBrush" 
+													 DecodePixelHeight="125"
+													 DecodePixelWidth="125"
+													 UriSource="{Binding SelectedCheckin.ProfileImage_150}" />
 									</ImageBrush.ImageSource>
 								</ImageBrush>
 							</Ellipse.Fill>
@@ -167,35 +174,29 @@
 									  FontFamily="Segoe MDL2 Assets"
 									  FontSize="14"
 									  Margin="0,0,4,4"
-									  Foreground="DarkRed"
+									  Foreground="{Binding SelectedCheckin, Converter={StaticResource IsPresentConverter}}"
 									  VerticalAlignment="Bottom"
 									  Glyph="&#xECCC;" />
 
 							<TextBlock x:Name="CheckInNameTextBlock"
 									   Margin="4,0,0,0" 
+									   Text="{Binding SelectedCheckin.ProfileName}"
 									   Style="{ThemeResource SubtitleTextBlockStyle}"
 									   Foreground="White"
 									   HorizontalAlignment="Center"/>
 						</StackPanel>
-
-						<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-							<TextBlock x:Name="CheckInLocationTextBlock" 
-									   Margin="0,0,4,0"
-									   TextWrapping="WrapWholeWords" 
-									   Foreground="White" 
-									   FontSize="9" />
-
-							<TextBlock Margin="4,0,0,0" 
-									   x:Name="CheckInTimeTextBlock" 
-									   TextWrapping="WrapWholeWords" 
-									   Foreground="White" 
-									   FontSize="9" />
-						</StackPanel>
+						
+						<TextBlock Margin="0,0,0,12" HorizontalAlignment="Center" Foreground="White" FontSize="12">
+							<Run Text="{Binding SelectedCheckin.LocationName}" />
+							<Run Text="{Binding SelectedCheckin.StartTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}" />
+							<Run Text="-" />
+							<Run Text="{Binding SelectedCheckin.EndTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}" />
+						</TextBlock>
 
 						<StackPanel x:Name="CheckInContactStackPanel" Margin="0,12,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
 							<HyperlinkButton x:Name="OpenChatHyperLinkButton"
-												 Margin="0,0,12,0" 
-												 Click="StartChatButton_Click">
+											 Margin="0,0,12,0" 
+											 Click="StartChatButton_Click">
 								<StackPanel x:Name="StartChatStackPanel" 
 													Orientation="Horizontal"
 													HorizontalAlignment="Center">
@@ -235,14 +236,45 @@
 						</StackPanel>
 					</StackPanel>
 
-					<StackPanel Background="White" Grid.Row="1">
-						<TextBlock Text="Working on:"
-										   Foreground="gray"
-										   FontSize="12"/>
-						<TextBlock Text="{x:Bind CheckInObject.WorkingOn}"
-										   Style="{ThemeResource SubtitleTextBlockStyle}"
-										   Foreground="gray"/>
+					<StackPanel Background="Gray" Grid.Row="1" Visibility="{Binding SelectedCheckin.WorkingOn, Converter={StaticResource StringLengthToVisibilityConverter}}">
+						<TextBlock x:Name="WorkingOnQuoteTextBlock"
+								   FontFamily="Times New Roman" 
+								   HorizontalAlignment="Center"
+								   Foreground="White"
+								   FontSize="20" 
+								   FontStyle="Italic" 
+								   TextWrapping="WrapWholeWords">
+							<Run Text="&#8220;" />
+							<Run Text="{Binding SelectedCheckin.WorkingOn}" />
+							<Run Text="&#8221;" />
+						</TextBlock>
 					</StackPanel>
+
+					<ItemsControl x:Name="TagsWrapPanel"
+								  Grid.Row="2"
+								  Visibility="{Binding TagCount, Converter={StaticResource AmountToVisibilityConverter}}"
+								  ItemsSource="{Binding Tags}">
+						<ItemsControl.ItemsPanel>
+							<ItemsPanelTemplate>
+								<control:WrapPanel/>
+							</ItemsPanelTemplate>
+						</ItemsControl.ItemsPanel>
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<StackPanel Orientation="Horizontal"
+											VerticalAlignment="Center"
+											Background="#FF00BAFF" 
+											MinWidth="0" 
+											MinHeight="0" 
+											Margin="0,4,4,0">
+									<TextBlock Margin="4,4,4,4"
+											   VerticalAlignment="Center"
+											   Text="{Binding}" 
+											   FontSize="14" />
+								</StackPanel>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
 				</Grid>
 			</SplitView.Content>
 			<SplitView.Pane>
@@ -258,12 +290,12 @@
 						</Grid.ColumnDefinitions>
 
 						<ListView Grid.Row="0"
-							  x:Name="ChatMessagesListView" 
-							  ItemsSource="{x:Bind ChatMessageList}"
-							  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
-							  ItemTemplate="{StaticResource SelectingChatTemplate}"
-							  IsHitTestVisible="False"
-							  IsItemClickEnabled="False">
+								  x:Name="ChatMessagesListView" 
+								  ItemsSource="{x:Bind ChatMessageList}"
+								  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
+								  ItemTemplate="{StaticResource SelectingChatTemplate}"
+								  IsHitTestVisible="False"
+								  IsItemClickEnabled="False">
 							<ListView.ItemContainerStyle>
 								<Style TargetType="ListViewItem">
 									<Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -278,19 +310,19 @@
 							</Grid.ColumnDefinitions>
 
 							<TextBox x:Name="ChatMessageTextBox"
-							 Grid.Column="0"
-							 HorizontalContentAlignment="Stretch"
-							 KeyUp="ChatMessageTextBox_KeyDown"/>
+									 Grid.Column="0"
+									 HorizontalContentAlignment="Stretch"
+									 KeyUp="ChatMessageTextBox_KeyDown"/>
 
 							<Button x:Name="PostMessageButton" 
-							Grid.Column="1"
-							FontFamily="Segoe MDL2 Assets" 
-							Content="&#xE122;" 
-							FontSize="20"
-							Width="48"
-							Height="48"
-							RelativePanel.AlignRightWithPanel="True"
-							Click="PostMessageButton_Click" />
+									Grid.Column="1"
+									FontFamily="Segoe MDL2 Assets" 
+									Content="&#xE122;" 
+									FontSize="20"
+									Width="48"
+									Height="48"
+									RelativePanel.AlignRightWithPanel="True"
+									Click="PostMessageButton_Click" />
 						</Grid>
 					</Grid>
 				</ScrollViewer>

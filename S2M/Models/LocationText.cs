@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace S2M.Models {
-	class LocationText {
+	public class LocationText {
 		public int Id { get; set; } = 0;
 		public int LocationId { get; set; } = 0;
 		public int LanguageId { get; set; } = 0;

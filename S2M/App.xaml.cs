@@ -218,7 +218,7 @@ namespace S2M
 
 		private static void SetAppVariables() {
 			Common.StorageService.SaveSetting("ApiKey", "14257895");
-			Common.StorageService.SaveSetting("ApiUrl", "https://staging.seats2meet.com");
+			Common.StorageService.SaveSetting("ApiUrl", "https://www.seats2meet.com");
 			Common.StorageService.SaveSetting("ChannelId", "1");
 			Common.StorageService.SaveSetting("CountryId", "152");
 		}

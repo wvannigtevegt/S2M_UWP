@@ -418,7 +418,7 @@ namespace S2M.Pages
 			ViewModel.ShowDateTimeCheckin = true;
 			ViewModel.ShowWorkspaceSelection = false;
 
-			await ViewModel.GetLocationCheckIns(ViewModel.Location.Id);
+			await ViewModel.GetLocationCheckIns();
 			await GetLocationOpeningHours();
 		}
 
@@ -473,6 +473,21 @@ namespace S2M.Pages
 				_cts = null;
 				ViewModel.Location = location;
 			}
+		}
+
+		private async void LocationDescriptionHyperLinkButton_Click(object sender, RoutedEventArgs e)
+		{
+			LocationDescriptionPopup.Width = ActualWidth;
+			LocationDescriptionPopup.Height = ActualHeight;
+
+			await ViewModel.GetLocationDescription();
+
+			LocationDescriptionPopup.IsOpen = true;
+		}
+
+		private void CloseLocationDescriptionButton_Click(object sender, RoutedEventArgs e)
+		{
+			LocationDescriptionPopup.IsOpen = false;
 		}
 	}
 

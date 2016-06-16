@@ -120,19 +120,19 @@
 										Click="CancelCheckInButton_Click"
 										Tag="{x:Bind Id}" />
 
-										<TextBlock Text="{x:Bind LocationName}"
-												Visibility="{x:Bind EventId, Mode=TwoWay, Converter={StaticResource AmountToVisibilityConverter}, ConverterParameter=true}"
-												Margin="12,0,0,0"/>
+										<StackPanel Margin="12,0,0,0">
+											<TextBlock Text="{x:Bind LocationName}"
+													Visibility="{x:Bind EventId, Mode=TwoWay, Converter={StaticResource AmountToVisibilityConverter}, ConverterParameter=true}"/>
 
-										<TextBlock Text="{x:Bind EventName}"
-												Visibility="{x:Bind EventId, Mode=TwoWay, Converter={StaticResource AmountToVisibilityConverter}}"
-												Margin="12,0,0,0"/>
+											<TextBlock Text="{x:Bind EventName}"
+													Visibility="{x:Bind EventId, Mode=TwoWay, Converter={StaticResource AmountToVisibilityConverter}}"/>
 
-										<TextBlock Text="{x:Bind StartTimeStamp, Converter={StaticResource TimestampDateConverter}}" />
+											<TextBlock Text="{x:Bind StartTimeStamp, Converter={StaticResource TimestampDateConverter}}" />
+										</StackPanel>
 									</StackPanel>
 								</DataTemplate>
 							</ListView.ItemTemplate>
-						</ListView>
+						</ListView>  
 
 						<StackPanel x:Name="NoCheckinsStackPanel"
 								Margin="0,24,0,12"

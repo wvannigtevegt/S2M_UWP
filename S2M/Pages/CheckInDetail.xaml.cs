@@ -1,5 +1,6 @@
 ﻿using S2M.Common;
 using S2M.Models;
+using S2M.ViewModel;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -10,8 +11,6 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
-
 namespace S2M.Pages {
 	/// <summary>
 	/// An empty page that can be used on its own or navigated to within a Frame.
@@ -19,58 +18,54 @@ namespace S2M.Pages {
 	public sealed partial class CheckInDetail : Page {
 		public ObservableCollection<ChatMessage> ChatMessageList { get; set; }
 		public Chat ChatObject { get; set; }
-		public CheckIn CheckInObject { get; set; }
-		public ObservableCollection<Activity> ActivityList { get; set; }
 
 		private DispatcherTimer _timer;
+
+		public CheckInDetailViewModel ViewModel { get; set; }
 
 		public CheckInDetail() {
 			this.InitializeComponent();
 			
-			ActivityList = new ObservableCollection<Activity>();
 			ChatMessageList = new ObservableCollection<ChatMessage>();
+
+			ViewModel = new CheckInDetailViewModel();
+			DataContext = ViewModel;
 		}
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e) {
 			var checkInObject = (Models.CheckIn)e.Parameter;
 			if (checkInObject != null) {
-				CheckInObject = checkInObject;
+				ViewModel.SelectedCheckin = checkInObject;
+				await ViewModel.GetPublicProfile();
+
+				var tags = checkInObject.Tags.Split(',').ToList();
+				foreach (var tag in tags)
+				{
+					if (!string.IsNullOrEmpty(tag))
+					{
+						ViewModel.Tags.Add(tag);
+					}
+				}
+					
+				ViewModel.TagCount = ViewModel.Tags.Count();
 			}
 		}
 
 		private async void Page_Loaded(object sender, RoutedEventArgs e) {			
-			CheckInNameTextBlock.Text = CheckInObject.ProfileName;
-			CheckInImageBrush.UriSource = new Uri(CheckInObject.ProfileImage_150);
-			//CheckInWorkingOnTextBlock.Text = CheckInObject.WorkingOn;
-
-			CheckInLocationTextBlock.Text = CheckInObject.LocationName;
+			//CheckInImageBrush.UriSource = new Uri(ViewModel.SelectedCheckin.ProfileImage_150);
 			
-			if (CheckInObject.IsConfirmed && !CheckInObject.HasLeft)
-			{
-				IsConfirmedFontIcon.Foreground = new SolidColorBrush(Colors.Green);
-			}
-
-			if (CheckInObject.HasLeft)
-			{
-				IsConfirmedFontIcon.Foreground = new SolidColorBrush(Colors.Gray);
-			}
-
 			var authenticatedProfile = await Common.StorageService.RetrieveObjectAsync<Models.Profile>("Profile");
-			if (CheckInObject.ProfileId == authenticatedProfile.Id)
+			if (ViewModel.SelectedCheckin.ProfileId == authenticatedProfile.Id)
 			{
 				CheckInContactStackPanel.Visibility = Visibility.Collapsed;
 			}
-
-			//CheckInDateTextBlock.Text = DateService.ConvertFromUnixTimestamp(CheckInObject.StartTimeStamp).ToString("yyyy-MM-dd");
-			CheckInTimeTextBlock.Text = DateService.ConvertFromUnixTimestamp(CheckInObject.StartTimeStamp).ToLocalTime().ToString("HH:mm") + " - " +
-											DateService.ConvertFromUnixTimestamp(CheckInObject.EndTimeStamp).ToLocalTime().ToString("HH:mm");
 
 			GetCheckInChat();
 		}
 
 		private async void GetCheckInChat()
 		{
-			ChatObject = await Chat.CreateChat(CheckInObject.ProfileId);
+			ChatObject = await Chat.CreateChat(ViewModel.SelectedCheckin.ProfileId);
 			if (ChatObject != null)
 			{
 				foreach (var message in ChatObject.Messages)
@@ -92,7 +87,7 @@ namespace S2M.Pages {
 		private async void StartChatButton_Click(object sender, RoutedEventArgs e) {
 			if (ChatObject == null)
 			{
-				ChatObject = await Chat.CreateChat(CheckInObject.ProfileId);
+				ChatObject = await Chat.CreateChat(ViewModel.SelectedCheckin.ProfileId);
 			}
 			if (ChatObject != null)
 			{
@@ -109,7 +104,7 @@ namespace S2M.Pages {
 		{
 			var criteria = new LocationDetailPageCriteria
 			{
-				LocationId = CheckInObject.LocationId,
+				LocationId = ViewModel.SelectedCheckin.LocationId,
 				Location = null
 			};
 
