@@ -158,13 +158,6 @@ namespace S2M
 
 			switch (page)
 			{
-				case "WorkingOn":
-					HomeRadioButton.IsChecked = true;
-					NavigationHeaderTextBlock.Text = "";
-					NavigationFrame.Navigate(typeof(Pages.WorkingOn));
-
-					SetSearchAvailabilityStatus(false);
-					break;
 				case "Home":
 					HomeRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Recommended for you";
