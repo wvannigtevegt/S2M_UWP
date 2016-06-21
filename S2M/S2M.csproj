@@ -115,6 +115,9 @@
     <Compile Include="Controls\ActivityTemplate.xaml.cs">
       <DependentUpon>ActivityTemplate.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ChatControl.xaml.cs">
+      <DependentUpon>ChatControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ChatMessageTemplate.xaml.cs">
       <DependentUpon>ChatMessageTemplate.xaml</DependentUpon>
     </Compile>
@@ -251,6 +254,7 @@
     <Compile Include="ViewModel\CheckInDetailViewModel.cs" />
     <Compile Include="ViewModel\CheckInFinalViewModel.cs" />
     <Compile Include="ViewModel\CheckInsViewModel.cs" />
+    <Compile Include="ViewModel\EventsViewModel.cs" />
     <Compile Include="ViewModel\HomeViewModel.cs" />
     <Compile Include="ViewModel\LocationDetailViewModel.cs" />
     <Compile Include="ViewModel\LocationsViewModel.cs" />
@@ -273,6 +277,10 @@
     <Content Include="Assets\Square150x150Logo.scale-125.png" />
     <Content Include="Assets\Square150x150Logo.scale-150.png" />
     <Content Include="Assets\Square150x150Logo.scale-400.png" />
+    <Content Include="Assets\Square150x150Logo.scale-600.png" />
+    <Content Include="Assets\Square16x16Logo.scale-100.png" />
+    <Content Include="Assets\Square176x176Logo.scale-200.png" />
+    <Content Include="Assets\Square256x256Logo.scale-100.png" />
     <Content Include="Assets\Square310x310Logo.scale-100.png" />
     <Content Include="Assets\Square310x310Logo.scale-125.png" />
     <Content Include="Assets\Square310x310Logo.scale-150.png" />
@@ -312,6 +320,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Controls\ActivityTemplate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ChatControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

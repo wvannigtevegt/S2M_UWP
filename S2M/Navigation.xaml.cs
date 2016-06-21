@@ -246,18 +246,12 @@ namespace S2M
 					EventsRadioButton.IsChecked = true;
 					NavigationHeaderTextBlock.Text = "Check-in";
 
-					//var chatDetailPageCriteria = new Pages.ChatDetailPageCriteria
-					//{
-					//	Chat = null,
-					//	ChatId = id
-					//};
 					NavigationFrame.Navigate(typeof(Pages.LocationCheckInNFC), id);
 
 					SetSearchAvailabilityStatus(false);
 					break;
 			}
 
-			//ResetPageHeader();
 		}
 
 		private void SetSearchAvailabilityStatus(bool isAvailable)

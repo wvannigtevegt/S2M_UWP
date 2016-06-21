@@ -31,6 +31,7 @@
 			   Stretch="UniformToFill"
 			   VerticalAlignment="Top"
 			   HorizontalAlignment="Left"
+			   CacheMode="BitmapCache"
 			   Margin="4,4,4,4"
 			   Width="80"
 			   Height="60"

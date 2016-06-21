@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -20,6 +21,23 @@ namespace S2M.Models
 		public string ProfileName { get; set; }
 		public string ProfileImage { get; set; }
 		public string Tags { get; set; }
+		public List<string> TagArray
+		{
+			get
+			{
+				var tagArray = new List<string>();
+				if (!string.IsNullOrEmpty(Tags))
+				{
+					var tags = Tags.Split(',').ToList();
+					
+					foreach (var tag in tags)
+					{
+						tagArray.Add(tag);
+					}
+				}
+				return tagArray;
+			}
+		}
 		public string WorkingOn { get; set; }
 		public int LocationId { get; set; }
 		public string LocationName { get; set; }

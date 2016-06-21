@@ -2,30 +2,17 @@
 using S2M.Models;
 using S2M.ViewModel;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
-
-namespace S2M.Pages {
-	/// <summary>
-	/// An empty page that can be used on its own or navigated to within a Frame.
-	/// </summary>
+namespace S2M.Pages
+{
 	public sealed partial class CheckIns : Page {
 		public CheckInsViewModel ViewModel { get; set; }
 		public double Latitude { get; set; }
@@ -56,7 +43,6 @@ namespace S2M.Pages {
 						ViewModel.Checkins.Add(checkIn);
 					}
 				}
-
 
 				SearchTerm = criteria.SearchTerm;
 				if (SearchTerm == null)
@@ -93,16 +79,8 @@ namespace S2M.Pages {
 			ViewModel.Dates = dates;
 			ViewModel.SelectedDate = dates[0];
 
-			//if (!ViewModel.Checkins.Any())
-			//{
-			//	CheckInsProgressRing.IsActive = true;
-			//	CheckInsProgressRing.Visibility = Visibility.Visible;
-
-			//	await LoadCheckInsAsync(SearchTerm);
-
-			//	CheckInsProgressRing.IsActive = false;
-			//	CheckInsProgressRing.Visibility = Visibility.Collapsed;
-			//}
+			ViewModel.PageIsLoaded = true;
+			ViewModel.LoadCheckInsAsync();
 		}
 
 		private async void DatesFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -110,48 +88,48 @@ namespace S2M.Pages {
 			await ViewModel.LoadCheckInsAsync();
 		}
 
-		private async Task LoadCheckInsAsync(string searchTerm = "") {
-			_cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
+		//private async Task LoadCheckInsAsync(string searchTerm = "") {
+		//	_cts = new CancellationTokenSource();
+		//	CancellationToken token = _cts.Token;
 
-			ViewModel.Checkins.Clear();
+		//	ViewModel.Checkins.Clear();
 
-			try {
-				if (Latitude == 0 || Longitude == 0)
-				{
-					var accessStatus = await Geolocator.RequestAccessAsync();
-					switch (accessStatus)
-					{
-						case GeolocationAccessStatus.Allowed:
+		//	try {
+		//		if (Latitude == 0 || Longitude == 0)
+		//		{
+		//			var accessStatus = await Geolocator.RequestAccessAsync();
+		//			switch (accessStatus)
+		//			{
+		//				case GeolocationAccessStatus.Allowed:
 
-							try
-							{
-								var geoposition = await GeoService.GetSinglePositionAsync(token);
-								Latitude = geoposition.Point.Position.Latitude;
-								Longitude = geoposition.Point.Position.Longitude;
-							}
-							catch (Exception) { }
+		//					try
+		//					{
+		//						var geoposition = await GeoService.GetSinglePositionAsync(token);
+		//						Latitude = geoposition.Point.Position.Latitude;
+		//						Longitude = geoposition.Point.Position.Longitude;
+		//					}
+		//					catch (Exception) { }
 
-							break;
-						case GeolocationAccessStatus.Denied:
-							//ShowLocationDistance = false;
-							break;
-					}
-				}
+		//					break;
+		//				case GeolocationAccessStatus.Denied:
+		//					//ShowLocationDistance = false;
+		//					break;
+		//			}
+		//		}
 
-				CheckInsProgressRing.IsActive = true;
-				CheckInsProgressRing.Visibility = Visibility.Visible;
+		//		CheckInsProgressRing.IsActive = true;
+		//		CheckInsProgressRing.Visibility = Visibility.Visible;
 
-				await CheckIn.GetCheckInsAsync(token, ViewModel.Checkins, ViewModel.SelectedDate.Date, 0, 0, searchTerm, Latitude, Longitude, 0, "", 0, 0, true);
+		//		await CheckIn.GetCheckInsAsync(token, ViewModel.Checkins, ViewModel.SelectedDate.Date, 0, 0, searchTerm, Latitude, Longitude, 0, "", 0, 0, true);
 
-				CheckInsProgressRing.IsActive = false;
-				CheckInsProgressRing.Visibility = Visibility.Collapsed;
-			}
-			catch (Exception) { }
-			finally {
-				_cts = null;
-			}
-		}
+		//		CheckInsProgressRing.IsActive = false;
+		//		CheckInsProgressRing.Visibility = Visibility.Collapsed;
+		//	}
+		//	catch (Exception) { }
+		//	finally {
+		//		_cts = null;
+		//	}
+		//}
 
 		private async void CheckInsGridView_ItemClick(object sender, ItemClickEventArgs e) {
 			var checkIn = (CheckIn)e.ClickedItem;

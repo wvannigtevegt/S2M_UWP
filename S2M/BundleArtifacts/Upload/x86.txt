@@ -1,1 +1,1 @@
-MainPackage=C:\Phone projects\S2M\S2M\bin\x86\Release\Upload\S2M_0.9.3.0_x86.appx
+MainPackage=C:\Phone projects\S2M\S2M\bin\x86\Release\Upload\S2M_0.9.4.0_x86.appx

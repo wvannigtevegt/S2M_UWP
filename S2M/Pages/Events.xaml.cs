@@ -1,5 +1,7 @@
 ﻿using S2M.Models;
+using S2M.ViewModel;
 using System.Collections.ObjectModel;
+using System.Threading;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -11,19 +13,22 @@ namespace S2M.Pages
 	/// An empty page that can be used on its own or navigated to within a Frame.
 	/// </summary>
 	public sealed partial class Events : Page {
-		public ObservableCollection<EventCalendar> EventList { get; set; }
+		public EventsViewModel ViewModel { get; set; }
+
+		private CancellationTokenSource _cts = null;
 
 		public Events() {
 			this.InitializeComponent();
 
-			EventList = new ObservableCollection<EventCalendar>();
+			ViewModel = new EventsViewModel();
+			DataContext = ViewModel;
 		}
 
 		private async void Page_Loaded(object sender, RoutedEventArgs e) {
 			EventsProgressRing.IsActive = true;
 			EventsProgressRing.Visibility = Visibility.Visible;
 
-			await EventCalendar.GetEventsAsync(EventList);
+			await ViewModel.LoadEventsAsync();
 
 			EventsProgressRing.IsActive = false;
 			EventsProgressRing.Visibility = Visibility.Collapsed;

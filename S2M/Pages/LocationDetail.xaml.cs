@@ -32,6 +32,7 @@ namespace S2M.Pages
 			ViewModel.EnableButton = true;
 
 			DataContext = ViewModel;
+
 		}
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e)
@@ -104,7 +105,7 @@ namespace S2M.Pages
 				i++;
 			}
 
-			if (_selectedDate != null)
+			if (!string.IsNullOrEmpty(_selectedDate))
 			{
 				var locationDays = dates.Where(d => d.Date.ToString("yyyy-MM-dd") == _selectedDate);
 				if (locationDays.Any())
@@ -137,6 +138,8 @@ namespace S2M.Pages
 			ViewModel.IsOpen = false;
 			ViewModel.AlreadyCheckedin = true;
 			ViewModel.IsBookable = false;
+
+			var message = "";
 
 			try
 			{
@@ -182,11 +185,11 @@ namespace S2M.Pages
 
 					if (!ViewModel.IsOpen)
 					{
-						ViewModel.AvailabilityMessage = "Location is closed!";
+						message = "Location is closed!";
 					}
 					if (ViewModel.AlreadyCheckedin)
 					{
-						ViewModel.AvailabilityMessage = "You're already checked-in";
+						message = "You're already checked-in";
 					}
 				}
 			}
@@ -196,7 +199,29 @@ namespace S2M.Pages
 				_cts = null;
 			}
 
-			SetDateTimeTextBoxes();
+			if (ViewModel.IsBookable)
+			{
+				SetDateTimeTextBoxes();
+			}
+			
+			if (!ViewModel.IsBookable)
+			{
+				SetAvailabilityMessage(message);
+			}
+		}
+
+		private void SetAvailabilityMessage(string message)
+		{
+			AvailabilityMessageStackPanelEnterStoryboard.Begin();
+
+			ViewModel.AvailabilityMessage = message;
+		}
+
+		private void SetDateTimeTextBoxes()
+		{
+			AvailabilityMessageStackPanelExitStoryboard.Begin();
+
+			TimeTextBlock.Text = string.Format("{0:hh\\:mm}", ViewModel.StartTime) + " - " + string.Format("{0:hh\\:mm}", ViewModel.EndTime);
 		}
 
 		private CheckIn CheckIfProfilehasCheckIn(DateTime date)
@@ -289,11 +314,6 @@ namespace S2M.Pages
 			}
 		}
 
-		private void SetDateTimeTextBoxes()
-		{
-			TimeTextBlock.Text = string.Format("{0:hh\\:mm}", ViewModel.StartTime) + " - " + string.Format("{0:hh\\:mm}", ViewModel.EndTime);
-		}
-
 		private async Task CheckLocationAvailability()
 		{
 			_cts = new CancellationTokenSource();
@@ -316,7 +336,7 @@ namespace S2M.Pages
 					ViewModel.AvailableUnits = new ObservableCollection<AvailableUnit>();
 
 					var availableLocation = availability.Locations.First();
-					foreach(var unit in availableLocation.Units)
+					foreach (var unit in availableLocation.Units)
 					{
 						ViewModel.AvailableUnits.Add(unit);
 					}
@@ -339,10 +359,11 @@ namespace S2M.Pages
 				else
 				{
 					ViewModel.ShowDateTimeCheckin = false;
-					ViewModel.AvailabilityMessage = "No availability, please try an other date or time";
+					//ViewModel.AvailabilityMessage = ;
+					SetAvailabilityMessage("No availability, please try an other date or time");
 				}
 
-				
+
 			}
 			catch (Exception ex) { }
 			finally
@@ -412,6 +433,8 @@ namespace S2M.Pages
 
 		private async void DatesFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
+			AvailabilityMessageStackPanelExitStoryboard.Begin();
+
 			ViewModel.AvailabilityMessage = "";
 			ViewModel.AvailableUnits = null;
 			ViewModel.EnableButton = true;

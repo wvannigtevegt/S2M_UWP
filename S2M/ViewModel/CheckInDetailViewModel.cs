@@ -10,10 +10,17 @@ namespace S2M.ViewModel
 {
 	public class CheckInDetailViewModel : NotificationBase
 	{
+		private Chat _chatObject = new Chat();
 		private CheckIn _selectedCheckIn = new CheckIn();
 		private PublicProfile _publicProfile = new PublicProfile();
 		private ObservableCollection<string> _tags = new ObservableCollection<string>();
 		private int _tagCount;
+
+		public Chat ChatObject
+		{
+			get { return _chatObject; }
+			set { SetProperty(_chatObject, value, () => _chatObject = value); }
+		}
 
 		public PublicProfile PublicProfile
 		{

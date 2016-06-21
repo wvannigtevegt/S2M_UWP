@@ -183,6 +183,7 @@ namespace S2M.Pages
 
 		private void CloseMessageHyperLinkButton_Click(object sender, RoutedEventArgs e)
 		{
+			SystemMessageRelativePanelExitStoryboard.Begin();
 			ViewModel.IsNewCheckin = false;
 		}
 

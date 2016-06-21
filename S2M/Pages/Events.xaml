@@ -17,7 +17,7 @@
 	</Page.Resources>
 
 	<Grid>
-		<GridView x:Name="EventsGridView" ItemsSource="{x:Bind EventList}" IsItemClickEnabled="True" ItemClick="EventsGridView_ItemClick">
+		<GridView x:Name="EventsGridView" ItemsSource="{Binding EventList}" IsItemClickEnabled="True" ItemClick="EventsGridView_ItemClick">
 			<GridView.ItemContainerTransitions>
 				<TransitionCollection>
 					<EntranceThemeTransition IsStaggeringEnabled="True" 

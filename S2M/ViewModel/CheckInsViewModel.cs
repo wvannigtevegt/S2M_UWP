@@ -16,6 +16,7 @@ namespace S2M.ViewModel
 		private double _latitude;
 		private double _longitude;
 		private int _nrOfCheckins;
+		private bool _pageIsLoaded;
 		private LocationDay _selectedDate = new LocationDay();
 
 		public ObservableCollection<CheckIn> Checkins
@@ -51,6 +52,15 @@ namespace S2M.ViewModel
 			set { SetProperty(_nrOfCheckins, value, () => _nrOfCheckins = value); }
 		}
 
+		public bool PageIsLoaded
+		{
+			get
+			{
+				return _pageIsLoaded;
+			}
+			set { SetProperty(_pageIsLoaded, value, () => _pageIsLoaded = value); }
+		}
+
 		public LocationDay SelectedDate
 		{
 			get { return _selectedDate; }
@@ -59,29 +69,32 @@ namespace S2M.ViewModel
 
 		public async Task LoadCheckInsAsync(string searchTerm = "")
 		{
-			var _cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
-
-			Checkins.Clear();
-			var newCheckIns = new ObservableCollection<CheckIn>();
-
-			try
+			if (PageIsLoaded)
 			{
-				await CheckIn.GetCheckInsAsync(token, newCheckIns, SelectedDate.Date, 0, 0, searchTerm, Latitude, Longitude, 0, "", 0, 0, true);
+				var _cts = new CancellationTokenSource();
+				CancellationToken token = _cts.Token;
 
-				foreach (var newCheckIn in newCheckIns)
+				Checkins.Clear();
+				var newCheckIns = new ObservableCollection<CheckIn>();
+
+				try
 				{
-					if (!CheckIfCheckInExistsInList(newCheckIn))
+					await CheckIn.GetCheckInsAsync(token, newCheckIns, SelectedDate.Date, 0, 0, searchTerm, Latitude, Longitude, 0, "", 0, 0, true);
+
+					foreach (var newCheckIn in newCheckIns)
 					{
-						Checkins.Add(newCheckIn);
+						if (!CheckIfCheckInExistsInList(newCheckIn))
+						{
+							Checkins.Add(newCheckIn);
+						}
 					}
+					NrOfCheckins = Checkins.Count();
 				}
-				NrOfCheckins = Checkins.Count();
-			}
-			catch (Exception ex) { }
-			finally
-			{
-				_cts = null;
+				catch (Exception ex) { }
+				finally
+				{
+					_cts = null;
+				}
 			}
 		}
 

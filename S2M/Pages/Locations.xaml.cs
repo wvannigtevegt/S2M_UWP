@@ -159,14 +159,6 @@ namespace S2M.Pages
 			Frame.Navigate(typeof(LocationDetail), criteria);
 		}
 
-		//private void LocationsAutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args) {
-		//	LocationsAutoSuggestBox.ItemsSource = LocationList.Where(s => s.Name.ToLower().StartsWith(sender.Text.ToLower())).Select(s => s.Name).ToList();
-		//}
-
-		//private void LocationsAutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args) {
-		//	SearchLocations(sender.Text);
-		//}
-
 		private async void SearchLocations(string searchTerm)
 		{
 			ViewModel.LocationList.Clear();

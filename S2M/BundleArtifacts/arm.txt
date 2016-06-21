@@ -1,6 +1,6 @@
-MainPackage=C:\Phone projects\S2M\S2M\bin\ARM\Release\S2M_0.9.3.0_ARM.appx
-SymbolPackage=C:\Phone projects\S2M\S2M\AppPackages\S2M_0.9.3.0_Test\S2M_0.9.3.0_ARM.appxsym
-ResourcePack=C:\Phone projects\S2M\S2M\bin\ARM\Release\S2M_0.9.3.0_scale-100.appx
-ResourcePack=C:\Phone projects\S2M\S2M\bin\ARM\Release\S2M_0.9.3.0_scale-125.appx
-ResourcePack=C:\Phone projects\S2M\S2M\bin\ARM\Release\S2M_0.9.3.0_scale-150.appx
-ResourcePack=C:\Phone projects\S2M\S2M\bin\ARM\Release\S2M_0.9.3.0_scale-400.appx
+MainPackage=C:\Phone projects\S2M\S2M\bin\ARM\Release\S2M_0.9.4.0_ARM.appx
+SymbolPackage=C:\Phone projects\S2M\S2M\AppPackages\S2M_0.9.4.0_Test\S2M_0.9.4.0_ARM.appxsym
+ResourcePack=C:\Phone projects\S2M\S2M\bin\ARM\Release\S2M_0.9.4.0_scale-100.appx
+ResourcePack=C:\Phone projects\S2M\S2M\bin\ARM\Release\S2M_0.9.4.0_scale-125.appx
+ResourcePack=C:\Phone projects\S2M\S2M\bin\ARM\Release\S2M_0.9.4.0_scale-150.appx
+ResourcePack=C:\Phone projects\S2M\S2M\bin\ARM\Release\S2M_0.9.4.0_scale-400.appx

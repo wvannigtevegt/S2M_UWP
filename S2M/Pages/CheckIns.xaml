@@ -105,7 +105,7 @@
 
 			<GridView.ItemTemplate>
 				<DataTemplate x:DataType="data:CheckIn">
-					<control:CheckInTemplate />
+					<control:CheckInTemplate ShowLocation="True" />
 				</DataTemplate>
 			</GridView.ItemTemplate>
 			<GridView.ItemContainerStyle>
