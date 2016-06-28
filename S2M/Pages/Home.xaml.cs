@@ -49,6 +49,7 @@ namespace S2M.Pages
 			await GetCurrentCheckin();
 
 			await GetNearbyLocations();
+			await GetTodaysEvents();
 		}
 		
 		private async Task GetCurrentCheckin()
@@ -60,6 +61,11 @@ namespace S2M.Pages
 		{
 			await ViewModel.GetNearbyLocations();
 			await ViewModel.GetFavoriteLocations();
+		}
+
+		private async Task GetTodaysEvents()
+		{
+			await ViewModel.GetTodaysEvents();
 		}
 
 		private void CurrentCheckinGrid_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
@@ -108,6 +114,13 @@ namespace S2M.Pages
 			};
 
 			Frame.Navigate(typeof(LocationDetail), criteria);
+		}
+
+		private void EventsGridView_ItemClick(object sender, ItemClickEventArgs e)
+		{
+			var eventObj = ((EventCalendar)e.ClickedItem);
+
+			Frame.Navigate(typeof(EventDetail), eventObj);
 		}
 	}
 }

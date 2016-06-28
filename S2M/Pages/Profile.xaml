@@ -175,6 +175,7 @@
 					</ListView>
 				</PivotItem>
 				<PivotItem Header="Contacts">
+					
 				</PivotItem>
 			</Pivot>
 

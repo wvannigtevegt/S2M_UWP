@@ -10,13 +10,8 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
-
 namespace S2M
 {
-	/// <summary>
-	/// An empty page that can be used on its own or navigated to within a Frame.
-	/// </summary>
 	public sealed partial class MainPage : Page
 	{
 		private CancellationTokenSource _cts = null;
@@ -27,7 +22,7 @@ namespace S2M
 			this.InitializeComponent();
 		}
 
-		protected async override void OnNavigatedTo(NavigationEventArgs e)
+		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
 			var criteria = (NavigationPageCriteria)e.Parameter;
 			if (criteria != null)
@@ -52,7 +47,6 @@ namespace S2M
 			if (ConnectionHelper.CheckForInternetAccess())
 			{
 				GetCredentialsFromVault();
-				//ScheduleNotificationButton(); TODO: Make correct service for tile information
 			}
 			else
 			{
@@ -185,13 +179,9 @@ namespace S2M
 
 			var result = await hub.RegisterNativeAsync(channel.Uri, tags);
 
-			// Displays the registration ID so you know it was successful
 			if (result.RegistrationId != null)
 			{
 				StorageService.SaveSetting("RecieveNotifications", "1");
-				//var dialog = new MessageDialog("Registration successful: " + result.RegistrationId);
-				//dialog.Commands.Add(new UICommand("OK"));
-				//await dialog.ShowAsync();
 			}
 
 			_cts = new CancellationTokenSource();
@@ -212,14 +202,5 @@ namespace S2M
 		{
 			Frame.Navigate(typeof(Pages.Register));
 		}
-
-		//private async void ScheduleNotificationButton() {
-		//	//var tileContent = new Uri(Common.StorageService.LoadSetting("ApiUrl") + "/api/livetile/nrofcheckins");
-		//	var tileContent = new Uri("http://localhost:50210/api/livetile/nrofcheckins");
-		//	var requestedInterval = PeriodicUpdateRecurrence.HalfHour;
-
-		//	var updater = TileUpdateManager.CreateTileUpdaterForApplication();
-		//	updater.StartPeriodicUpdate(tileContent, requestedInterval);
-		//}
 	}
 }

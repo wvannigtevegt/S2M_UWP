@@ -127,6 +127,9 @@
     <Compile Include="Controls\CheckInTemplate.xaml.cs">
       <DependentUpon>CheckInTemplate.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ContactControl.xaml.cs">
+      <DependentUpon>ContactControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\DateTimeControl.xaml.cs">
       <DependentUpon>DateTimeControl.xaml</DependentUpon>
     </Compile>
@@ -180,6 +183,8 @@
     <Compile Include="Models\CheckInKnowledgeTagResult.cs" />
     <Compile Include="Models\CheckInResult.cs" />
     <Compile Include="Models\ChosenUnit.cs" />
+    <Compile Include="Models\Contact.cs" />
+    <Compile Include="Models\ContactResult.cs" />
     <Compile Include="Models\Country.cs" />
     <Compile Include="Models\CurrentCheckIn.cs" />
     <Compile Include="Models\EventCalendar.cs" />
@@ -254,8 +259,10 @@
     <Compile Include="ViewModel\CheckInDetailViewModel.cs" />
     <Compile Include="ViewModel\CheckInFinalViewModel.cs" />
     <Compile Include="ViewModel\CheckInsViewModel.cs" />
+    <Compile Include="ViewModel\EventDetailViewModel.cs" />
     <Compile Include="ViewModel\EventsViewModel.cs" />
     <Compile Include="ViewModel\HomeViewModel.cs" />
+    <Compile Include="ViewModel\LocationCheckInNFCViewModel.cs" />
     <Compile Include="ViewModel\LocationDetailViewModel.cs" />
     <Compile Include="ViewModel\LocationsViewModel.cs" />
     <Compile Include="ViewModel\ProfileViewModel.cs" />
@@ -336,6 +343,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\CheckInTemplate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ContactControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

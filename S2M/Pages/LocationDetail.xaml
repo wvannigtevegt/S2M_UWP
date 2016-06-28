@@ -174,7 +174,7 @@
 			</StackPanel>
 
 			<Grid x:Name="AvailabilityGrid"
-				  Background="#FF00BAFF"
+				  Background="#FF87D628"
 				  Grid.Row="1"
 				  Grid.Column="0">
 				<Grid.RowDefinitions>
@@ -305,15 +305,28 @@
 				</StackPanel>
 			</Grid>
 
+			<ProgressRing x:Name="LocationCheckInsProgressRing"
+						  Grid.Column="0"
+						  Grid.Row="2" 
+						  Width="48"
+						  Height="48"
+						  Margin="0,24,0,12"
+						  Foreground="DarkGray"
+						  VerticalAlignment="Top"
+						  HorizontalAlignment="Center"
+						  IsActive="{Binding ShowCheckinsSpinner}"
+						  Visibility="{Binding ShowCheckinsSpinner, Converter={StaticResource VisibilityConverter}}"/>
+			
 			<GridView x:Name="LocationCheckInsGridView"
 					  Grid.Column="0"
 					  Grid.Row="2"
 					  Margin="0,4,0,0"
 					  Background="LightGray"
-					  ItemsSource="{x:Bind ViewModel.Checkins}" 
+					  ItemsSource="{Binding Checkins}" 
 					  IsItemClickEnabled="True" 
 					  ItemClick="LocationCheckInsGridView_ItemClick"
 					  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
+					  Visibility="{Binding ShowCheckinsSpinner, Converter={StaticResource VisibilityConverter}, ConverterParameter=True}"
 					  HorizontalContentAlignment="Stretch">
 				<GridView.ItemContainerTransitions>
 					<TransitionCollection>
@@ -340,7 +353,7 @@
 			<StackPanel x:Name="NoCheckinsStackPanel"
 						Grid.Row="2"
 						Margin="0,24,0,12"
-						Visibility="{x:Bind ViewModel.NrOfCheckins, Mode=TwoWay, Converter={StaticResource AmountToVisibilityConverter}, ConverterParameter=true}">
+						Visibility="{Binding ShowNoCheckins, Converter={StaticResource VisibilityConverter}}">
 				<FontIcon x:Name="NoCheckinsFontIcon"
 						  HorizontalAlignment="Center"
 						  FontFamily="Segoe MDL2 Assets"
@@ -367,6 +380,10 @@
 						<Setter Target="LocationNameStackPanel.(Grid.ColumnSpan)" Value="2" />
 						<Setter Target="AvailabilityGrid.(Grid.ColumnSpan)" Value="2" />
 
+						<Setter Target="LocationCheckInsProgressRing.(Grid.Column)" Value="0" />
+						<Setter Target="LocationCheckInsProgressRing.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="LocationCheckInsProgressRing.(Grid.Row)" Value="2" />
+						
 						<Setter Target="LocationCheckInsGridView.(Grid.Column)" Value="0" />
 						<Setter Target="LocationCheckInsGridView.(Grid.ColumnSpan)" Value="2" />
 						<Setter Target="LocationCheckInsGridView.(Grid.Row)" Value="2" />
@@ -385,6 +402,10 @@
 					<VisualState.Setters>
 						<Setter Target="LocationNameStackPanel.(Grid.ColumnSpan)" Value="1" />
 						<Setter Target="AvailabilityGrid.(Grid.ColumnSpan)" Value="1" />
+
+						<Setter Target="LocationCheckInsProgressRing.(Grid.Column)" Value="1" />
+						<Setter Target="LocationCheckInsProgressRing.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="LocationCheckInsProgressRing.(Grid.Row)" Value="0" />
 
 						<Setter Target="LocationCheckInsGridView.(Grid.Column)" Value="1" />
 						<Setter Target="LocationCheckInsGridView.(Grid.ColumnSpan)" Value="1" />

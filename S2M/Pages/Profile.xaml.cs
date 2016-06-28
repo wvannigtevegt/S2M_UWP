@@ -136,7 +136,7 @@ namespace S2M.Pages
 
 		private async Task GetProfileContacts()
 		{
-
+			await ViewModel.GetProfileContacts();
 		}
 
 		private void CheckinsListView_ItemClick(object sender, ItemClickEventArgs e)
@@ -167,6 +167,11 @@ namespace S2M.Pages
 
 				Frame.Navigate(typeof(ChatDetail), criteria);
 			}
+		}
+
+		private void ContactsListView_ItemClick(object sender, ItemClickEventArgs e)
+		{
+
 		}
 	}
 }

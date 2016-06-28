@@ -4,14 +4,264 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:S2M.Pages"
 	xmlns:control="using:S2M.Controls"
+	xmlns:converters="using:S2M.Converters"
 	xmlns:data="using:S2M.Models"
+	xmlns:viewModel="using:S2M.ViewModel"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	Loaded="Page_Loaded"
     mc:Ignorable="d">
 
+	<Page.Transitions>
+		<TransitionCollection>
+			<NavigationThemeTransition>
+				<NavigationThemeTransition.DefaultNavigationTransitionInfo>
+					<SlideNavigationTransitionInfo/>
+				</NavigationThemeTransition.DefaultNavigationTransitionInfo>
+			</NavigationThemeTransition>
+		</TransitionCollection>
+	</Page.Transitions>
+
+	<Page.Resources>
+		<converters:DateTimeFormatConverter x:Key="DateTimeConverter" />
+		<converters:BooleanToVisibilityConverter x:Key="VisibilityConverter" />
+		<converters:SelectedLegendItemToColorConverter x:Key="SelectedDateToColorConverter" />
+		<converters:StringConverter x:Key="DateFormatConverter" />
+		<converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+		<converters:AmountToVisibilityConverter x:Key="AmountToVisibilityConverter" />
+		<converters:StringLengthToVisibilityConverter x:Key="StringLengthToVisibilityConverter" />
+
+		<ItemsPanelTemplate x:Key="ItemsPanelTemplate">
+			<ItemsStackPanel />
+		</ItemsPanelTemplate>
+	</Page.Resources>
+
 	<ScrollViewer VerticalScrollMode="Auto">
-		<RelativePanel>
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+
+			<StackPanel x:Name="EventNameStackPanel" 
+						Grid.Row="0"
+						Background="DarkGray"
+						Orientation="Vertical">
+
+				<Image x:Name="LocationImage" 
+					   Margin="0,36,0,12"
+					   Stretch="UniformToFill"
+					   HorizontalAlignment="Center" 
+					   VerticalAlignment="Center"
+					   Source="{Binding Event.LocationImage_320}"
+					   Width="320"
+					   Height="240"/>
+
+				<TextBlock x:Name="EventNameTextBlock"
+						   Foreground="White"
+						   Text="{Binding Event.Name}"
+						   HorizontalAlignment="Center" 
+						   Style="{ThemeResource SubtitleTextBlockStyle}" />
+
+				
+
+				<TextBlock x:Name="EventLocationTextBlock"
+						   Foreground="White"
+						   Text="{Binding Event.LocationName}"
+						   HorizontalAlignment="Center"
+						   Margin="12,0,0,0"
+						   TextWrapping="WrapWholeWords" 
+						   FontSize="12"
+						   FontStyle="Italic" />
+
+				<TextBlock Margin="0,0,0,12" 
+						   HorizontalAlignment="Center" 
+						   Foreground="White"
+						   FontSize="10">
+					<Run Text="{Binding Event.LocationAddress}" />
+					<Run Text="{Binding Event.LocationPostalcode}" />
+					<Run Text="{Binding Event.LocationCity}" />
+					<Run Text="{Binding Event.LocationState}" />
+				</TextBlock>
+
+			</StackPanel>
+
+			<StackPanel x:Name="EventCheckinStackPanel" 
+						Grid.Row="1" 
+						Background="#FF87D628">
+
+				<TextBlock x:Name="EventDataTextBlock"
+						   Foreground="White"
+						   Text="{Binding Event.Date, Converter={StaticResource DateFormatConverter}, ConverterParameter=\{0:ddd dd MMM yyyy\}}"
+						   Margin="12,0,0,0"
+						   HorizontalAlignment="Center"
+						   TextWrapping="WrapWholeWords"
+						   Style="{ThemeResource SubtitleTextBlockStyle}"/>
+
+				<Button x:Name="EventCheckInButton"
+						Margin="12,0,0,12" 
+						HorizontalAlignment="Right"
+						Click="EventCheckInButton_Click"
+						IsEnabled="{Binding EnableButton}"
+						Visibility="{Binding ShowCheckinButton, Converter={StaticResource VisibilityConverter}}">
+
+					<StackPanel>
+						<TextBlock Text="Check-in"
+									   HorizontalAlignment="Center"
+									   VerticalAlignment="Center"/>
+
+						<ProgressRing Width="24"
+										  Height="24"
+										  HorizontalAlignment="Center"
+										  VerticalAlignment="Center"
+										  Margin="0,-20,0,0"
+										  Foreground="White"
+										  Background="Transparent"
+										  IsActive="{Binding ShowSpinner}"
+										  Visibility="{Binding ShowSpinner, Converter={StaticResource VisibilityConverter}}" />
+					</StackPanel>
+				</Button>
+
+				<RelativePanel x:Name="AvailabilityMessageRelativePanel"
+							Height="48"
+							Background="Orange"
+							Visibility="{Binding AlreadyCheckedin, Converter={StaticResource VisibilityConverter}}">
+					<TextBlock x:Name="AvailabilityMessageTextBlock" 
+							   Text="You're already checked-in!"
+							   FontSize="20"
+							   RelativePanel.AlignTopWithPanel="True"
+							   RelativePanel.AlignBottomWithPanel="True"
+							   RelativePanel.AlignRightWithPanel="True"
+							   RelativePanel.AlignLeftWithPanel="True"
+							   HorizontalAlignment="Center"
+							   VerticalAlignment="Center" />
+				</RelativePanel>
+			</StackPanel>
+
+			<ProgressRing x:Name="EventCheckInsProgressRing"
+						  Grid.Column="0"
+						  Grid.Row="2" 
+						  Width="48"
+						  Height="48"
+						  Margin="0,24,0,12"
+						  Foreground="DarkGray"
+						  VerticalAlignment="Top"
+						  HorizontalAlignment="Center"
+						  IsActive="{Binding ShowCheckinsSpinner}"
+						  Visibility="{Binding ShowCheckinsSpinner, Converter={StaticResource VisibilityConverter}}"/>
+
+			<GridView x:Name="EventCheckInsGridView"
+					  Grid.Column="0"
+					  Grid.Row="2"
+					  Margin="0,4,0,0"
+					  Background="LightGray"
+					  ItemsSource="{Binding Checkins}" 
+					  IsItemClickEnabled="True" 
+					  ItemClick="EventCheckInsGridView_ItemClick"
+					  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
+					  Visibility="{Binding ShowCheckinsSpinner, Converter={StaticResource VisibilityConverter}, ConverterParameter=True}"
+					  HorizontalContentAlignment="Stretch">
+				<GridView.ItemContainerTransitions>
+					<TransitionCollection>
+						<EntranceThemeTransition IsStaggeringEnabled="True" 
+												 FromVerticalOffset="0" 
+												 FromHorizontalOffset="200"/>
+						<AddDeleteThemeTransition/>
+						<NavigationThemeTransition/>
+						<ContentThemeTransition/>
+					</TransitionCollection>
+				</GridView.ItemContainerTransitions>
+				<GridView.ItemTemplate>
+					<DataTemplate>
+						<control:CheckInTemplate />
+					</DataTemplate>
+				</GridView.ItemTemplate>
+				<GridView.ItemContainerStyle>
+					<Style TargetType="GridViewItem">
+						<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+					</Style>
+				</GridView.ItemContainerStyle>
+			</GridView>
+
+			<StackPanel x:Name="NoCheckinsStackPanel"
+						Grid.Row="2"
+						Margin="0,24,0,12"
+						Visibility="{Binding ShowNoCheckins, Converter={StaticResource VisibilityConverter}}">
+				<FontIcon x:Name="NoCheckinsFontIcon"
+						  HorizontalAlignment="Center"
+						  FontFamily="Segoe MDL2 Assets"
+						  Foreground="DarkGray"
+						  FontSize="40"
+						  Glyph="&#xE1E2;" 		
+						  Margin="0,0,8,0" />
+
+				<TextBlock Foreground="DarkGray"
+						   HorizontalAlignment="Center"
+						   Text="No one has checked in yet, be the first!" />
+			</StackPanel>
+		</Grid>
+
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup x:Name="VisualStateGroup">
+				<VisualState x:Name="VisualStatePhone">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="0"/>
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="LocationImage.Width" Value="160" />
+						<Setter Target="LocationImage.Height" Value="120" />
+						<Setter Target="EventNameStackPanel.(Grid.ColumnSpan)" Value="2" />
+
+						<Setter Target="EventCheckinStackPanel.(Grid.ColumnSpan)" Value="2" />
+
+						<Setter Target="EventCheckInsProgressRing.(Grid.Column)" Value="0" />
+						<Setter Target="EventCheckInsProgressRing.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="EventCheckInsProgressRing.(Grid.Row)" Value="2" />
+
+						<Setter Target="EventCheckInsGridView.(Grid.Column)" Value="0" />
+						<Setter Target="EventCheckInsGridView.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="EventCheckInsGridView.(Grid.Row)" Value="2" />
+
+						<Setter Target="NoCheckinsStackPanel.(Grid.Column)" Value="0" />
+						<Setter Target="NoCheckinsStackPanel.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="NoCheckinsStackPanel.(Grid.Row)" Value="2" />
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="VisualStateDesktop">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="720" />
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="LocationImage.Width" Value="320" />
+						<Setter Target="LocationImage.Height" Value="240" />
+						<Setter Target="EventNameStackPanel.(Grid.ColumnSpan)" Value="1" />
+
+						<Setter Target="EventCheckinStackPanel.(Grid.ColumnSpan)" Value="1" />
+
+						<Setter Target="EventCheckInsProgressRing.(Grid.Column)" Value="1" />
+						<Setter Target="EventCheckInsProgressRing.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="EventCheckInsProgressRing.(Grid.Row)" Value="0" />
+
+						<Setter Target="EventCheckInsGridView.(Grid.Column)" Value="1" />
+						<Setter Target="EventCheckInsGridView.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="EventCheckInsGridView.(Grid.Row)" Value="0" />
+						<Setter Target="EventCheckInsGridView.(Grid.RowSpan)" Value="4" />
+
+						<Setter Target="NoCheckinsStackPanel.(Grid.Column)" Value="1" />
+						<Setter Target="NoCheckinsStackPanel.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="NoCheckinsStackPanel.(Grid.Row)" Value="0" />
+						<Setter Target="NoCheckinsStackPanel.(Grid.RowSpan)" Value="4" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
+		<!--<RelativePanel>
 			<StackPanel x:Name="EventDataStackPanel"
 						Margin="12, 12, 12, 0"
 						RelativePanel.AlignLeftWithPanel="True"
@@ -196,6 +446,6 @@
 				</GridView.ItemTemplate>
 			</GridView>
 
-		</RelativePanel>
+		</RelativePanel>-->
 	</ScrollViewer>
 </Page>

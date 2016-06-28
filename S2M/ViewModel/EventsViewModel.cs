@@ -23,7 +23,7 @@ namespace S2M.ViewModel
 
 			try
 			{
-				await Models.EventCalendar.GetEventsAsync(EventList);
+				await Models.EventCalendar.GetEventsAsync(token, EventList, new DateTime(1900, 1, 1));
 			}
 			catch (Exception) { }
 			finally

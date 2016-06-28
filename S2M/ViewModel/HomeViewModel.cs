@@ -1,10 +1,8 @@
 ﻿using S2M.Common;
 using S2M.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
@@ -14,17 +12,27 @@ namespace S2M.ViewModel
 	public class HomeViewModel : NotificationBase
 	{
 		private CheckIn _currentCheckin = null;
+		private ObservableCollection<EventCalendar> _events = new ObservableCollection<EventCalendar>();
 		private ObservableCollection<Location> _favoriteLocations = new ObservableCollection<Location>();
 		private double _latitude;
 		private double _longitude;
 		private ObservableCollection<Location> _nearbyLocations = new ObservableCollection<Location>();
+		private int _nrOfEvents;
 		private int _nrOfFavoriteLocations;
 		private int _nrOfNearbyLocations;
+		private bool _showLocationFavoritesSpinner;
+		private bool _showLocationNearbySpinner;
 
 		public CheckIn CurrentCheckin
 		{
 			get { return _currentCheckin; }
 			set { SetProperty(_currentCheckin, value, () => _currentCheckin = value); }
+		}
+
+		public ObservableCollection<EventCalendar> Events
+		{
+			get { return _events; }
+			set { SetProperty(ref _events, value); }
 		}
 
 		public ObservableCollection<Location> FavoriteLocations
@@ -51,6 +59,12 @@ namespace S2M.ViewModel
 			set { SetProperty(ref _nearbyLocations, value); }
 		}
 
+		public int NrOfEvents
+		{
+			get { return _nrOfEvents; }
+			set { SetProperty(_nrOfEvents, value, () => _nrOfEvents = value); }
+		}
+
 		public int NrOfFavoriteLocations
 		{
 			get { return _nrOfFavoriteLocations; }
@@ -61,6 +75,24 @@ namespace S2M.ViewModel
 		{
 			get { return _nrOfNearbyLocations; }
 			set { SetProperty(_nrOfNearbyLocations, value, () => _nrOfNearbyLocations = value); }
+		}
+
+		public bool ShowLocationFavoritesSpinner
+		{
+			get
+			{
+				return _showLocationFavoritesSpinner;
+			}
+			set { SetProperty(_showLocationFavoritesSpinner, value, () => _showLocationFavoritesSpinner = value); }
+		}
+
+		public bool ShowLocationNearbySpinner
+		{
+			get
+			{
+				return _showLocationNearbySpinner;
+			}
+			set { SetProperty(_showLocationNearbySpinner, value, () => _showLocationNearbySpinner = value); }
 		}
 
 		public async Task<CheckIn> GetCurrentCheckin()
@@ -85,6 +117,8 @@ namespace S2M.ViewModel
 		{
 			var _cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
+
+			ShowLocationNearbySpinner = true;
 
 			try
 			{
@@ -117,6 +151,7 @@ namespace S2M.ViewModel
 			finally
 			{
 				_cts = null;
+				ShowLocationNearbySpinner = false;
 			}
 		}
 
@@ -124,6 +159,8 @@ namespace S2M.ViewModel
 		{
 			var _cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
+
+			ShowLocationFavoritesSpinner = true;
 
 			try
 			{
@@ -137,6 +174,25 @@ namespace S2M.ViewModel
 			finally
 			{
 				_cts = null;
+				ShowLocationFavoritesSpinner = false;
+			}
+		}
+
+		public async Task GetTodaysEvents()
+		{
+			var _cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				await EventCalendar.GetEventsAsync(token, Events, DateTime.Now);
+				NrOfEvents = Events.Count();
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+				ShowLocationFavoritesSpinner = false;
 			}
 		}
 	}

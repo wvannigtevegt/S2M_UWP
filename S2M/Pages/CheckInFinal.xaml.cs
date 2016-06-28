@@ -192,7 +192,7 @@ namespace S2M.Pages
 			CheckInFinalSplitView.IsPaneOpen = !CheckInFinalSplitView.IsPaneOpen;
 		}
 
-		private void CheckinsListView_ItemClick(object sender, ItemClickEventArgs e)
+		private void CheckInsGridView_ItemClick(object sender, ItemClickEventArgs e)
 		{
 			var checkin = (CheckIn)e.ClickedItem;
 			if (checkin != null)

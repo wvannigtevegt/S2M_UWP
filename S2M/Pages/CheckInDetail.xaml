@@ -124,7 +124,9 @@
 						</StackPanel>
 					</StackPanel>
 
-					<StackPanel Background="Gray" Grid.Row="1" Visibility="{Binding SelectedCheckin.WorkingOn, Converter={StaticResource StringLengthToVisibilityConverter}}">
+					<StackPanel Background="#FF87D628" 
+								Grid.Row="1" 
+								Visibility="{Binding SelectedCheckin.WorkingOn, Converter={StaticResource StringLengthToVisibilityConverter}}">
 						<TextBlock x:Name="WorkingOnQuoteTextBlock"
 								   FontFamily="Times New Roman" 
 								   HorizontalAlignment="Center"

@@ -1,9 +1,7 @@
 ﻿using S2M.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,6 +16,7 @@ namespace S2M.ViewModel
 		private ObservableCollection<LocationDay> _dates = new ObservableCollection<LocationDay>();
 		private bool _enableButton;
 		private TimeSpan _endTime;
+		private ObservableCollection<EventCalendar> _events = new ObservableCollection<EventCalendar>();
 		private bool _isBookable;
 		private bool _isBookmarked;
 		private bool _isOpen;
@@ -25,9 +24,11 @@ namespace S2M.ViewModel
 		private LocationText _locationDescription;
 		private int _nrOfCheckins;
 		private ObservableCollection<CheckIn> _profileCheckIns = new ObservableCollection<CheckIn>();
-		private string _searchKey { get; set; }
+		private string _searchKey;
 		private LocationDay _selectedDate = new LocationDay();
 		private bool _showDateTimeCheckin;
+		private bool _showCheckinsSpinner;
+		private bool _showNoCheckins;
 		private bool _showSpinner;
 		private bool _showWorkspaceSelection;
 		private TimeSpan _startTime;
@@ -68,6 +69,12 @@ namespace S2M.ViewModel
 		{
 			get { return _endTime; }
 			set { SetProperty(_endTime, value, () => _endTime = value); }
+		}
+
+		public ObservableCollection<EventCalendar> Events
+		{
+			get { return _events; }
+			set { SetProperty(ref _events, value); }
 		}
 
 		public bool AlreadyCheckedin
@@ -133,6 +140,24 @@ namespace S2M.ViewModel
 			set { SetProperty(_selectedDate, value, () => _selectedDate = value); }
 		}
 
+		public bool ShowNoCheckins
+		{
+			get
+			{
+				return _showNoCheckins;
+			}
+			set { SetProperty(_showNoCheckins, value, () => _showNoCheckins = value); }
+		}
+
+		public bool ShowCheckinsSpinner
+		{
+			get
+			{
+				return _showCheckinsSpinner;
+			}
+			set { SetProperty(_showCheckinsSpinner, value, () => _showCheckinsSpinner = value); }
+		}
+
 		public bool ShowDateTimeCheckin
 		{
 			get
@@ -188,6 +213,8 @@ namespace S2M.ViewModel
 			_locationCheckinCts = new CancellationTokenSource();
 			CancellationToken token = _locationCheckinCts.Token;
 
+			ShowCheckinsSpinner = true;
+
 			try
 			{
 				Checkins.Clear();
@@ -206,12 +233,37 @@ namespace S2M.ViewModel
 						}
 					}
 					NrOfCheckins = Checkins.Count();
+					if (NrOfCheckins == 0)
+					{
+						ShowNoCheckins = true;
+					}
+					else
+					{
+						ShowNoCheckins = false;
+					}
 				}
 			}
 			catch (Exception ex) { }
 			finally
 			{
 				_locationCheckinCts = null;
+				ShowCheckinsSpinner = false;
+			}
+		}
+
+		public async Task GetLocationEvents()
+		{
+			var _cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				await EventCalendar.GetEventsAsync(token, Events, DateTime.Now, Location.Id, "");
+			}
+			catch (Exception ex) { }
+			finally
+			{
+				_cts = null;
 			}
 		}
 

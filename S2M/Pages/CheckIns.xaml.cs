@@ -88,49 +88,6 @@ namespace S2M.Pages
 			await ViewModel.LoadCheckInsAsync();
 		}
 
-		//private async Task LoadCheckInsAsync(string searchTerm = "") {
-		//	_cts = new CancellationTokenSource();
-		//	CancellationToken token = _cts.Token;
-
-		//	ViewModel.Checkins.Clear();
-
-		//	try {
-		//		if (Latitude == 0 || Longitude == 0)
-		//		{
-		//			var accessStatus = await Geolocator.RequestAccessAsync();
-		//			switch (accessStatus)
-		//			{
-		//				case GeolocationAccessStatus.Allowed:
-
-		//					try
-		//					{
-		//						var geoposition = await GeoService.GetSinglePositionAsync(token);
-		//						Latitude = geoposition.Point.Position.Latitude;
-		//						Longitude = geoposition.Point.Position.Longitude;
-		//					}
-		//					catch (Exception) { }
-
-		//					break;
-		//				case GeolocationAccessStatus.Denied:
-		//					//ShowLocationDistance = false;
-		//					break;
-		//			}
-		//		}
-
-		//		CheckInsProgressRing.IsActive = true;
-		//		CheckInsProgressRing.Visibility = Visibility.Visible;
-
-		//		await CheckIn.GetCheckInsAsync(token, ViewModel.Checkins, ViewModel.SelectedDate.Date, 0, 0, searchTerm, Latitude, Longitude, 0, "", 0, 0, true);
-
-		//		CheckInsProgressRing.IsActive = false;
-		//		CheckInsProgressRing.Visibility = Visibility.Collapsed;
-		//	}
-		//	catch (Exception) { }
-		//	finally {
-		//		_cts = null;
-		//	}
-		//}
-
 		private async void CheckInsGridView_ItemClick(object sender, ItemClickEventArgs e) {
 			var checkIn = (CheckIn)e.ClickedItem;
 			var authenticatedProfile = await Common.StorageService.RetrieveObjectAsync<Models.Profile>("Profile");

@@ -1,4 +1,5 @@
 ﻿using S2M.Models;
+using S2M.ViewModel;
 using System;
 using System.Linq;
 using System.Threading;
@@ -18,15 +19,17 @@ namespace S2M.Pages
 	/// </summary>
 	public sealed partial class LocationCheckInNFC : Page
 	{
-		protected CheckIn CheckInObject { get; set; }
-		protected Location LocationObject { get; set; }
-		protected OpeningHour LocationOpeningHours { get; set; }
-
 		private CancellationTokenSource _cts = null;
+
+		public LocationCheckInNFCViewModel ViewModel { get; set; }
 
 		public LocationCheckInNFC()
 		{
 			this.InitializeComponent();
+
+			ViewModel = new LocationCheckInNFCViewModel();
+
+			DataContext = ViewModel;
 		}
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e)
@@ -36,8 +39,8 @@ namespace S2M.Pages
 
 			try
 			{
-				var locationId = (int)e.Parameter;
-				await GetDataAsync(locationId);
+				ViewModel.LocationId = (int)e.Parameter;
+				await GetDataAsync();
 			}
 			catch (Exception) { }
 			finally
@@ -46,33 +49,26 @@ namespace S2M.Pages
 			}
 		}
 
-		private async Task GetDataAsync(int locationId)
+		private async Task GetDataAsync()
 		{
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
-			LocationCheckInProgressRing.IsActive = true;
-			LocationCheckInProgressRing.Visibility = Visibility.Visible;
-
 			try
 			{
-				LocationObject = await Location.GetLocationById(token, locationId);
-				if (LocationObject != null && LocationObject.Id > 0)
-				{
-					LocationNameTextBlock.Text = LocationObject.Name;
-					LocationImage.Source = new BitmapImage(new Uri(LocationObject.Image_320));
-				}
-				LocationCheckInProgressRing.IsActive = false;
-				LocationCheckInProgressRing.Visibility = Visibility.Collapsed;
+				await ViewModel.GetLocationAsync();
+				await ViewModel.GetCurrentCheckin();
 
 
-				CheckInObject = await CheckIn.GetCurrentCheckIn(token);
-				if (CheckInObject != null && CheckInObject.Id > 0 && CheckInObject.LocationId == locationId && !CheckInObject.HasLeft)
+				if (ViewModel.CurrentCheckin != null 
+					&& ViewModel.CurrentCheckin.Id > 0 
+					&& ViewModel.CurrentCheckin.LocationId == ViewModel.LocationId 
+					&& !ViewModel.CurrentCheckin.HasLeft)
 				{
-					if (CheckInObject.IsConfirmed)
+					if (ViewModel.CurrentCheckin.IsConfirmed)
 					{
 						// Check-out 
-						var checkoutCheckinObject = await CheckIn.Checkout(token, CheckInObject);
+						var checkoutCheckinObject = await CheckIn.Checkout(token, ViewModel.CurrentCheckin);
 						if (checkoutCheckinObject != null && checkoutCheckinObject.Id > 0)
 						{
 							MessageTextBlock.Text = "Checked-out!";
@@ -82,21 +78,18 @@ namespace S2M.Pages
 						}
 					}
 
-					if (!CheckInObject.IsConfirmed)
+					if (!ViewModel.CurrentCheckin.IsConfirmed)
 					{
-						var confirmCheckinObject = await CheckIn.ConfirmCheckIn(token, CheckInObject);
-						if (confirmCheckinObject != null && confirmCheckinObject.Id > 0)
+						ViewModel.CurrentCheckin = await CheckIn.ConfirmCheckIn(token, ViewModel.CurrentCheckin);
+						if (ViewModel.CurrentCheckin != null && ViewModel.CurrentCheckin.Id > 0)
 						{
-							// Check-in is confirmed
-							MessageTextBlock.Text = "Confirmed!";
-
-							// TODO: check or set working on and get matches
+							GoToCheckinFinal();
 						}
 					}
 				}
-				if (CheckInObject == null || CheckInObject.Id == 0 || CheckInObject.HasLeft)
+				if (ViewModel.CurrentCheckin == null || ViewModel.CurrentCheckin.Id == 0 || ViewModel.CurrentCheckin.HasLeft)
 				{
-					await GetOpeningHours(locationId);
+					await GetOpeningHours(ViewModel.LocationId);
 				}
 			}
 			catch (Exception) { }
@@ -113,16 +106,16 @@ namespace S2M.Pages
 
 			try
 			{
-				LocationOpeningHours = await OpeningHour.GetLocationOpeningHourssAsync(token, locationId, DateTime.Now);
-				if (LocationOpeningHours.NrOfLocations > 0 && DateTime.Now <= LocationOpeningHours.MaxTimeClose)
+				await ViewModel.GetLocationOpeningHours();
+
+				if (ViewModel.LocationOpeningHours.NrOfLocations > 0 && DateTime.Now <= ViewModel.LocationOpeningHours.MaxTimeClose)
 				{
 					var startTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
-					//startTime = TimeSpan.FromMinutes(15 * Math.Ceiling(startTime.TotalMinutes / 15));
 					var totalMinutes = (int)(startTime + new TimeSpan(0, 15 / 2, 0)).TotalMinutes;
 
 					startTime = new TimeSpan(0, totalMinutes - totalMinutes % 15, 0);
 
-					var endTime = new TimeSpan(LocationOpeningHours.MaxTimeClose.Hour, LocationOpeningHours.MaxTimeClose.Minute, 0);
+					var endTime = new TimeSpan(ViewModel.LocationOpeningHours.MaxTimeClose.Hour, ViewModel.LocationOpeningHours.MaxTimeClose.Minute, 0);
 
 					await CheckLocationAvailability(DateTime.Now, startTime, endTime);
 				}
@@ -143,16 +136,13 @@ namespace S2M.Pages
 			_cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
-			LocationCheckInProgressRing.IsActive = true;
-			LocationCheckInProgressRing.Visibility = Visibility.Visible;
-
 			try
 			{
-				var availability = await Availability.GetAvailableLocations(token, LocationObject.Id, date, startTime, endTime);
+				var availability = await Availability.GetAvailableLocations(token, ViewModel.Location.Id, date, startTime, endTime);
 				if (availability.Locations.Count > 0)
 				{
 					var availableLocations = availability.Locations;
-					var availableLocation = availableLocations.Where(a => a.LocationId == LocationObject.Id).FirstOrDefault();
+					var availableLocation = availableLocations.Where(a => a.LocationId == ViewModel.Location.Id).FirstOrDefault();
 					if (availableLocation != null)
 					{
 						if (availableLocation.Units.Count() == 1)
@@ -163,12 +153,12 @@ namespace S2M.Pages
 								var reservationObject = await CheckinUser(availability.SearchKey, availableLocation.LocationId, selectedUnit.SearchDateId, selectedUnit.UnitId);
 								if (reservationObject != null)
 								{
-									MessageTextBlock.Text = "Checked-in!! ReservationId is: " + reservationObject.Id;
-
 									var checkin = await CheckIn.GetCheckInByReservation(token, reservationObject.Id);
 									if (checkin != null)
 									{
-										CheckInObject = await CheckIn.ConfirmCheckIn(token, checkin);
+										ViewModel.CurrentCheckin = await CheckIn.ConfirmCheckIn(token, checkin);
+
+										GoToCheckinFinal();
 									}
 
 									// TODO: check or set working on and get matches
@@ -186,10 +176,18 @@ namespace S2M.Pages
 			finally
 			{
 				_cts = null;
-
-				LocationCheckInProgressRing.IsActive = false;
-				LocationCheckInProgressRing.Visibility = Visibility.Collapsed;
 			}
+		}
+
+		private void GoToCheckinFinal()
+		{
+			var checkinCriteria = new CheckinFinalPageCriteria
+			{
+				IsNewCheckIn = true,
+				CheckIn = ViewModel.CurrentCheckin
+			};
+
+			Frame.Navigate(typeof(CheckInFinal), checkinCriteria);
 		}
 
 		private async Task<Reservation> CheckinUser(string searchKey, int locationId, int searchDateId, int unitId)

@@ -31,7 +31,7 @@
 			   PanePlacement="Right">
 		<SplitView.Content>
 			<ScrollViewer VerticalScrollMode="Auto">
-				<Grid Background="White">
+				<Grid>
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto" />
 						<RowDefinition Height="Auto" />
@@ -83,6 +83,7 @@
 											 Click="CheckoutHyperLinkButton_Click">
 								<StackPanel x:Name="CheckoutStackPanel"
 											Orientation="Horizontal"
+											VerticalAlignment="Center"
 											HorizontalAlignment="Center">
 									<FontIcon x:Name="CheckoutFontIcon"
 											  FontFamily="Segoe MDL2 Assets"
@@ -106,6 +107,7 @@
 											 Click="CheckoutHyperLinkButton_Click">
 								<StackPanel x:Name="CancelStackPanel"
 											Orientation="Horizontal"
+											VerticalAlignment="Center"
 											HorizontalAlignment="Center">
 									<FontIcon x:Name="CancelFontIcon"
 											  FontFamily="Segoe MDL2 Assets"
@@ -128,6 +130,7 @@
 											 Click="OpenExtrasButton_Click">
 								<StackPanel x:Name="StartChatStackPanel"
 											Orientation="Horizontal"
+											VerticalAlignment="Center"
 											HorizontalAlignment="Center">
 									<FontIcon x:Name="ExtrasFontIcon"
 											  FontFamily="Segoe MDL2 Assets"
@@ -177,7 +180,7 @@
 					</RelativePanel>
 
 					<StackPanel x:Name="WorkingOnStackPanel"
-								Background="Gray"
+								Background="#FF87D628"
 								Grid.Row="1">
 
 						<TextBlock x:Name="WorkingOnQuoteTedxtBlock"
@@ -213,21 +216,67 @@
 						</HyperlinkButton>
 					</StackPanel>
 
+					<ProgressRing x:Name="RecommendedCheckInsProgressRing"
+						  Grid.Column="0"
+						  Grid.Row="3" 
+						  Width="48"
+						  Height="48"
+						  Margin="0,24,0,12"
+						  Foreground="DarkGray"
+						  VerticalAlignment="Top"
+						  HorizontalAlignment="Center"
+						  IsActive="{Binding ShowCheckinsSpinner}"
+						  Visibility="{Binding ShowCheckinsSpinner, Converter={StaticResource VisibilityConverter}}"/>
 
-					<ListView x:Name="CheckinsListView"
+					<GridView x:Name="LocationCheckInsGridView"
+							  Grid.Column="0"
 							  Grid.Row="3"
-							  ItemsSource="{Binding RecommendedCheckins}"
-							  Background="Gray"
-							  IsItemClickEnabled="True"
-							  ItemClick="CheckinsListView_ItemClick"
-							  IsTapEnabled="False"
-							  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}">
-						<ListView.ItemTemplate>
-							<DataTemplate>
+							  Margin="0,4,0,0"
+							  Background="LightGray"
+							  ItemsSource="{Binding RecommendedCheckins}" 
+							  IsItemClickEnabled="True" 
+							  ItemClick="CheckInsGridView_ItemClick"
+							  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
+							  Visibility="{Binding ShowCheckinsSpinner, Converter={StaticResource VisibilityConverter}, ConverterParameter=True}"
+							  HorizontalContentAlignment="Stretch">
+						<GridView.ItemContainerTransitions>
+							<TransitionCollection>
+								<EntranceThemeTransition IsStaggeringEnabled="True" 
+												 FromVerticalOffset="0" 
+												 FromHorizontalOffset="200"/>
+								<AddDeleteThemeTransition/>
+								<NavigationThemeTransition/>
+								<ContentThemeTransition/>
+							</TransitionCollection>
+						</GridView.ItemContainerTransitions>
+						<GridView.ItemTemplate>
+							<DataTemplate x:DataType="data:CheckIn">
 								<control:CheckInTemplate ShowMatchPercentage="True" />
 							</DataTemplate>
-						</ListView.ItemTemplate>
-					</ListView>
+						</GridView.ItemTemplate>
+						<GridView.ItemContainerStyle>
+							<Style TargetType="GridViewItem">
+								<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+							</Style>
+						</GridView.ItemContainerStyle>
+					</GridView>
+
+					<StackPanel x:Name="NoCheckinsStackPanel"
+								Grid.Row="3"
+								Margin="0,24,0,12"
+								Visibility="{Binding ShowNoCheckins, Converter={StaticResource VisibilityConverter}}">
+						<FontIcon x:Name="NoCheckinsFontIcon"
+								  HorizontalAlignment="Center"
+								  FontFamily="Segoe MDL2 Assets"
+								  Foreground="DarkGray"
+								  FontSize="40"
+								  Glyph="&#xE1E2;" 		
+								  Margin="0,0,8,0" />
+
+						<TextBlock Foreground="DarkGray"
+								   HorizontalAlignment="Center"
+								   Text="No recommendations just yet, check back later." />
+					</StackPanel>
 				</Grid>
 			</ScrollViewer>
 		</SplitView.Content>

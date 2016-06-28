@@ -40,15 +40,9 @@
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
 
-		<StackPanel Background="#FF00BAFF" Visibility="{Binding CurrentCheckin, Converter={StaticResource NullToVisibilityConverter}}">
-			<TextBlock Text="Today you are at:"
-					   Style="{StaticResource SubtitleTextBlockStyle}"
-					   Foreground="White" />
-		</StackPanel>
-		
 		<StackPanel x:Name="CurrentLocationNameStackPanel" 
 					Background="DarkGray"
-					Grid.Row="1"
+					Grid.Row="0"
 					Tapped="CurrentCheckinGrid_Tapped"
 					Visibility="{Binding CurrentCheckin, Converter={StaticResource NullToVisibilityConverter}}"
 					Orientation="Vertical">
@@ -67,14 +61,25 @@
 						Style="{ThemeResource SubtitleTextBlockStyle}" />
 
 			<TextBlock Margin="0,0,0,12" HorizontalAlignment="Center" Foreground="White" FontSize="12">
+				<Run Text="Today:" />
 				<Run Text="{Binding CurrentCheckin.StartTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}" />
 				<Run Text="-" />
 				<Run Text="{Binding CurrentCheckin.EndTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}" />
 			</TextBlock>
 		</StackPanel>
 
+		<ProgressRing x:Name="LocationNearbyProgressRing"
+					  Grid.Row="1" 
+					  Width="48"
+					  Height="48"
+					  Foreground="DarkGray"
+					  VerticalAlignment="Top"
+					  HorizontalAlignment="Center"
+					  IsActive="{Binding ShowLocationNearbySpinner}"
+					  Visibility="{Binding ShowLocationNearbySpinner, Converter={StaticResource VisibilityConverter}}"/>
+
 		<StackPanel x:Name="NearbyLocationsStackPanel" 
-					Grid.Row="2"
+					Grid.Row="1"
 					Visibility="{Binding NrOfNearbyLocations, Converter={StaticResource AmountToVisibilityConverter}}">
 			<TextBlock Text="Locations nearby"
 					   Style="{StaticResource SubtitleTextBlockStyle}"/>
@@ -91,8 +96,19 @@
 			</FlipView>
 		</StackPanel>
 
+
+		<ProgressRing x:Name="LocationFavoritesProgressRing"
+					  Grid.Row="2" 
+					  Width="48"
+					  Height="48"
+					  Foreground="DarkGray"
+					  VerticalAlignment="Top"
+					  HorizontalAlignment="Center"
+					  IsActive="{Binding ShowLocationFavoritesSpinner}"
+					  Visibility="{Binding ShowLocationFavoritesSpinner, Converter={StaticResource VisibilityConverter}}"/>
+
 		<StackPanel x:Name="FavoriteLocationsStackPanel" 
-					Grid.Row="3"
+					Grid.Row="2"
 					Visibility="{Binding NrOfFavoriteLocations, Converter={StaticResource AmountToVisibilityConverter}}">
 			<TextBlock Text="Favorite locations"
 					   Style="{StaticResource SubtitleTextBlockStyle}"/>
@@ -107,6 +123,40 @@
 					</DataTemplate>
 				</FlipView.ItemTemplate>
 			</FlipView>
+		</StackPanel>
+
+		<StackPanel Grid.Row="3"
+					Visibility="{Binding NrOfEvents, Converter={StaticResource AmountToVisibilityConverter}}">
+			<TextBlock Text="Todays events"
+					   Style="{StaticResource SubtitleTextBlockStyle}"/>
+			
+			<GridView x:Name="EventsGridView"
+				  ItemsSource="{Binding Events}" 
+				  IsItemClickEnabled="True" 
+				  ItemClick="EventsGridView_ItemClick">
+				<GridView.ItemContainerTransitions>
+					<TransitionCollection>
+						<EntranceThemeTransition IsStaggeringEnabled="True" 
+												 FromVerticalOffset="0" 
+												 FromHorizontalOffset="200"/>
+						<AddDeleteThemeTransition/>
+						<NavigationThemeTransition/>
+						<ContentThemeTransition/>
+					</TransitionCollection>
+
+				</GridView.ItemContainerTransitions>
+
+				<GridView.ItemTemplate>
+					<DataTemplate x:DataType="data:EventCalendar">
+						<control:EventTemplate />
+					</DataTemplate>
+				</GridView.ItemTemplate>
+				<GridView.ItemContainerStyle>
+					<Style TargetType="GridViewItem">
+						<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+					</Style>
+				</GridView.ItemContainerStyle>
+			</GridView>
 		</StackPanel>
 
 		<VisualStateManager.VisualStateGroups>

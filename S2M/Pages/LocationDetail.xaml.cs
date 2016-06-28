@@ -32,7 +32,6 @@ namespace S2M.Pages
 			ViewModel.EnableButton = true;
 
 			DataContext = ViewModel;
-
 		}
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e)

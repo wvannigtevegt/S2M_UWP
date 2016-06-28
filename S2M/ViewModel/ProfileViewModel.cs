@@ -13,6 +13,7 @@ namespace S2M.ViewModel
 	{
 		private ObservableCollection<Chat> _chats = new ObservableCollection<Chat>();
 		private ObservableCollection<CheckIn> _checkins = new ObservableCollection<CheckIn>();
+		private ObservableCollection<Contact> _contacts = new ObservableCollection<Contact>();
 		private int _nrOfCheckins;
 		private Models.Profile _profile;
 		private ObservableCollection<string> _tags = new ObservableCollection<string>();
@@ -27,6 +28,12 @@ namespace S2M.ViewModel
 		{
 			get { return _checkins; }
 			set { SetProperty(ref _checkins, value); }
+		}
+
+		public ObservableCollection<Contact> Contacts
+		{
+			get { return _contacts; }
+			set { SetProperty(ref _contacts, value); }
 		}
 
 		public int NrOfCheckins
@@ -84,6 +91,22 @@ namespace S2M.ViewModel
 			try
 			{
 				await Chat.GetProfileChatsAsync(Chats);
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+			}
+		}
+
+		public async Task GetProfileContacts()
+		{
+			var _cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				await Contact.GetProfileContacts(token, Contacts);
 			}
 			catch (Exception) { }
 			finally

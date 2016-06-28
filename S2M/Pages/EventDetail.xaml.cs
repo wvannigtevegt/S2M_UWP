@@ -1,5 +1,6 @@
 ﻿using NotificationsExtensions.Toasts; // using NotificationsExtensions.Win10;
 using S2M.Models;
+using S2M.ViewModel;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -21,44 +22,28 @@ namespace S2M.Pages
 	public sealed partial class EventDetail : Page
 	{
 		public CheckIn CheckInObject { get; set; }
-		public EventCalendar EventObject { get; set; }
-		public ObservableCollection<CheckIn> CheckInList { get; set; }
-		public ObservableCollection<CheckIn> RecommendationCheckInList { get; set; }
-		public ObservableCollection<CheckInKnowledgeTag> TagCheckInList { get; set; }
 
-		private CancellationTokenSource _cts = null;
-		private Models.Profile ProfileObject { get; set; }
+		public EventDetailViewModel ViewModel { get; set; }
 
 		public EventDetail()
 		{
 			this.InitializeComponent();
 
-			CheckInList = new ObservableCollection<CheckIn>();
-			RecommendationCheckInList = new ObservableCollection<CheckIn>();
-			TagCheckInList = new ObservableCollection<CheckInKnowledgeTag>();
+			ViewModel = new EventDetailViewModel();
+			DataContext = ViewModel;
 		}
 
 		protected async override void OnNavigatedTo(NavigationEventArgs e)
 		{
-			var eventObject = (Models.EventCalendar)e.Parameter;
+			var eventObject = (EventCalendar)e.Parameter;
 			if (eventObject != null)
 			{
-				EventObject = eventObject;
-
-				EventNameTextBlock.Text = EventObject.Name;
-				EventLocationTextBlock.Text = EventObject.LocationName;
-				EventDataTextBlock.Text = EventObject.Date.ToString();
+				ViewModel.Event = eventObject;
 			}
 		}
 
 		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
 		{
-			if (_cts != null)
-			{
-				_cts.Cancel();
-				_cts = null;
-			}
-
 			base.OnNavigatingFrom(e);
 		}
 
@@ -72,7 +57,7 @@ namespace S2M.Pages
 
 			if (_profile != null)
 			{
-				ProfileObject = _profile;
+				ViewModel.Profile = _profile;
 			}
 
 			GetEventCheckInData();
@@ -80,149 +65,90 @@ namespace S2M.Pages
 
 		private async void GetEventCheckInData()
 		{
-			_cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
+			await ViewModel.GetEventCheckIns();
 
-			try
-			{
-				var oldCheckInList = CheckInList;
-				var newCheckInList = new ObservableCollection<CheckIn>();
-
-				await CheckIn.GetCheckInsEventDateAsync(token, newCheckInList, EventObject);
-
-				foreach (var checkIn in newCheckInList)
-				{
-					if (!oldCheckInList.Where(ocl => ocl.Id == checkIn.Id).Any())
-					{
-						CheckInList.Add(checkIn);
-					}
-				}
-
-				CheckIfProfileAlreadyCheckedInEvent();
-
-				await CheckInKnowledgeTag.GetEventCheckInKnowledgeTagsAsync(token, TagCheckInList, EventObject.Id);
-			}
-			catch (Exception) { }
-			finally
-			{
-				_cts = null;
-			}
-		}
-
-		private async void GetEventCheckRecommendations()
-		{
-			if (!string.IsNullOrEmpty(CheckInObject.WorkingOn))
-			{
-				_cts = new CancellationTokenSource();
-				CancellationToken token = _cts.Token;
-
-				try
-				{
-					RecommendationCheckInList.Clear();
-
-					await CheckIn.GetEventCheckinRecommendationsAsync(token, RecommendationCheckInList, EventObject.Id, CheckInObject.WorkingOn, 1, 3);
-					foreach (var checkIn in RecommendationCheckInList)
-					{
-						if (CheckInList.Where(cl => cl.Id == checkIn.Id).Any())
-						{
-							CheckInList.Remove(checkIn);
-						}
-					}
-				}
-				catch (Exception) { }
-				finally
-				{
-					_cts = null;
-				}
-			}
+			CheckIfProfileAlreadyCheckedInEvent();
 		}
 
 		private void CheckIfProfileAlreadyCheckedInEvent()
 		{
 			var profileCheckIn =
-				from pc in CheckInList
-				where pc.ProfileId == ProfileObject.Id
+				from pc in ViewModel.Checkins
+				where pc.ProfileId == ViewModel.Profile.Id
 				select pc;
 
 			if (profileCheckIn.Any())
 			{
-				EventCheckInButton.Visibility = Visibility.Collapsed;
-
 				CheckInObject = profileCheckIn.First();
 				if (CheckInObject != null)
 				{
-					WorkingOnRelativePanel.Visibility = Visibility.Visible;
-
-					if (!string.IsNullOrEmpty(CheckInObject.WorkingOn))
-					{
-						WorkingOnTextBlock.Text = CheckInObject.WorkingOn;
-						WorkingOnTextBox.Text = CheckInObject.WorkingOn;
-
-						MatchingBasedOnStackPanel.Visibility = Visibility.Visible;
-						SetWorkingOnStackPanel.Visibility = Visibility.Collapsed;
-					}
-					else
-					{
-						MatchingBasedOnStackPanel.Visibility = Visibility.Collapsed;
-						SetWorkingOnStackPanel.Visibility = Visibility.Visible;
-					}
+					ViewModel.AlreadyCheckedin = true;
+					ViewModel.ShowCheckinButton = false;
 				}
 				else
 				{
-					WorkingOnRelativePanel.Visibility = Visibility.Collapsed;
+					ViewModel.ShowCheckinButton = true;
+					ViewModel.EnableButton = true;
 				}
-
-				GetEventCheckRecommendations();
 			}
 			else
 			{
-				EventCheckInButton.Visibility = Visibility.Visible;
+				ViewModel.ShowCheckinButton = true;
+				ViewModel.EnableButton = true;
 			}
 		}
 
-		private void EventCheckInsGridView_ItemClick(object sender, ItemClickEventArgs e)
+		private async void EventCheckInsGridView_ItemClick(object sender, ItemClickEventArgs e)
 		{
 			var checkIn = (CheckIn)e.ClickedItem;
 
-			Frame.Navigate(typeof(CheckInDetail), checkIn);
+			if (checkIn.ProfileId == ViewModel.Profile.Id)
+			{
+				var checkinCriteria = new CheckinFinalPageCriteria
+				{
+					IsNewCheckIn = false,
+					CheckIn = checkIn
+				};
+
+				Frame.Navigate(typeof(CheckInFinal), checkinCriteria);
+			}
+			else
+			{
+				Frame.Navigate(typeof(CheckInDetail), checkIn);
+			}
 		}
 
 		private void TagCheckInsListView_ItemClick(object sender, ItemClickEventArgs e)
 		{
 			var tagCheckIn = (CheckInKnowledgeTag)e.ClickedItem;
 
-			CheckInList.Clear();
+			ViewModel.Checkins.Clear();
 			foreach (var checkIn in tagCheckIn.CheckIns)
 			{
-				CheckInList.Add(checkIn);
+				ViewModel.Checkins.Add(checkIn);
 			}
 		}
 
 		private async void EventCheckInButton_Click(object sender, RoutedEventArgs e)
 		{
-			_cts = new CancellationTokenSource();
+			var _cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
-			EventCheckInButton.Visibility = Visibility.Collapsed;
-
-			CheckInProgressRing.IsActive = true;
-			CheckInProgressRing.Visibility = Visibility.Visible;
+			ViewModel.ShowSpinner = true;
+			ViewModel.EnableButton = false;
 
 			try
 			{
-				string workingOn = "";
-				var _workingOn = await Common.StorageService.RetrieveObjectAsync<Models.WorkingOn>("WorkingOn");
-				if (_workingOn != null)
+				var checkin = await CheckIn.CheckInToEvent(token, ViewModel.Event.Id, "");
+				if (checkin != null)
 				{
-					workingOn = _workingOn.Text;
-				}
+					var checkinCriteria = new CheckinFinalPageCriteria
+					{
+						IsNewCheckIn = true,
+						CheckIn = checkin
+					};
 
-				CheckInObject = await CheckIn.CheckInToEvent(token, EventObject.Id, workingOn);
-				if (CheckInObject != null)
-				{
-					ShowToast(CheckInObject.Id, CheckInObject.EventName);
-
-					GetEventCheckInData();
+					Frame.Navigate(typeof(CheckInFinal), checkinCriteria);
 				}
 
 			}
@@ -230,9 +156,7 @@ namespace S2M.Pages
 			finally
 			{
 				_cts = null;
-
-				CheckInProgressRing.IsActive = false;
-				CheckInProgressRing.Visibility = Visibility.Collapsed;
+				ViewModel.ShowSpinner = false;
 			}
 		}
 
@@ -342,42 +266,6 @@ namespace S2M.Pages
 
 			// And then send the toast
 			ToastNotificationManager.CreateToastNotifier().Show(notification);
-		}
-
-		private async void SetWorkingOnButton_Click(object sender, RoutedEventArgs e)
-		{
-			if (CheckInObject != null)
-			{
-				CheckInObject.WorkingOn = WorkingOnTextBox.Text.ToLower().Trim();
-				WorkingOnTextBlock.Text = WorkingOnTextBox.Text.ToLower().Trim();
-
-				MatchingBasedOnStackPanel.Visibility = Visibility.Visible;
-				SetWorkingOnStackPanel.Visibility = Visibility.Collapsed;
-
-				_cts = new CancellationTokenSource();
-				CancellationToken token = _cts.Token;
-
-				try
-				{
-					await CheckIn.UpdateCheckIn(token, CheckInObject);
-				}
-				catch (Exception) { }
-				finally
-				{
-					_cts = null;
-
-					CheckInProgressRing.IsActive = false;
-					CheckInProgressRing.Visibility = Visibility.Collapsed;
-				}
-
-				GetEventCheckRecommendations();
-			}
-		}
-
-		private void ShowEditWorkingOnButton_Click(object sender, RoutedEventArgs e)
-		{
-			MatchingBasedOnStackPanel.Visibility = Visibility.Collapsed;
-			SetWorkingOnStackPanel.Visibility = Visibility.Visible;
 		}
 	}
 }

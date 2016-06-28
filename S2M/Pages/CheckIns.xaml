@@ -93,14 +93,14 @@
 				  ItemsPanel="{StaticResource ResourceKey=ItemsPanelTemplate}"
 				  ItemClick="CheckInsGridView_ItemClick">
 			<GridView.ItemContainerTransitions>
-				<!--<TransitionCollection>
+				<TransitionCollection>
 					<EntranceThemeTransition IsStaggeringEnabled="True" 
                                  FromVerticalOffset="0" 
                                  FromHorizontalOffset="200"/>
 					<AddDeleteThemeTransition/>
 					<NavigationThemeTransition/>
 					<ContentThemeTransition/>
-				</TransitionCollection>-->
+				</TransitionCollection>
 			</GridView.ItemContainerTransitions>
 
 			<GridView.ItemTemplate>
@@ -118,7 +118,7 @@
 		<StackPanel x:Name="NoCheckinsStackPanel"
 					Grid.Row="1"
 					Margin="0,24,0,12"
-					Visibility="{x:Bind ViewModel.NrOfCheckins, Mode=TwoWay, Converter={StaticResource AmountToVisibilityConverter}, ConverterParameter=true}">
+					Visibility="{Binding ShowNoCheckins, Converter={StaticResource VisibilityConverter}}">
 			<FontIcon x:Name="NoCheckinsFontIcon"
 					  HorizontalAlignment="Center"
 					  FontFamily="Segoe MDL2 Assets"
@@ -138,6 +138,8 @@
                       Height="100"
                       Foreground="Gray"
                       VerticalAlignment="Center"
-                      HorizontalAlignment="Center" />
+                      HorizontalAlignment="Center"
+					  IsActive="{Binding ShowCheckinsSpinner}"
+					  Visibility="{Binding ShowCheckinsSpinner, Converter={StaticResource VisibilityConverter}}"/>
 	</Grid>
 </Page>

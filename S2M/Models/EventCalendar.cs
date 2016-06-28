@@ -102,9 +102,9 @@ namespace S2M.Models
 		}
 
 
-		public static async Task GetEventsAsync(ObservableCollection<EventCalendar> eventList)
+		public static async Task GetEventsAsync(CancellationToken token, ObservableCollection<EventCalendar> eventList, DateTime date, int locationId = 0, string searchTerm = "")
 		{
-			var eventObjs = await GetEventsDataAsync(DateTime.Now);
+			var eventObjs = await GetEventsDataAsync(date);
 
 			foreach (var eventObj in eventObjs)
 			{
@@ -142,7 +142,11 @@ namespace S2M.Models
 					{
 						url = url + "/location/" + locationId;
 					}
-					url = url + "/" + date.Year + "/" + date.Month + "/" + date.Day + "?" + JsonConvert.SerializeObject(criteria);
+					if (date.Year > 1900)
+					{
+						url = url + "/" + date.Year + "/" + date.Month + "/" + date.Day;
+					}
+					url = url + "?" + JsonConvert.SerializeObject(criteria);
 
 					var httpResponse = await httpClient.GetAsync(new Uri(url));
 					string json = await httpResponse.Content.ReadAsStringAsync();

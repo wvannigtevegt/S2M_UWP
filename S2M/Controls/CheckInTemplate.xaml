@@ -46,40 +46,49 @@
 			</Ellipse.Fill>
 		</Ellipse>
 
-		<StackPanel x:Name="LocationDistanceStackPane" 
-					Orientation="Horizontal"
-					HorizontalAlignment="Center"
-					VerticalAlignment="Top"
+		<StackPanel x:Name="LocationDistanceStackPane"
 					Grid.Row="1"
 					Grid.Column="0"
-					Margin="0,4,0,4">
-			<FontIcon x:Name="DistanceFontIcon" 
+					Margin="0,4,0,4"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Top">
+			<StackPanel Orientation="Horizontal">
+				<FontIcon x:Name="DistanceFontIcon" 
 							  FontFamily="Segoe MDL2 Assets"
 							  FontSize="12"
 							  Foreground="#FF00BAFF"
 							  VerticalAlignment="Bottom"
 							  Glyph="&#xEB49;" 					  
-							  Margin="5,0,0,2" />
+							  Margin="4,0,0,2" />
 
-			<TextBlock x:Name="LocationDistanceTextBlock" 
-							   Text="{x:Bind CheckIn.Distance, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:0.0\}}"
-							   Margin="5,0,0,0"
+				<TextBlock x:Name="LocationDistanceTextBlock" 
+							   Margin="4,0,0,0"
 							   FontSize="12"
 							   Foreground="DarkGray"
-							   VerticalAlignment="Bottom"/>
-			<TextBlock Text="km."
-							   Margin="3,0,0,0"
-							   FontSize="12"
-							   Foreground="DarkGray"
-							   VerticalAlignment="Bottom"/>
+							   VerticalAlignment="Bottom">
+					<Run Text="{x:Bind CheckIn.Distance, Converter={StaticResource StrFormatConverter}, ConverterParameter=\{0:0.0\}}" />
+					<Run Text="km." />
+				</TextBlock>
+			</StackPanel>
+
+			<StackPanel Orientation="Horizontal"
+						Visibility="{x:Bind ShowMatchPercentage, Converter={StaticResource VisibilityConverter}}">
+				<FontIcon x:Name="MatchPercentageFontIcon" 
+							  FontFamily="Segoe MDL2 Assets"
+							  FontSize="12"
+							  Foreground="#FF00BAFF"
+							  VerticalAlignment="Bottom"
+							  Glyph="&#xEB52;" 					  
+							  Margin="4,-4,0,0" />
+				
+				<TextBlock Margin="4,4,0,0"
+						   FontSize="12"
+						   Foreground="DarkGray">
+					<Run Text="{x:Bind CheckIn.MatchPercentage}" />
+					<Run Text="%" />
+				</TextBlock>
+			</StackPanel>
 		</StackPanel>
-
-		<TextBlock Text="{x:Bind CheckIn.MatchPercentage}"
-				   Grid.Column="0"
-				   Grid.Row="1"
-				   Margin="0,0,0,4"
-				   Foreground="#FF001E2D"
-				   Visibility="{x:Bind ShowMatchPercentage, Converter={StaticResource VisibilityConverter}}"/>
 
 		<FontIcon x:Name="IsConfirmedFontIcon"
 				  Margin="4,4,4,0"
@@ -148,7 +157,7 @@
 									MinWidth="0" 
 									MinHeight="0" 
 									Margin="0,4,4,0">
-							<TextBlock Margin="4,0,4,4"
+							<TextBlock Margin="4,0,4,0"
 										VerticalAlignment="Center"
 										Text="{Binding}" 
 										FontSize="12" />

@@ -18,6 +18,8 @@ namespace S2M.ViewModel
 		private int _nrOfCheckins;
 		private bool _pageIsLoaded;
 		private LocationDay _selectedDate = new LocationDay();
+		private bool _showCheckinsSpinner;
+		private bool _showNoCheckins;
 
 		public ObservableCollection<CheckIn> Checkins
 		{
@@ -67,6 +69,24 @@ namespace S2M.ViewModel
 			set { SetProperty(_selectedDate, value, () => _selectedDate = value); }
 		}
 
+		public bool ShowCheckinsSpinner
+		{
+			get
+			{
+				return _showCheckinsSpinner;
+			}
+			set { SetProperty(_showCheckinsSpinner, value, () => _showCheckinsSpinner = value); }
+		}
+
+		public bool ShowNoCheckins
+		{
+			get
+			{
+				return _showNoCheckins;
+			}
+			set { SetProperty(_showNoCheckins, value, () => _showNoCheckins = value); }
+		}
+
 		public async Task LoadCheckInsAsync(string searchTerm = "")
 		{
 			if (PageIsLoaded)
@@ -75,6 +95,8 @@ namespace S2M.ViewModel
 				CancellationToken token = _cts.Token;
 
 				Checkins.Clear();
+				ShowCheckinsSpinner = true;
+
 				var newCheckIns = new ObservableCollection<CheckIn>();
 
 				try
@@ -89,11 +111,20 @@ namespace S2M.ViewModel
 						}
 					}
 					NrOfCheckins = Checkins.Count();
+					if (NrOfCheckins == 0)
+					{
+						ShowNoCheckins = true;
+					}
+					else
+					{
+						ShowNoCheckins = false;
+					}
 				}
 				catch (Exception ex) { }
 				finally
 				{
 					_cts = null;
+					ShowCheckinsSpinner = false;
 				}
 			}
 		}

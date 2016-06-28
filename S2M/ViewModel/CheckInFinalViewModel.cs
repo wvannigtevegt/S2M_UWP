@@ -12,14 +12,16 @@ namespace S2M.ViewModel
 	public class CheckInFinalViewModel : NotificationBase
 	{
 		private CheckIn _currentCheckIn = new CheckIn();
-		private bool _editWorkingOn { get; set; }
-		private bool _isNewCheckin { get; set; }
-		private int _nrOfOptions { get; set; }
+		private bool _editWorkingOn;
+		private bool _isNewCheckin;
+		private int _nrOfOptions;
 		private ObservableCollection<Option> _optionList = new ObservableCollection<Option>();
 		private ObservableCollection<CheckIn> _recommendedCheckins = new ObservableCollection<CheckIn>();
-		private int _reservationId { get; set; }
-		private bool _showCancelLink { get; set; }
-		private bool _showCheckoutLink { get; set; }
+		private int _reservationId;
+		private bool _showCancelLink;
+		private bool _showCheckinsSpinner;
+		private bool _showCheckoutLink;
+		private bool _showNoCheckins;
 
 		public CheckIn CurrentCheckin
 		{
@@ -69,16 +71,38 @@ namespace S2M.ViewModel
 			set { SetProperty(_showCancelLink, value, () => _showCancelLink = value); }
 		}
 
+		public bool ShowCheckinsSpinner
+		{
+			get
+			{
+				return _showCheckinsSpinner;
+			}
+			set { SetProperty(_showCheckinsSpinner, value, () => _showCheckinsSpinner = value); }
+		}
+
 		public bool ShowCheckoutLink
 		{
 			get { return _showCheckoutLink; }
 			set { SetProperty(_showCheckoutLink, value, () => _showCheckoutLink = value); }
 		}
 
+		public bool ShowNoCheckins
+		{
+			get
+			{
+				return _showNoCheckins;
+			}
+			set { SetProperty(_showNoCheckins, value, () => _showNoCheckins = value); }
+		}
+
 		public async Task GetCheckinRecommendations()
 		{
 			var _cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
+
+			RecommendedCheckins.Clear();
+			ShowCheckinsSpinner = true;
+			ShowNoCheckins = false;
 
 			try
 			{
@@ -87,10 +111,6 @@ namespace S2M.ViewModel
 				await CheckIn.GetCheckinRecommendationsAsync(token, checkins, CurrentCheckin.LocationId, 
 																Common.DateService.ConvertFromUnixTimestamp(CurrentCheckin.StartTimeStamp).Date, 
 																CurrentCheckin.WorkingOn, 1, 3);
-
-				//await CheckIn.GetCheckInsAsync(token, checkins, 
-				//				Common.DateService.ConvertFromUnixTimestamp(CurrentCheckin.StartTimeStamp), 
-				//				CurrentCheckin.LocationId, CurrentCheckin.EventId, "", 0, 0, 0, CurrentCheckin.WorkingOn, 1, 3, true);
 
 				foreach(var recommendedCheckin in RecommendedCheckins)
 				{
@@ -108,11 +128,17 @@ namespace S2M.ViewModel
 						RecommendedCheckins.Add(checkin);
 					}
 				}
+
+				if (RecommendedCheckins.Count() == 0)
+				{
+					ShowNoCheckins = true;
+				}
 			}
 			catch (Exception) { }
 			finally
 			{
 				_cts = null;
+				ShowCheckinsSpinner = false;
 			}
 		}
 
