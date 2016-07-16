@@ -11,6 +11,7 @@ namespace S2M
 {
 	sealed partial class App : Application {
 		public App() {
+			Microsoft.HockeyApp.HockeyClient.Current.Configure("53d7fc6b0a1048d7aefe6ccabc062a85");
 			this.InitializeComponent();
 			this.Suspending += OnSuspending;
 

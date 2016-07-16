@@ -7,7 +7,7 @@ namespace S2M.ViewModel
 	{
 		private bool _deviceIsOffline;
 		private double _latitude;
-		private ObservableCollection<Location> _locationList = new ObservableCollection<Location>();
+		private ObservableCollection<Location> _locations = new ObservableCollection<Location>();
 		private double _longitude;
 		private bool _showLocationDistance;
 
@@ -23,10 +23,10 @@ namespace S2M.ViewModel
 			set { SetProperty(_latitude, value, () => _latitude = value); }
 		}
 
-		public ObservableCollection<Location> LocationList
+		public ObservableCollection<Location> Locations
 		{
-			get { return _locationList; }
-			set { SetProperty(ref _locationList, value); }
+			get { return _locations; }
+			set { SetProperty(ref _locations, value); }
 		}
 
 		public double Longitude

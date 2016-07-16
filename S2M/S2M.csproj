@@ -23,6 +23,7 @@
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <PackageCertificateThumbprint>3272F3ECB521EE3E123FAC8B68A4FC72CD0E3D9F</PackageCertificateThumbprint>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
+    <HockeyAppResourceId>53d7fc6b0a1048d7aefe6ccabc062a85</HockeyAppResourceId>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -222,6 +223,9 @@
     <Compile Include="Pages\CheckIns.xaml.cs">
       <DependentUpon>CheckIns.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\ContactDetail.xaml.cs">
+      <DependentUpon>ContactDetail.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\EventCheckInNFC.xaml.cs">
       <DependentUpon>EventCheckInNFC.xaml</DependentUpon>
     </Compile>
@@ -259,6 +263,7 @@
     <Compile Include="ViewModel\CheckInDetailViewModel.cs" />
     <Compile Include="ViewModel\CheckInFinalViewModel.cs" />
     <Compile Include="ViewModel\CheckInsViewModel.cs" />
+    <Compile Include="ViewModel\ContactDetailViewModel.cs" />
     <Compile Include="ViewModel\EventDetailViewModel.cs" />
     <Compile Include="ViewModel\EventsViewModel.cs" />
     <Compile Include="ViewModel\HomeViewModel.cs" />
@@ -399,6 +404,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\CheckIns.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ContactDetail.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

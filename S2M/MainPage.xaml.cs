@@ -14,6 +14,7 @@ namespace S2M
 {
 	public sealed partial class MainPage : Page
 	{
+
 		private CancellationTokenSource _cts = null;
 		private NavigationPageCriteria NavigationPageCriteria { get; set; }
 

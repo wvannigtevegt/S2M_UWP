@@ -72,7 +72,7 @@ namespace S2M.ViewModel
 
 			try
 			{
-				CurrentCheckin = await CheckIn.GetCurrentCheckIn(token);
+				CurrentCheckin = await CheckIn.GetProfileCurrentCheckIn(token);
 			}
 			catch (Exception) { }
 			finally

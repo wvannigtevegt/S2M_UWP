@@ -171,7 +171,11 @@ namespace S2M.Pages
 
 		private void ContactsListView_ItemClick(object sender, ItemClickEventArgs e)
 		{
-
+			var contact = (Contact)e.ClickedItem;
+			if (contact != null)
+			{
+				Frame.Navigate(typeof(ContactDetail), contact);
+			}
 		}
 	}
 }

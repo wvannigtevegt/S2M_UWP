@@ -13,32 +13,30 @@ namespace S2M.Controls
 	{
 		public static readonly DependencyProperty ChatObjectProperty = DependencyProperty.Register("ChatObject", typeof(Chat), typeof(ChatControl), new PropertyMetadata(null));
 
-		public ObservableCollection<ChatMessage> ChatMessageList { get; set; }
+		public ObservableCollection<ChatMessage> ChatMessageList = new ObservableCollection<ChatMessage>();
 		public Chat ChatObject
 		{
 			get { return (Chat)GetValue(ChatObjectProperty); }
 			set { SetValue(ChatObjectProperty, value); }
 		}
 
-		//public event PropertyChangedEventHandler PropertyChanged;
-		//void SetValueDp(DependencyProperty property, object value, [System.Runtime.CompilerServices.CallerMemberName] String p = null)
-		//{
-		//	SetValue(property, value);
-		//	if (PropertyChanged != null)
-		//		PropertyChanged(this, new PropertyChangedEventArgs(p));
-		//}
-
 		public ChatControl()
 		{
-			ChatMessageList = new ObservableCollection<ChatMessage>();
-
 			this.InitializeComponent();
 			(this.Content as FrameworkElement).DataContext = this;
 		}
 
 		private void UserControl_Loaded(object sender, RoutedEventArgs e)
 		{
-			
+			if (ChatObject != null && ChatObject.Messages.Any())
+			{
+				foreach(var message in ChatObject.Messages)
+				{
+					ChatMessageList.Add(message);
+				}
+
+				GoToLastMessage();
+			}
 		}
 
 		private async void PostMessageButton_Click(object sender, RoutedEventArgs e)
@@ -57,7 +55,7 @@ namespace S2M.Controls
 
 		private void UpdateChatMessages(object sender, object o)
 		{
-			
+
 		}
 
 		private async Task PostNewMessage()
@@ -70,11 +68,11 @@ namespace S2M.Controls
 				var chat = await ChatMessage.PostChatMessage(ChatObject.Id, chatMessage);
 				if (chat != null)
 				{
-					foreach (var message in ChatObject.Messages)
+					foreach (var message in chat.Messages)
 					{
 						if (!ChatMessageAlreadyExists(message))
 						{
-							ChatObject.Messages.Add(message);
+							ChatMessageList.Add(message);
 						}
 					}
 					GoToLastMessage();
@@ -84,7 +82,7 @@ namespace S2M.Controls
 
 		private bool ChatMessageAlreadyExists(ChatMessage message)
 		{
-			if (ChatObject.Messages.Where(cm => cm.Id == message.Id).Any())
+			if (ChatMessageList.Where(cm => cm.Id == message.Id).Any())
 			{
 				return true;
 			}
@@ -103,6 +101,7 @@ namespace S2M.Controls
 
 	public class ChatTemplateSelector : Common.TemplateSelector
 	{
+
 		public DataTemplate ImageLeft
 		{
 			get;
@@ -117,8 +116,6 @@ namespace S2M.Controls
 
 		public override DataTemplate SelectTemplate(object item, DependencyObject container)
 		{
-			//var _profile = Models.Profile.GetProfile().Result;
-
 			var chatMessage = item as ChatMessage;
 			if (chatMessage != null)
 			{

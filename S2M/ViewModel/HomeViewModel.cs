@@ -13,15 +13,15 @@ namespace S2M.ViewModel
 	{
 		private CheckIn _currentCheckin = null;
 		private ObservableCollection<EventCalendar> _events = new ObservableCollection<EventCalendar>();
-		private ObservableCollection<Location> _favoriteLocations = new ObservableCollection<Location>();
 		private double _latitude;
+		private CheckIn _lastCheckin = null;
 		private double _longitude;
-		private ObservableCollection<Location> _nearbyLocations = new ObservableCollection<Location>();
 		private int _nrOfEvents;
-		private int _nrOfFavoriteLocations;
-		private int _nrOfNearbyLocations;
-		private bool _showLocationFavoritesSpinner;
-		private bool _showLocationNearbySpinner;
+		private int _nrOfSuggestedLocations;
+		private bool _showFavoriteLocations;
+		private bool _showNearbyLocations;
+		private bool _showLocationSuggestionsSpinner;
+		private ObservableCollection<Location> _suggestedLocations = new ObservableCollection<Location>();
 
 		public CheckIn CurrentCheckin
 		{
@@ -35,16 +35,16 @@ namespace S2M.ViewModel
 			set { SetProperty(ref _events, value); }
 		}
 
-		public ObservableCollection<Location> FavoriteLocations
-		{
-			get { return _favoriteLocations; }
-			set { SetProperty(ref _favoriteLocations, value); }
-		}
-
 		public double Latitude
 		{
 			get { return _latitude; }
 			set { SetProperty(_latitude, value, () => _latitude = value); }
+		}
+
+		public CheckIn LastCheckin
+		{
+			get { return _lastCheckin; }
+			set { SetProperty(_lastCheckin, value, () => _lastCheckin = value); }
 		}
 
 		public double Longitude
@@ -53,64 +53,81 @@ namespace S2M.ViewModel
 			set { SetProperty(_longitude, value, () => _longitude = value); }
 		}
 
-		public ObservableCollection<Location> NearbyLocations
-		{
-			get { return _nearbyLocations; }
-			set { SetProperty(ref _nearbyLocations, value); }
-		}
-
 		public int NrOfEvents
 		{
 			get { return _nrOfEvents; }
 			set { SetProperty(_nrOfEvents, value, () => _nrOfEvents = value); }
 		}
 
-		public int NrOfFavoriteLocations
+		public int NrOfSuggestedLocations
 		{
-			get { return _nrOfFavoriteLocations; }
-			set { SetProperty(_nrOfFavoriteLocations, value, () => _nrOfFavoriteLocations = value); }
+			get { return _nrOfSuggestedLocations; }
+			set { SetProperty(_nrOfSuggestedLocations, value, () => _nrOfSuggestedLocations = value); }
 		}
 
-		public int NrOfNearbyLocations
-		{
-			get { return _nrOfNearbyLocations; }
-			set { SetProperty(_nrOfNearbyLocations, value, () => _nrOfNearbyLocations = value); }
-		}
-
-		public bool ShowLocationFavoritesSpinner
+		public bool ShowLocationSuggestionsSpinner
 		{
 			get
 			{
-				return _showLocationFavoritesSpinner;
+				return _showLocationSuggestionsSpinner;
 			}
-			set { SetProperty(_showLocationFavoritesSpinner, value, () => _showLocationFavoritesSpinner = value); }
+			set { SetProperty(_showLocationSuggestionsSpinner, value, () => _showLocationSuggestionsSpinner = value); }
 		}
 
-		public bool ShowLocationNearbySpinner
+		public bool ShowFavoriteLocations
 		{
 			get
 			{
-				return _showLocationNearbySpinner;
+				return _showFavoriteLocations;
 			}
-			set { SetProperty(_showLocationNearbySpinner, value, () => _showLocationNearbySpinner = value); }
+			set { SetProperty(_showFavoriteLocations, value, () => _showFavoriteLocations = value); }
 		}
 
-		public async Task<CheckIn> GetCurrentCheckin()
+		public bool ShowNearbyLocations
+		{
+			get
+			{
+				return _showNearbyLocations;
+			}
+			set { SetProperty(_showNearbyLocations, value, () => _showNearbyLocations = value); }
+		}
+
+		public ObservableCollection<Location> SuggestedLocations
+		{
+			get { return _suggestedLocations; }
+			set { SetProperty(ref _suggestedLocations, value); }
+		}
+
+		public async Task GetCurrentCheckin()
 		{
 			var _cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
 			try
 			{
-				return await CheckIn.GetCurrentCheckIn(token);
+				CurrentCheckin = await CheckIn.GetProfileCurrentCheckIn(token);
 			}
 			catch (Exception) { }
 			finally
 			{
 				_cts = null;
 			}
+		}
 
-			return null;
+		public async Task GetLastCheckin()
+		{
+			var _cts = new CancellationTokenSource();
+			CancellationToken token = _cts.Token;
+
+			try
+			{
+				LastCheckin = await CheckIn.GetProfileLastCheckIn(token);
+			}
+			catch (Exception) { }
+			finally
+			{
+				_cts = null;
+			}
 		}
 
 		public async Task GetNearbyLocations()
@@ -118,7 +135,7 @@ namespace S2M.ViewModel
 			var _cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
-			ShowLocationNearbySpinner = true;
+			ShowLocationSuggestionsSpinner = true;
 
 			try
 			{
@@ -144,14 +161,14 @@ namespace S2M.ViewModel
 						break;
 				}
 
-				await Location.GetWorkspaceLocationsAsync(token, NearbyLocations, searchTerm, Latitude, Longitude, 250, workingOn, 1, 3);
-				NrOfNearbyLocations = NearbyLocations.Count();
+				await Location.GetWorkspaceLocationsAsync(token, SuggestedLocations, searchTerm, Latitude, Longitude, 250, workingOn, 1, 3);
+				NrOfSuggestedLocations = SuggestedLocations.Count();
 			}
 			catch (Exception) { }
 			finally
 			{
 				_cts = null;
-				ShowLocationNearbySpinner = false;
+				ShowLocationSuggestionsSpinner = false;
 			}
 		}
 
@@ -160,21 +177,21 @@ namespace S2M.ViewModel
 			var _cts = new CancellationTokenSource();
 			CancellationToken token = _cts.Token;
 
-			ShowLocationFavoritesSpinner = true;
+			ShowLocationSuggestionsSpinner = true;
 
 			try
 			{
 				const string searchTerm = "";
 				const string workingOn = "";
 
-				await Location.GetProfileFavoriteLocations(token, FavoriteLocations);
-				NrOfFavoriteLocations = FavoriteLocations.Count();
+				await Location.GetProfileFavoriteLocations(token, SuggestedLocations);
+				NrOfSuggestedLocations = SuggestedLocations.Count();
 			}
 			catch (Exception) { }
 			finally
 			{
 				_cts = null;
-				ShowLocationFavoritesSpinner = false;
+				ShowLocationSuggestionsSpinner = false;
 			}
 		}
 
@@ -192,7 +209,6 @@ namespace S2M.ViewModel
 			finally
 			{
 				_cts = null;
-				ShowLocationFavoritesSpinner = false;
 			}
 		}
 	}

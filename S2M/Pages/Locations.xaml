@@ -38,7 +38,7 @@
 								  VerticalAlignment="Center"
 								  HorizontalAlignment="Center" />
 						<GridView x:Name="LocationsGridView"
-								  ItemsSource="{x:Bind ViewModel.LocationList}" 
+								  ItemsSource="{x:Bind ViewModel.Locations}" 
 								  IsItemClickEnabled="True"
 								  ItemClick="LocationsGridView_ItemClick">
 							<GridView.ItemTemplate>

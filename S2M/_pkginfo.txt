@@ -1,1 +1,1 @@
-C:\Phone projects\S2M\S2M\AppPackages\S2M_0.9.4.0\S2M_0.9.4.0_x86_x64_arm.appxbundle
+C:\Phone projects\S2M\S2M\AppPackages\S2M_0.9.5.0\S2M_0.9.5.0_x86_x64_arm.appxbundle

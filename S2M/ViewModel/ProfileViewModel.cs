@@ -106,6 +106,7 @@ namespace S2M.ViewModel
 
 			try
 			{
+				Contacts.Clear();
 				await Contact.GetProfileContacts(token, Contacts);
 			}
 			catch (Exception) { }

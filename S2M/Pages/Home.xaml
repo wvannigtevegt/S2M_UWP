@@ -27,137 +27,293 @@
 		</ItemsPanelTemplate>
 	</Page.Resources>
 
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
+	<ScrollViewer IsTabStop="False">
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
 
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="*" />
-			<ColumnDefinition Width="*" />
-		</Grid.ColumnDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
 
-		<StackPanel x:Name="CurrentLocationNameStackPanel" 
+
+			<StackPanel x:Name="CurrentLocationNameStackPanel" 
 					Background="DarkGray"
 					Grid.Row="0"
-					Tapped="CurrentCheckinGrid_Tapped"
 					Visibility="{Binding CurrentCheckin, Converter={StaticResource NullToVisibilityConverter}}"
 					Orientation="Vertical">
 
-			<Image x:Name="CurrentCheckinLocationImage" 
+				<Image x:Name="CurrentCheckinLocationImage" 
 					Margin="0,36,0,12"
 					Stretch="UniformToFill"
 					HorizontalAlignment="Center" 
 					VerticalAlignment="Center"
 					Source="{Binding CurrentCheckin.LocationImage_320}"/>
 
-			<TextBlock x:Name="CurrentLocationNameTextBlock"
+				<TextBlock x:Name="CurrentLocationNameTextBlock"
 						Foreground="White"
 						Text="{Binding CurrentCheckin.LocationName}"
 						HorizontalAlignment="Center" 
 						Style="{ThemeResource SubtitleTextBlockStyle}" />
 
-			<TextBlock Margin="0,0,0,12" HorizontalAlignment="Center" Foreground="White" FontSize="12">
+				<TextBlock Margin="0,0,0,12" HorizontalAlignment="Center" Foreground="White" FontSize="12">
 				<Run Text="Today:" />
 				<Run Text="{Binding CurrentCheckin.StartTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}" />
 				<Run Text="-" />
 				<Run Text="{Binding CurrentCheckin.EndTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}" />
-			</TextBlock>
-		</StackPanel>
+				</TextBlock>
 
-		<ProgressRing x:Name="LocationNearbyProgressRing"
-					  Grid.Row="1" 
-					  Width="48"
-					  Height="48"
-					  Foreground="DarkGray"
-					  VerticalAlignment="Top"
-					  HorizontalAlignment="Center"
-					  IsActive="{Binding ShowLocationNearbySpinner}"
-					  Visibility="{Binding ShowLocationNearbySpinner, Converter={StaticResource VisibilityConverter}}"/>
+				<StackPanel Background="#FF87D628" Height="40">
+					<Button x:Name="ShowMatchesCurrenCheckInButton" 
+						Content="My matches" 
+						Margin="0,4,8,4"
+						HorizontalAlignment="Right"
+						Click="ShowMatchesCurrenCheckInButton_Click"/>
+				</StackPanel>
+			</StackPanel>
 
-		<StackPanel x:Name="NearbyLocationsStackPanel" 
-					Grid.Row="1"
-					Visibility="{Binding NrOfNearbyLocations, Converter={StaticResource AmountToVisibilityConverter}}">
-			<TextBlock Text="Locations nearby"
-					   Style="{StaticResource SubtitleTextBlockStyle}"/>
-			<FlipView x:Name="NearbyLocationsFlipView"
-					  Height="80"
-					  IsTapEnabled="True"
-					  Tapped="NearbyLocationsFlipView_Tapped"
-					  ItemsSource="{Binding NearbyLocations}">
-				<FlipView.ItemTemplate>
-					<DataTemplate>
-						<control:LocationTemplate />
-					</DataTemplate>
-				</FlipView.ItemTemplate>
-			</FlipView>
-		</StackPanel>
+			<StackPanel x:Name="NoCurrentLocationNameStackPanel" 
+					Background="DarkGray"
+					Height="220"
+					Visibility="{Binding CurrentCheckin, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=true}"
+					Orientation="Vertical">
 
+				<FontIcon x:Name="IsConfirmedFontIcon" 
+						FontFamily="Segoe MDL2 Assets"
+						FontSize="128"
+						Foreground="White"
+						VerticalAlignment="Bottom"
+						Glyph="&#xE10A;" />
+			</StackPanel>
 
-		<ProgressRing x:Name="LocationFavoritesProgressRing"
+			<Grid x:Name="LastCheckinLocationGrid"
+			  Grid.Row="1"
+			  Background="White"
+			  Visibility="{Binding LastCheckin, Converter={StaticResource NullToVisibilityConverter}}">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+
+				<StackPanel Grid.ColumnSpan="2"
+						Background="Orange"
+						HorizontalAlignment="Stretch">
+					<TextBlock Text="Your last checkin"
+						   Margin="4,4,4,4"
+						   Foreground="White" />
+				</StackPanel>
+
+				<Image x:Name="LocationImage" 
+				   Source="{Binding LastCheckin.LocationImage_160}"
+				   Stretch="UniformToFill"
+				   VerticalAlignment="Top"
+				   HorizontalAlignment="Left"
+				   CacheMode="BitmapCache"
+				   Margin="4,8,4,8"
+				   Width="80"
+				   Height="60"
+				   Grid.Column="0"
+				   Grid.Row="1"
+				   Grid.RowSpan="2"/>
+
+				<TextBlock x:Name="LocationNameTextBlock" 
+				   Text="{Binding LastCheckin.LocationName}"
+				   Margin="4,8,0,0"
+				   HorizontalAlignment="Left"
+				   Height="Auto"
+				   TextWrapping="Wrap"
+				   Foreground="#FF001E2D"
+				   Grid.Row="1"
+				   Grid.Column="1"/>
+
+				<TextBlock Grid.Row="2" 
+					   Grid.Column="1" 
+					   Margin="4,0,0,0"
+					   Foreground="#FF001E2D">
+				<Run Text="{Binding LastCheckin.StartTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='dd MMM yyyy'}" />
+				<Run Text="{Binding LastCheckin.StartTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}" />
+				<Run Text="-" />
+				<Run Text="{Binding LastCheckin.EndTimeStamp, Converter={StaticResource TimestampToDateStringConverter}, ConverterParameter='HH:mm'}" />
+				</TextBlock>
+
+				<StackPanel Grid.Row="3" 
+						Grid.ColumnSpan="2"  
+						HorizontalAlignment="Stretch" 
+						Background="#FF87D628">
+					<Button x:Name="LastCheckinCheckinNowButton" 
+						Margin="4,4,4,4" 
+						Content="Check-in today" 
+						HorizontalAlignment="Right"
+						Click="LastCheckinCheckinNowButton_Click"/>
+				</StackPanel>
+			</Grid>
+
+			<ProgressRing x:Name="LocationSuggestionsProgressRing"
 					  Grid.Row="2" 
 					  Width="48"
 					  Height="48"
 					  Foreground="DarkGray"
 					  VerticalAlignment="Top"
 					  HorizontalAlignment="Center"
-					  IsActive="{Binding ShowLocationFavoritesSpinner}"
-					  Visibility="{Binding ShowLocationFavoritesSpinner, Converter={StaticResource VisibilityConverter}}"/>
+					  IsActive="{Binding ShowLocationSuggestionsSpinner}"
+					  Visibility="{Binding ShowLocationSuggestionsSpinner, Converter={StaticResource VisibilityConverter}}"/>
 
-		<StackPanel x:Name="FavoriteLocationsStackPanel" 
+			<StackPanel x:Name="SuggestedLocationsStackPanel" 
 					Grid.Row="2"
-					Visibility="{Binding NrOfFavoriteLocations, Converter={StaticResource AmountToVisibilityConverter}}">
-			<TextBlock Text="Favorite locations"
-					   Style="{StaticResource SubtitleTextBlockStyle}"/>
-			<FlipView x:Name="FavoriteLocationsFlipView"
-					  Height="80"
-					  IsTapEnabled="True"
-					  Tapped="FavoriteLocationsFlipView_Tapped"
-					  ItemsSource="{Binding FavoriteLocations}">
-				<FlipView.ItemTemplate>
-					<DataTemplate>
-						<control:LocationTemplate />
-					</DataTemplate>
-				</FlipView.ItemTemplate>
-			</FlipView>
-		</StackPanel>
+					Visibility="{Binding NrOfSuggestedLocations, Converter={StaticResource AmountToVisibilityConverter}}">
+				<TextBlock Text="Locations nearby"
+					   Margin="4,4,4,4"
+					   Style="{StaticResource SubtitleTextBlockStyle}"
+					   Visibility="{Binding ShowNearbyLocations, Converter={StaticResource VisibilityConverter}}"/>
+				<TextBlock Text="Favorite locations"
+					   Margin="4,4,4,4"
+					   Style="{StaticResource SubtitleTextBlockStyle}"
+					   Visibility="{Binding ShowFavoriteLocations, Converter={StaticResource VisibilityConverter}}"/>
 
-		<StackPanel Grid.Row="3"
-					Visibility="{Binding NrOfEvents, Converter={StaticResource AmountToVisibilityConverter}}">
-			<TextBlock Text="Todays events"
-					   Style="{StaticResource SubtitleTextBlockStyle}"/>
-			
-			<GridView x:Name="EventsGridView"
-				  ItemsSource="{Binding Events}" 
-				  IsItemClickEnabled="True" 
-				  ItemClick="EventsGridView_ItemClick">
-				<GridView.ItemContainerTransitions>
-					<TransitionCollection>
-						<EntranceThemeTransition IsStaggeringEnabled="True" 
-												 FromVerticalOffset="0" 
-												 FromHorizontalOffset="200"/>
-						<AddDeleteThemeTransition/>
-						<NavigationThemeTransition/>
-						<ContentThemeTransition/>
-					</TransitionCollection>
+				<ScrollViewer HorizontalScrollMode="Enabled"
+                              HorizontalScrollBarVisibility="Hidden"
+                              VerticalScrollMode="Disabled"
+                              VerticalScrollBarVisibility="Hidden"
+                              Margin="0,6,0,0">
+					<ItemsControl ItemsSource="{Binding SuggestedLocations}" IsTabStop="False">
+						<ItemsControl.ItemsPanel>
+							<ItemsPanelTemplate>
+								<VirtualizingStackPanel Orientation="Horizontal" />
+							</ItemsPanelTemplate>
+						</ItemsControl.ItemsPanel>
 
-				</GridView.ItemContainerTransitions>
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<Button Background="White" Padding="0" 
+                                        Margin="0,0,8,4"
+										Width="168"
+										Tag="{Binding Id}"
+										Click="SuggestedLocationButton_Click">
+									<StackPanel>
+										<Image Width="160"
+											   Height="120" 
+											   MaxWidth="160"
+											   MaxHeight="120"
+											   Margin="4,4,4,4"
+											   Stretch="UniformToFill"
+											   Source="{Binding Image_160}" />
 
-				<GridView.ItemTemplate>
-					<DataTemplate x:DataType="data:EventCalendar">
-						<control:EventTemplate />
-					</DataTemplate>
-				</GridView.ItemTemplate>
-				<GridView.ItemContainerStyle>
-					<Style TargetType="GridViewItem">
-						<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-					</Style>
-				</GridView.ItemContainerStyle>
-			</GridView>
-		</StackPanel>
+										<TextBlock Text="{Binding Name}"
+												   Margin="4,0,4,0"
+												   HorizontalAlignment="Stretch"
+												   Height="40"
+												   TextWrapping="Wrap"
+												   TextTrimming="CharacterEllipsis"
+												   FontSize="12"
+												   Foreground="#FF001E2D"/>
+
+										<StackPanel Orientation="Horizontal"
+													Margin="4,0,0,0">
+											<FontIcon x:Name="CheckInsFontIcon" 
+													  FontFamily="Segoe MDL2 Assets"
+													  FontSize="12"
+													  Foreground="#FF00BAFF"
+													  VerticalAlignment="Bottom"
+													  Glyph="&#xE716;" 					  
+													  Margin="0,0,0,2" />
+
+											<TextBlock x:Name="LocationCheckInsTextBlock" 
+													   Text="{Binding NrOfCheckIns}"
+													   Margin="5,0,0,0"
+													   FontSize="12"
+													   Foreground="DarkGray"
+													   VerticalAlignment="Bottom"/>
+										</StackPanel>
+									</StackPanel>
+								</Button>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+
+			</StackPanel>
+
+			<StackPanel x:Name="TodaysEventsStackPanel"
+						Grid.Row="3"
+						Visibility="{Binding NrOfEvents, Converter={StaticResource AmountToVisibilityConverter}}">
+				<TextBlock Text="Todays events"
+						   Margin="4,4,4,4"
+						   Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+				<ScrollViewer HorizontalScrollMode="Enabled"
+                              HorizontalScrollBarVisibility="Hidden"
+                              VerticalScrollMode="Disabled"
+                              VerticalScrollBarVisibility="Hidden"
+                              Margin="0,6,0,0">
+					<ItemsControl ItemsSource="{Binding Events}" IsTabStop="False">
+						<ItemsControl.ItemsPanel>
+							<ItemsPanelTemplate>
+								<VirtualizingStackPanel Orientation="Horizontal" />
+							</ItemsPanelTemplate>
+						</ItemsControl.ItemsPanel>
+
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<Button Background="White" Padding="0" 
+                                        Margin="0,0,8,4"
+										Width="168"
+										Tag="{Binding Id}"
+										Click="TodaysEventsButton_Click">
+									<StackPanel>
+										<Image Width="160"
+											   Height="120" 
+											   MaxWidth="160"
+											   MaxHeight="120"
+											   Margin="4,4,4,4"
+											   Stretch="UniformToFill"
+											   Source="{Binding LocationImage_160}" />
+
+										<TextBlock Text="{Binding Name}"
+												   Margin="4,0,4,0"
+												   HorizontalAlignment="Stretch"
+												   Height="40"
+												   TextWrapping="Wrap"
+												   TextTrimming="CharacterEllipsis"
+												   FontSize="12"
+												   Foreground="#FF001E2D"/>
+
+										<StackPanel Orientation="Horizontal"
+													Margin="4,0,0,0">
+											<FontIcon x:Name="CheckInsFontIcon" 
+													  FontFamily="Segoe MDL2 Assets"
+													  FontSize="12"
+													  Foreground="#FF00BAFF"
+													  VerticalAlignment="Bottom"
+													  Glyph="&#xE716;" 					  
+													  Margin="0,0,0,2" />
+
+											<TextBlock x:Name="LocationCheckInsTextBlock" 
+													   Text="{Binding NrOfCheckIns}"
+													   Margin="5,0,0,0"
+													   FontSize="12"
+													   Foreground="DarkGray"
+													   VerticalAlignment="Bottom"/>
+										</StackPanel>
+									</StackPanel>
+								</Button>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+			</StackPanel>
+		</Grid>
 
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup x:Name="VisualStateGroup">
@@ -167,8 +323,10 @@
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
 						<Setter Target="CurrentLocationNameStackPanel.(Grid.ColumnSpan)" Value="2" />
-						<Setter Target="NearbyLocationsStackPanel.(Grid.ColumnSpan)" Value="2" />
-						<Setter Target="FavoriteLocationsStackPanel.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="NoCurrentLocationNameStackPanel.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="LastCheckinLocationGrid.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="SuggestedLocationsStackPanel.(Grid.ColumnSpan)" Value="2" />
+						<Setter Target="TodaysEventsStackPanel.(Grid.ColumnSpan)" Value="2" />
 
 						<Setter Target="CurrentCheckinLocationImage.Width" Value="160" />
 						<Setter Target="CurrentCheckinLocationImage.Height" Value="120" />
@@ -180,8 +338,10 @@
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
 						<Setter Target="CurrentLocationNameStackPanel.(Grid.ColumnSpan)" Value="1" />
-						<Setter Target="NearbyLocationsStackPanel.(Grid.ColumnSpan)" Value="1" />
-						<Setter Target="FavoriteLocationsStackPanel.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="NoCurrentLocationNameStackPanel.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="LastCheckinLocationGrid.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="SuggestedLocationsStackPanel.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="TodaysEventsStackPanel.(Grid.ColumnSpan)" Value="1" />
 
 						<Setter Target="CurrentCheckinLocationImage.Width" Value="320" />
 						<Setter Target="CurrentCheckinLocationImage.Height" Value="240" />
@@ -189,5 +349,5 @@
 				</VisualState>
 			</VisualStateGroup>
 		</VisualStateManager.VisualStateGroups>
-	</Grid>
+	</ScrollViewer>
 </Page>

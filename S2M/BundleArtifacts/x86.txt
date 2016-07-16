@@ -1,2 +1,2 @@
-MainPackage=C:\Phone projects\S2M\S2M\bin\x86\Release\S2M_0.9.4.0_x86.appx
-SymbolPackage=C:\Phone projects\S2M\S2M\AppPackages\S2M_0.9.4.0_Test\S2M_0.9.4.0_x86.appxsym
+MainPackage=C:\Phone projects\S2M\S2M\bin\x86\Release\S2M_0.9.5.0_x86.appx
+SymbolPackage=C:\Phone projects\S2M\S2M\AppPackages\S2M_0.9.5.0_Test\S2M_0.9.5.0_x86.appxsym

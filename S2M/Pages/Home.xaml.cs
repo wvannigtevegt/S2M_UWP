@@ -47,20 +47,41 @@ namespace S2M.Pages
 		private async void Page_Loaded(object sender, RoutedEventArgs e)
 		{
 			await GetCurrentCheckin();
+			if (ViewModel.CurrentCheckin == null)
+			{
+				await GetLastCheckin();
+			}
 
-			await GetNearbyLocations();
+			await GetLocationSuggestions();
 			await GetTodaysEvents();
 		}
 		
 		private async Task GetCurrentCheckin()
 		{
-			ViewModel.CurrentCheckin = await ViewModel.GetCurrentCheckin();
+			await ViewModel.GetCurrentCheckin();
 		}
 
-		private async Task GetNearbyLocations()
+		private async Task GetLastCheckin()
 		{
-			await ViewModel.GetNearbyLocations();
+			await ViewModel.GetLastCheckin();
+		}
+
+		private async Task GetLocationSuggestions()
+		{
 			await ViewModel.GetFavoriteLocations();
+			if (ViewModel.NrOfSuggestedLocations > 0)
+			{
+				ViewModel.ShowFavoriteLocations = true;
+			}
+			else
+			{
+				ViewModel.ShowFavoriteLocations = false;
+				await ViewModel.GetNearbyLocations();
+				if (ViewModel.NrOfSuggestedLocations > 0)
+				{
+					ViewModel.ShowNearbyLocations = true;
+				}
+			}
 		}
 
 		private async Task GetTodaysEvents()
@@ -68,40 +89,25 @@ namespace S2M.Pages
 			await ViewModel.GetTodaysEvents();
 		}
 
-		private void CurrentCheckinGrid_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+		private void SuggestedLocationButton_Click(object sender, RoutedEventArgs e)
 		{
-			var checkinCriteria = new CheckinFinalPageCriteria
+			var locationId = (int)((Button)sender).Tag;
+			var selectedLocations = ViewModel.SuggestedLocations.Where(l => l.Id == locationId);
+			if (selectedLocations.Any())
 			{
-				CheckIn = ViewModel.CurrentCheckin,
-				IsNewCheckIn = false,
-				ShowMatches = true
-			};
-
-			Frame.Navigate(typeof(CheckInFinal), checkinCriteria);
-		}
-
-		private void NearbyLocationsFlipView_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
-		{
-			var index = (sender as FlipView).SelectedIndex;
-			if (ViewModel.NearbyLocations.Any()) {
-				var selectedLocation = ViewModel.NearbyLocations[index];
-				if (selectedLocation != null)
-				{
-					GoToLocationDetail(selectedLocation);
-				}
+				var selectedLocation = selectedLocations.FirstOrDefault();
+				GoToLocationDetail(selectedLocation);
 			}
 		}
 
-		private void FavoriteLocationsFlipView_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+		private void TodaysEventsButton_Click(object sender, RoutedEventArgs e)
 		{
-			var index = (sender as FlipView).SelectedIndex;
-			if (ViewModel.FavoriteLocations.Any())
+			var eventId = (int)((Button)sender).Tag;
+			var selectedEvents = ViewModel.Events.Where(ev => ev.Id == eventId);
+			if (selectedEvents.Any())
 			{
-				var selectedLocation = ViewModel.FavoriteLocations[index];
-				if (selectedLocation != null)
-				{
-					GoToLocationDetail(selectedLocation);
-				}
+				var selectedEvent = selectedEvents.FirstOrDefault();
+				GoToEventDetail(selectedEvent);
 			}
 		}
 
@@ -116,11 +122,39 @@ namespace S2M.Pages
 			Frame.Navigate(typeof(LocationDetail), criteria);
 		}
 
+		private void GoToEventDetail(EventCalendar selectedEvent)
+		{
+			Frame.Navigate(typeof(EventDetail), selectedEvent);
+		}
+
 		private void EventsGridView_ItemClick(object sender, ItemClickEventArgs e)
 		{
 			var eventObj = ((EventCalendar)e.ClickedItem);
 
 			Frame.Navigate(typeof(EventDetail), eventObj);
+		}
+
+		private void ShowMatchesCurrenCheckInButton_Click(object sender, RoutedEventArgs e)
+		{
+			var checkinCriteria = new CheckinFinalPageCriteria
+			{
+				CheckIn = ViewModel.CurrentCheckin,
+				IsNewCheckIn = false,
+				ShowMatches = true
+			};
+
+			Frame.Navigate(typeof(CheckInFinal), checkinCriteria);
+		}
+
+		private void LastCheckinCheckinNowButton_Click(object sender, RoutedEventArgs e)
+		{
+			var criteria = new LocationDetailPageCriteria
+			{
+				LocationId = ViewModel.LastCheckin.LocationId,
+				Location = null
+			};
+
+			Frame.Navigate(typeof(LocationDetail), criteria);
 		}
 	}
 }

@@ -209,7 +209,6 @@ namespace S2M.ViewModel
 
 		public async Task GetLocationCheckIns()
 		{
-			//_locationCheckinCts.Cancel();
 			_locationCheckinCts = new CancellationTokenSource();
 			CancellationToken token = _locationCheckinCts.Token;
 

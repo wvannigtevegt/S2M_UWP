@@ -25,6 +25,7 @@ namespace S2M.Pages
 			if (checkInObject != null) {
 				ViewModel.SelectedCheckin = checkInObject;
 				await ViewModel.GetPublicProfile();
+				await ViewModel.GetProfileContact();
 
 				var tags = checkInObject.Tags.Split(',').ToList();
 				foreach (var tag in tags)
@@ -72,6 +73,16 @@ namespace S2M.Pages
 			Frame.Navigate(typeof(LocationDetail), criteria);
 		}
 
-		
+		private async void AddContactButton_Click(object sender, RoutedEventArgs e)
+		{
+			await Contact.SaveContact(ViewModel.SelectedCheckin.ProfileId, "");
+			ViewModel.IsContact = true;
+		}
+
+		private async void DeleteContactButton_Click(object sender, RoutedEventArgs e)
+		{
+			await Contact.DeleteContact(ViewModel.SelectedCheckin.ProfileId);
+			ViewModel.IsContact = false;
+		}
 	}
 }

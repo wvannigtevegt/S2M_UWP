@@ -108,7 +108,7 @@ namespace S2M.Pages
 						break;
 				}
 
-				await Location.GetWorkspaceLocationsAsync(token, ViewModel.LocationList, searchTerm, ViewModel.Latitude, ViewModel.Longitude);
+				await Location.GetWorkspaceLocationsAsync(token, ViewModel.Locations, searchTerm, ViewModel.Latitude, ViewModel.Longitude);
 				await FillLocationsMap();
 			}
 			catch (Exception) { }
@@ -120,7 +120,7 @@ namespace S2M.Pages
 
 		private async Task FillLocationsMap()
 		{
-			foreach (var location in ViewModel.LocationList)
+			foreach (var location in ViewModel.Locations)
 			{
 				var pin = new MapIcon()
 				{
@@ -161,7 +161,7 @@ namespace S2M.Pages
 
 		private async void SearchLocations(string searchTerm)
 		{
-			ViewModel.LocationList.Clear();
+			ViewModel.Locations.Clear();
 			await LoadLocationsAsync(searchTerm);
 		}
 	}

@@ -51,6 +51,11 @@ namespace S2M.Pages
 		{
 
 		}
+
+		private void CheckInsFontIcon_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+		{
+
+		}
 	}
 
 	public class ChatDetailPageCriteria

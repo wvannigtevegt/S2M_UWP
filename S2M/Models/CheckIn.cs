@@ -156,7 +156,7 @@ namespace S2M.Models
 			return checkIn;
 		}
 
-		public static async Task<CheckIn> GetCurrentCheckIn(CancellationToken token)
+		public static async Task<CheckIn> GetProfileCurrentCheckIn(CancellationToken token)
 		{
 			var checkInResult = new CheckInResult();
 
@@ -193,6 +193,40 @@ namespace S2M.Models
 						}
 
 					}
+				}
+				catch (Exception) { }
+			}
+
+			return null;
+		}
+
+		public static async Task<CheckIn> GetProfileLastCheckIn(CancellationToken token)
+		{
+			var lastCheckin = new CheckIn();
+
+			var authenticatedProfile = await Common.StorageService.RetrieveObjectAsync<Profile>("Profile");
+
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var url = apiUrl + "/api/checkin/last";
+
+					var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token);
+					string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+					json = json.Replace("<br>", Environment.NewLine);
+					lastCheckin = JsonConvert.DeserializeObject<CheckIn>(json);
+
+					return lastCheckin;
 				}
 				catch (Exception) { }
 			}

@@ -46,7 +46,7 @@ namespace S2M.Pages
 					ViewModel.Location = criteria.Location;
 					ViewModel.IsBookmarked = criteria.Location.IsBookmarked;
 				}
-				if (criteria.LocationId > 0 && ViewModel.Location == null)
+				if (criteria.LocationId > 0 && (ViewModel.Location == null || ViewModel.Location.Id == 0))
 				{
 					_cts = new CancellationTokenSource();
 					CancellationToken token = _cts.Token;
@@ -86,8 +86,6 @@ namespace S2M.Pages
 
 		private async void Page_Loaded(object sender, RoutedEventArgs e)
 		{
-			await ViewModel.GetProfileCheckIns();
-
 			var curentDate = DateTime.Now;
 			var dates = new ObservableCollection<LocationDay>();
 			var lastSelectedDate = new LocationDay();
@@ -127,6 +125,9 @@ namespace S2M.Pages
 			{
 				ViewModel.SelectedDate = ViewModel.Dates[0];
 			}
+
+			await ViewModel.GetProfileCheckIns();
+
 		}
 
 		private async Task GetLocationOpeningHours()
@@ -440,8 +441,8 @@ namespace S2M.Pages
 			ViewModel.ShowDateTimeCheckin = true;
 			ViewModel.ShowWorkspaceSelection = false;
 
-			await ViewModel.GetLocationCheckIns();
 			await GetLocationOpeningHours();
+			await ViewModel.GetLocationCheckIns();
 		}
 
 		private void LocationNameHyperLinkButton_Click(object sender, RoutedEventArgs e)

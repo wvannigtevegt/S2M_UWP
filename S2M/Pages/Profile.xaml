@@ -175,7 +175,27 @@
 					</ListView>
 				</PivotItem>
 				<PivotItem Header="Contacts">
-					
+					<ListView x:Name="ContactsListView" ItemsSource="{x:Bind ViewModel.Contacts}" 
+							  IsItemClickEnabled="True" 
+							  ItemClick="ContactsListView_ItemClick" >
+						<ListView.ItemContainerTransitions>
+							<TransitionCollection>
+								<EntranceThemeTransition IsStaggeringEnabled="True" 
+                                 FromVerticalOffset="0" 
+                                 FromHorizontalOffset="200"/>
+								<AddDeleteThemeTransition/>
+								<NavigationThemeTransition/>
+								<ContentThemeTransition/>
+							</TransitionCollection>
+
+						</ListView.ItemContainerTransitions>
+
+						<ListView.ItemTemplate>
+							<DataTemplate x:DataType="data:Contact">
+								<control:ContactControl />
+							</DataTemplate>
+						</ListView.ItemTemplate>
+					</ListView>
 				</PivotItem>
 			</Pivot>
 

@@ -1,17 +1,18 @@
 ﻿using S2M.Models;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace S2M.ViewModel
 {
-	public class CheckInDetailViewModel : NotificationBase
+	public class ContactDetailViewModel : NotificationBase
 	{
 		private Chat _chatObject = new Chat();
-		private CheckIn _selectedCheckIn = new CheckIn();
-		private bool _isContact;
 		private PublicProfile _publicProfile = new PublicProfile();
+		private Contact _selectedContact = new Contact();
 		private ObservableCollection<string> _tags = new ObservableCollection<string>();
 		private int _tagCount;
 
@@ -21,25 +22,16 @@ namespace S2M.ViewModel
 			set { SetProperty(_chatObject, value, () => _chatObject = value); }
 		}
 
-		public bool IsContact
-		{
-			get
-			{
-				return _isContact;
-			}
-			set { SetProperty(_isContact, value, () => _isContact = value); }
-		}
-
 		public PublicProfile PublicProfile
 		{
 			get { return _publicProfile; }
 			set { SetProperty(_publicProfile, value, () => _publicProfile = value); }
 		}
 
-		public CheckIn SelectedCheckin
+		public Contact SelectedContact
 		{
-			get { return _selectedCheckIn; }
-			set { SetProperty(_selectedCheckIn, value, () => _selectedCheckIn = value); }
+			get { return _selectedContact; }
+			set { SetProperty(_selectedContact, value, () => _selectedContact = value); }
 		}
 
 		public ObservableCollection<string> Tags
@@ -59,27 +51,7 @@ namespace S2M.ViewModel
 
 		public async Task GetPublicProfile()
 		{
-			PublicProfile = await PublicProfile.GetProfileByProfileId(SelectedCheckin.ProfileId);
-		}
-
-		public async Task GetProfileContact()
-		{
-			var _cts = new CancellationTokenSource();
-			CancellationToken token = _cts.Token;
-
-			try
-			{
-				var contactObject = await Contact.GetContectByProfileId(token, SelectedCheckin.ProfileId);
-				if (contactObject != null && contactObject.Id > 0)
-				{
-					IsContact = true;
-				}
-			}
-			catch (Exception) { }
-			finally
-			{
-				_cts = null;
-			}
+			PublicProfile = await PublicProfile.GetProfileByProfileId(SelectedContact.ProfileId);
 		}
 	}
 }

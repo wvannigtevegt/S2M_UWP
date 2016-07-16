@@ -55,6 +55,18 @@
 					   Text="{x:Bind ChatObject.Name}"
 					   Style="{ThemeResource SubheaderTextBlockStyle}" 
 					   Margin="8,0,0,0" />
+
+			<HyperlinkButton x:Name="ChatProfileHyperLinkButton"
+							 RelativePanel.RightOf="ChatNameTextBlock">
+				<FontIcon x:Name="CheckInsFontIcon" 
+						  FontFamily="Segoe MDL2 Assets"
+						  FontSize="16"
+						  Foreground="#FF00BAFF"
+						  Tapped="CheckInsFontIcon_Tapped"
+						  VerticalAlignment="Bottom"
+						  Glyph="&#xE013;" 	
+						  Margin="0,0,0,2" />
+			</HyperlinkButton>
 		</RelativePanel>
 
 		<control:ChatControl x:Name="ChatUserControl" Grid.Row="1" />
