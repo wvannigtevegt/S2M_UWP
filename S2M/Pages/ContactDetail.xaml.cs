@@ -33,6 +33,11 @@ namespace S2M.Pages
 			{
 				ViewModel.Tags = new ObservableCollection<string>();
 				ViewModel.SelectedContact = contactObject;
+				if (contactObject.CurrentCheckin != null)
+				{
+					ViewModel.CurrentCheckIn = contactObject.CurrentCheckin;
+				}
+
 				await ViewModel.GetPublicProfile();
 
 				if (!string.IsNullOrWhiteSpace(contactObject.Tags))
@@ -47,7 +52,7 @@ namespace S2M.Pages
 					}
 				}
 
-				ViewModel.TagCount = ViewModel.Tags.Count();
+				ViewModel.TagCount = ViewModel.Tags.Count;
 			}
 		}
 

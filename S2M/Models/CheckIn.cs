@@ -607,6 +607,44 @@ namespace S2M.Models
 			return result;
 		}
 
+		public static async Task<bool> CheckOverlap(CancellationToken token, DateTime startTime, DateTime endTime)
+		{
+			var hasOverlap = true;
+
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+				var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+				httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+				httpClient.DefaultRequestHeaders.Add("token", apiKey);
+				httpClient.DefaultRequestHeaders.Add("api-version", "2");
+				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+				try
+				{
+					var criteria = new WorkspaceOverlapCriteria
+					{
+						StartDate = startTime.ToString("yyyy-MM-dd HH:mm"),
+						EndDate = endTime.ToString("yyyy-MM-dd HH:mm")
+					};
+
+					var url = apiUrl + "/api/checkin/checkoverlap?" + JsonConvert.SerializeObject(criteria);
+
+					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token))
+					{
+						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+						json = json.Replace("<br>", Environment.NewLine);
+						hasOverlap = JsonConvert.DeserializeObject<bool>(json);
+					}
+				}
+				catch (Exception) { }
+			}
+
+			return hasOverlap;
+		}
+
 		private static async Task<CheckInResult> GetCheckInsDataAsync(CancellationToken token, DateTime date, int locationId = 0, int eventId = 0, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0, bool allDay = false, bool filterProfile = true)
 		{
 			var checkInResult = new CheckInResult();
@@ -699,5 +737,11 @@ namespace S2M.Models
 	public class SaveEventCheckInCriteria
 	{
 		public string WorkingOn { get; set; } = "";
+	}
+
+	public class WorkspaceOverlapCriteria
+	{
+		public string StartDate { get; set; }
+		public string EndDate { get; set; }
 	}
 }

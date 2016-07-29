@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Security.Credentials;
-using Windows.System.Profile;
 using Windows.Web.Http;
 
-namespace S2M.Models {
+namespace S2M.Models
+{
 	public class Login {
 		public static async Task<LoginResult> LoginUser(string username, string password) {
 			var loginResult = new LoginResult();
@@ -44,6 +44,35 @@ namespace S2M.Models {
 			}
 
 			return loginResult;
+		}
+
+		public static async Task<bool> VerifyToken(string profileToken)
+		{
+			var result = false;
+
+			using (var httpClient = new HttpClient())
+			{
+				var apiKey = Common.StorageService.LoadSetting("ApiKey");
+				var apiUrl = Common.StorageService.LoadSetting("ApiUrl");
+
+				try
+				{
+					httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+					httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+					httpClient.DefaultRequestHeaders.Add("token", apiKey);
+					httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
+
+					var uri = new Uri(apiUrl + "/api/login/verify/token");
+
+					HttpResponseMessage response = await httpClient.PostAsync(uri, null);
+					string json = await response.Content.ReadAsStringAsync();
+					json = json.Replace("<br>", Environment.NewLine);
+					result = JsonConvert.DeserializeObject<bool>(json);
+				}
+				catch (Exception e) { }
+			}
+
+			return result;
 		}
 
 		public static async Task LogOff() {

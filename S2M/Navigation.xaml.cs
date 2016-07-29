@@ -40,11 +40,23 @@ namespace S2M
 			}
 
 			NavigationFrame.Navigated += OnNavigated;
+			Application.Current.Resuming += new EventHandler<Object>(App_Resuming);
 
 			SystemNavigationManager.GetForCurrentView().BackRequested += SystemNavigationManager_BackRequested;
 			if (NavigationFrame.CanGoBack)
 			{
 				SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
+			}
+		}
+
+		private async void App_Resuming(Object sender, Object e)
+		{
+			var profileToken = Common.StorageService.LoadSetting("ProfileToken");
+
+			var isVerified = await Login.VerifyToken(profileToken);
+			if (!isVerified)
+			{
+				NavigationFrame.Navigate(typeof(Login));
 			}
 		}
 

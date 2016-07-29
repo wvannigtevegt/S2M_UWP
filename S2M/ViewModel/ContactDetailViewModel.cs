@@ -11,6 +11,7 @@ namespace S2M.ViewModel
 	public class ContactDetailViewModel : NotificationBase
 	{
 		private Chat _chatObject = new Chat();
+		private CheckIn _currentCheckIn = null;
 		private PublicProfile _publicProfile = new PublicProfile();
 		private Contact _selectedContact = new Contact();
 		private ObservableCollection<string> _tags = new ObservableCollection<string>();
@@ -20,6 +21,12 @@ namespace S2M.ViewModel
 		{
 			get { return _chatObject; }
 			set { SetProperty(_chatObject, value, () => _chatObject = value); }
+		}
+
+		public CheckIn CurrentCheckIn
+		{
+			get { return _currentCheckIn; }
+			set { SetProperty(_currentCheckIn, value, () => _currentCheckIn = value); }
 		}
 
 		public PublicProfile PublicProfile

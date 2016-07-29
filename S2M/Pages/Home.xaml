@@ -278,7 +278,7 @@
 											   MaxHeight="120"
 											   Margin="4,4,4,4"
 											   Stretch="UniformToFill"
-											   Source="{Binding LocationImage_160}" />
+											   Source="{Binding EventImage_160}" />
 
 										<TextBlock Text="{Binding Name}"
 												   Margin="4,0,4,0"

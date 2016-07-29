@@ -14,7 +14,7 @@ namespace S2M.Models
 		public int Id { get; set; }
 		public DateTime Date { get; set; }
 		public string Description { get; set; }
-		public int EventId { get; set; }	
+		public int EventId { get; set; }
 		public long EndTimeStamp { get; set; }
 		public int LocationId { get; set; }
 		public string LocationImage { get; set; }
@@ -28,46 +28,60 @@ namespace S2M.Models
 		public double LocationLatitude { get; set; }
 		public double LocationLongitude { get; set; }
 		public double LocationDistance { get; set; }
-		public string LocationImage_160
-		{
-			get
-			{
-				if (!string.IsNullOrEmpty(LocationImage))
-				{
-					var azureCdn = "https://az691754.vo.msecnd.net";
-					var azureContainer = "website";
-
-					var filenameWithoutExtension = LocationImage.Substring(0, LocationImage.LastIndexOf("."));
-					var imagePath = azureCdn + "/" + azureContainer + "/" + LocationId.ToString() + "/160x120_" + filenameWithoutExtension + ".jpg";
-
-					return imagePath;
-				}
-				return "";
-			}
-		}
-		public string LocationImage_320
-		{
-			get
-			{
-				if (!string.IsNullOrEmpty(LocationImage))
-				{
-					var azureCdn = "https://az691754.vo.msecnd.net";
-					var azureContainer = "website";
-
-					var filenameWithoutExtension = LocationImage.Substring(0, LocationImage.LastIndexOf("."));
-					var imagePath = azureCdn + "/" + azureContainer + "/" + LocationId.ToString() + "/320x240_" + filenameWithoutExtension + ".jpg";
-
-					return imagePath;
-				}
-				return "";
-			}
-		}
 		public decimal MatchPercentage { get; set; }
 		public string Name { get; set; }
+		public string Image { get; set; }
 		public int NrOfCheckIns { get; set; }
 		public long StartTimeStamp { get; set; }
 		public string Tags { get; set; }
 		public string Url { get; set; }
+
+		public string EventImage_160
+		{
+			get
+			{
+				var azureCdn = "https://az691754.vo.msecnd.net";
+				var azureContainer = "website-staging";
+				var filenameWithoutExtension = "";
+				var imagePath = "";
+
+				if (!string.IsNullOrEmpty(Image))
+				{
+					filenameWithoutExtension = Image.Substring(0, Image.LastIndexOf("."));
+					imagePath = azureCdn + "/" + azureContainer + "/events/160x120_" + filenameWithoutExtension + ".jpg";
+
+				}
+				else if (!string.IsNullOrEmpty(LocationImage))
+				{
+					filenameWithoutExtension = LocationImage.Substring(0, LocationImage.LastIndexOf("."));
+					imagePath = azureCdn + "/" + azureContainer + "/" + LocationId.ToString() + "/160x120_" + filenameWithoutExtension + ".jpg";
+				}
+				return  imagePath;
+			}
+		}
+		public string EventImage_320
+		{
+			get
+			{
+				var azureCdn = "https://az691754.vo.msecnd.net";
+				var azureContainer = "website-staging";
+				var filenameWithoutExtension = "";
+				var imagePath = "";
+
+				if (!string.IsNullOrEmpty(Image))
+				{
+					filenameWithoutExtension = Image.Substring(0, Image.LastIndexOf("."));
+					imagePath = azureCdn + "/" + azureContainer + "/events/320x240_" + filenameWithoutExtension + ".jpg";
+
+				}
+				else if (!string.IsNullOrEmpty(LocationImage))
+				{
+					filenameWithoutExtension = LocationImage.Substring(0, LocationImage.LastIndexOf("."));
+					imagePath = azureCdn + "/" + azureContainer + "/" + LocationId.ToString() + "/320x240_" + filenameWithoutExtension + ".jpg";
+				}
+				return imagePath;
+			}
+		}
 
 		public static async Task<EventCalendar> GetEventCalendarById(CancellationToken token, int eventDateId)
 		{
@@ -100,7 +114,6 @@ namespace S2M.Models
 
 			return eventObject;
 		}
-
 
 		public static async Task GetEventsAsync(CancellationToken token, ObservableCollection<EventCalendar> eventList, DateTime date, int locationId = 0, string searchTerm = "")
 		{

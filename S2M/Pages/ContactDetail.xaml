@@ -14,6 +14,7 @@
 		<converters:AmountToVisibilityConverter x:Key="AmountToVisibilityConverter" />
 		<converters:BooleanToVisibilityConverter x:Key="VisibilityConverter" />
 		<converters:CheckInToIsPresentConverter x:Key="IsPresentConverter" />
+		<converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
 		<converters:RelativeTimeConverter x:Key="RelativeTimeConverter" />
 		<converters:StringLengthToVisibilityConverter x:Key="StringLengthToVisibilityConverter" />
 		<converters:TimestampToDateStringConverter x:Key="TimestampToDateStringConverter" />
@@ -29,6 +30,7 @@
 			<SplitView.Content>
 				<Grid>
 					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" />
 						<RowDefinition Height="Auto" />
 						<RowDefinition Height="Auto" />
 						<RowDefinition Height="*" />
@@ -121,6 +123,16 @@
 							</DataTemplate>
 						</ItemsControl.ItemTemplate>
 					</ItemsControl>
+
+					<StackPanel x:Name="CurrentCheckinStackPanel"
+								Grid.Row="3"
+								Background="Pink" 
+								Visibility="{Binding CurrentCheckin, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=true}">
+						<TextBlock x:Name="CurrentLocationNameTextBlock"
+								   Foreground="White"
+								   Text="{Binding CurrentCheckin.LocationName}"
+								   HorizontalAlignment="Center" />
+					</StackPanel>
 				</Grid>
 			</SplitView.Content>
 			<SplitView.Pane>

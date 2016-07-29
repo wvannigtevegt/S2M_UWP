@@ -18,7 +18,7 @@ namespace S2M.Pages
 		public double Latitude { get; set; }
 		public double Longitude { get; set; }
 
-		protected string SearchTerm { get; set; }
+		public string SearchTerm { get; set; }
 
 		private CancellationTokenSource _cts = null;
 

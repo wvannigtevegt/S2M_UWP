@@ -7,8 +7,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace S2M.Models {
-	public class Location {
+namespace S2M.Models
+{
+	public class Location
+	{
 		public int Id { get; set; }
 		public string Name { get; set; }
 		public string Address { get; set; }
@@ -29,9 +31,12 @@ namespace S2M.Models {
 		public decimal MatchPercentage { get; set; }
 		public bool IsBookmarked { get; set; }
 		public int NrOfCheckIns { get; set; }
-		public string StarImage {
-			get {
-				if (ReviewScore > 0) {
+		public string StarImage
+		{
+			get
+			{
+				if (ReviewScore > 0)
+				{
 					decimal roundedReviewScore = 0;
 
 					roundedReviewScore = (Math.Round((ReviewScore / 2) / 5) * 5);
@@ -40,9 +45,12 @@ namespace S2M.Models {
 				return "/Images/rating-0.png";
 			}
 		}
-		public string StarImageSmall {
-			get {
-				if (ReviewScore > 0) {
+		public string StarImageSmall
+		{
+			get
+			{
+				if (ReviewScore > 0)
+				{
 					decimal roundedReviewScore = 0;
 
 					roundedReviewScore = (Math.Round((ReviewScore / 2) / 5) * 5);
@@ -52,9 +60,12 @@ namespace S2M.Models {
 			}
 		}
 		public string Image { get; set; }
-		public string Image_160 {
-			get {
-				if (!string.IsNullOrEmpty(Image)) {
+		public string Image_160
+		{
+			get
+			{
+				if (!string.IsNullOrEmpty(Image))
+				{
 					var azureCdn = "https://az691754.vo.msecnd.net";
 					var azureContainer = "website";
 
@@ -66,9 +77,12 @@ namespace S2M.Models {
 				return "Assets/StoreLogo.png";
 			}
 		}
-		public string Image_320 {
-			get {
-				if (!string.IsNullOrEmpty(Image)) {
+		public string Image_320
+		{
+			get
+			{
+				if (!string.IsNullOrEmpty(Image))
+				{
 					var azureCdn = "https://az691754.vo.msecnd.net";
 					var azureContainer = "website";
 
@@ -100,7 +114,7 @@ namespace S2M.Models {
 
 		public static async Task<Location> GetLocationById(CancellationToken token, int locationId)
 		{
-			Location location = null;
+			var location = new Location();
 
 			using (var httpClient = new Windows.Web.Http.HttpClient())
 			{
@@ -111,28 +125,30 @@ namespace S2M.Models {
 				httpClient.DefaultRequestHeaders.Add("token", apiKey);
 				httpClient.DefaultRequestHeaders.Add("api-version", "2");
 
-				try
+				var url = apiUrl + "/api/locations/" + locationId;
+
+				using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token))
 				{
-					var url = apiUrl + "/api/locations/" + locationId;
+					string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
+					json = json.Replace("<br>", Environment.NewLine);
 
-					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token))
-					{
-						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
-						json = json.Replace("<br>", Environment.NewLine);
-
-						location = JsonConvert.DeserializeObject<Location>(json);
-					}
+					location = JsonConvert.DeserializeObject<Location>(json);
 				}
-				catch (Exception) { }
 			}
 
-			return location;
+			if (location.Id > 0)
+			{
+				return location;
+			}
+			return null;
 		}
 
-		public static async Task GetLocationRecommendationsAsync(CancellationToken token, ObservableCollection<Location> locationList, double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0) {
+		public static async Task GetLocationRecommendationsAsync(CancellationToken token, ObservableCollection<Location> locationList, double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0)
+		{
 			var locationResult = new LocationResult();
 
-			using (var httpClient = new Windows.Web.Http.HttpClient()) {
+			using (var httpClient = new Windows.Web.Http.HttpClient())
+			{
 				var apiKey = StorageService.LoadSetting("ApiKey");
 				var apiUrl = StorageService.LoadSetting("ApiUrl");
 				var channelId = int.Parse(StorageService.LoadSetting("ChannelId"));
@@ -142,8 +158,10 @@ namespace S2M.Models {
 				httpClient.DefaultRequestHeaders.Add("token", apiKey);
 				httpClient.DefaultRequestHeaders.Add("api-version", "2");
 
-				try {
-					var criteria = new LocationListCriteria {
+				try
+				{
+					var criteria = new LocationListCriteria
+					{
 						ItemsPerPage = itemsPerPage,
 						Latitude = latitude,
 						Longitude = longitude,
@@ -154,7 +172,8 @@ namespace S2M.Models {
 
 					var url = apiUrl + "/api/locations/recommendation?" + JsonConvert.SerializeObject(criteria);
 
-					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token)) {
+					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token))
+					{
 						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
 						json = json.Replace("<br>", Environment.NewLine);
 						locationResult = JsonConvert.DeserializeObject<LocationResult>(json);
@@ -163,36 +182,45 @@ namespace S2M.Models {
 				catch (Exception) { }
 			}
 
-			foreach (var location in locationResult.Results) {
+			foreach (var location in locationResult.Results)
+			{
 				locationList.Add(location);
 			}
 		}
 
-		public static async Task GetWorkspaceLocationsAsync(CancellationToken token, ObservableCollection<Location> locationList, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0) {
+		public static async Task GetWorkspaceLocationsAsync(CancellationToken token, ObservableCollection<Location> locationList, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0)
+		{
 			var locations = new List<Location>();
 
-			if (ConnectionHelper.CheckForInternetAccess()) {
+			if (ConnectionHelper.CheckForInternetAccess())
+			{
 				var locationResultA = await GetLocationsDataAsync(token, searchTerm, latitude, longitude, radius, workingOn, page, itemsPerPage);
 				locations = locationResultA.Results.ToList();
 			}
-			else {
+			else
+			{
 				var locationResultB = await GetLocationsFromFileAsync();
 				locations = locationResultB.Results.ToList();
 
-				if (!string.IsNullOrEmpty(searchTerm)) {
+				if (!string.IsNullOrEmpty(searchTerm))
+				{
 					locations = locations.Where(s => s.Name.ToLower().StartsWith(searchTerm)).ToList();
 				}
 			}
 
-			foreach (var location in locations) {
+			foreach (var location in locations)
+			{
 				locationList.Add(location);
 			}
 		}
 
-		public static async Task<LocationResult> GetLocationsFromFileAsync() {
-			try {
+		public static async Task<LocationResult> GetLocationsFromFileAsync()
+		{
+			try
+			{
 				var json = await FileHelper.ReadStringFromLocalFile("locations.json");
-				if (!string.IsNullOrEmpty(json)) {
+				if (!string.IsNullOrEmpty(json))
+				{
 					var locationResult = JsonConvert.DeserializeObject<LocationResult>(json);
 					return locationResult;
 				}
@@ -252,7 +280,7 @@ namespace S2M.Models {
 				{
 					var url = apiUrl + "/api/locations/favorite/" + locationId;
 
-					using (var httpResponse = await httpClient.PostAsync(new Uri(url),null).AsTask(token))
+					using (var httpResponse = await httpClient.PostAsync(new Uri(url), null).AsTask(token))
 					{
 						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
 						json = json.Replace("<br>", Environment.NewLine);
@@ -291,10 +319,12 @@ namespace S2M.Models {
 			}
 		}
 
-		private static async Task<LocationResult> GetLocationsDataAsync(CancellationToken token, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0) {
+		private static async Task<LocationResult> GetLocationsDataAsync(CancellationToken token, string searchTerm = "", double latitude = 0, double longitude = 0, int radius = 0, string workingOn = "", int page = 0, int itemsPerPage = 0)
+		{
 			var locationResult = new LocationResult();
 
-			using (var httpClient = new Windows.Web.Http.HttpClient()) {
+			using (var httpClient = new Windows.Web.Http.HttpClient())
+			{
 				var apiKey = StorageService.LoadSetting("ApiKey");
 				var apiUrl = StorageService.LoadSetting("ApiUrl");
 				var channelId = int.Parse(StorageService.LoadSetting("ChannelId"));
@@ -306,11 +336,13 @@ namespace S2M.Models {
 				httpClient.DefaultRequestHeaders.Add("api-version", "2");
 				httpClient.DefaultRequestHeaders.Add("profileToken", profileToken);
 
-				try {
-					var criteria = new LocationListCriteria {
+				try
+				{
+					var criteria = new LocationListCriteria
+					{
 						ChannelId = channelId,
 						CountryId = countryId,
-                        ItemsPerPage = itemsPerPage,
+						ItemsPerPage = itemsPerPage,
 						Latitude = latitude,
 						Longitude = longitude,
 						Page = page,
@@ -321,10 +353,12 @@ namespace S2M.Models {
 
 					var url = apiUrl + "/api/locations/workspace?" + JsonConvert.SerializeObject(criteria);
 
-					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token)) {
+					using (var httpResponse = await httpClient.GetAsync(new Uri(url)).AsTask(token))
+					{
 						string json = await httpResponse.Content.ReadAsStringAsync().AsTask(token);
 						json = json.Replace("<br>", Environment.NewLine);
-						if (string.IsNullOrEmpty(searchTerm)) {
+						if (string.IsNullOrEmpty(searchTerm))
+						{
 							await FileHelper.SaveStringToLocalFile("locations.json", json);
 						}
 						locationResult = JsonConvert.DeserializeObject<LocationResult>(json);
@@ -337,7 +371,8 @@ namespace S2M.Models {
 		}
 	}
 
-	public class LocationListCriteria {
+	public class LocationListCriteria
+	{
 		public int ChannelId { get; set; }
 		public int CountryId { get; set; }
 		public int ItemsPerPage { get; set; }

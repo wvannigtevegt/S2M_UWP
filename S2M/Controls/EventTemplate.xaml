@@ -28,7 +28,7 @@
 		</Grid.ColumnDefinitions>
 
 		<Image x:Name="LocationImage" 
-			   Source="{x:Bind EventCalendar.LocationImage_160}"
+			   Source="{x:Bind EventCalendar.EventImage_160}"
 			   Stretch="UniformToFill"
 			   VerticalAlignment="Top"
 			   HorizontalAlignment="Left"

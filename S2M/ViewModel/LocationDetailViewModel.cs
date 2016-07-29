@@ -21,7 +21,9 @@ namespace S2M.ViewModel
 		private bool _isBookmarked;
 		private bool _isOpen;
 		private Location _location = new Location();
+		private int _locationId;
 		private LocationText _locationDescription;
+		private OpeningHour _locationOpeningHours;
 		private int _nrOfCheckins;
 		private ObservableCollection<CheckIn> _profileCheckIns = new ObservableCollection<CheckIn>();
 		private string _searchKey;
@@ -109,6 +111,15 @@ namespace S2M.ViewModel
 			set { SetProperty(_nrOfCheckins, value, () => _nrOfCheckins = value); }
 		}
 
+		public int LocationId
+		{
+			get
+			{
+				return _locationId;
+			}
+			set { SetProperty(_locationId, value, () => _locationId = value); }
+		}
+
 		public Location Location
 		{
 			get { return _location; }
@@ -119,6 +130,12 @@ namespace S2M.ViewModel
 		{
 			get { return _locationDescription; }
 			set { SetProperty(_locationDescription, value, () => _locationDescription = value); }
+		}
+
+		public OpeningHour LocationOpeningHours
+		{
+			get { return _locationOpeningHours; }
+			set { SetProperty(_locationOpeningHours, value, () => _locationOpeningHours = value); }
 		}
 
 		public ObservableCollection<CheckIn> ProfileCheckIns
@@ -283,6 +300,22 @@ namespace S2M.ViewModel
 			finally
 			{
 				_locationDescriptionCts = null;
+			}
+		}
+
+		public async Task GetLocationOpeningHours()
+		{
+			var _locationOpeninghoursCts = new CancellationTokenSource();
+			CancellationToken token = _locationOpeninghoursCts.Token;
+
+			try
+			{
+				LocationOpeningHours = await OpeningHour.GetLocationOpeningHourssAsync(token, LocationId, SelectedDate.Date);
+			}
+			catch (Exception ex) { }
+			finally
+			{
+				_locationOpeninghoursCts = null;
 			}
 		}
 

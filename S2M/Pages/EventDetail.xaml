@@ -59,7 +59,7 @@
 					   Stretch="UniformToFill"
 					   HorizontalAlignment="Center" 
 					   VerticalAlignment="Center"
-					   Source="{Binding Event.LocationImage_320}"
+					   Source="{Binding Event.EventImage_320}"
 					   Width="320"
 					   Height="240"/>
 
